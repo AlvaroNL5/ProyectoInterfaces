@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox prefHeight="600.0" prefWidth="500.0" spacing="20.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.javafx.A_holamundofxml.CrearCursoController">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+    <Label text="Crear Nuevo Curso">
+      <font>
+         <Font name="System Bold" size="24.0" />
+      </font></Label>
+    <VBox spacing="5.0">
+        <Label text="Nombre del Curso:">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font></Label>
+        <TextField fx:id="txtNombreCurso" prefWidth="560.0" promptText="Ej: 1º DAM" />
+    </VBox>
+    <VBox spacing="5.0">
+        <Label text="Descripción:">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font></Label>
+        <TextArea fx:id="txtDescripcion" prefHeight="100.0" promptText="Descripción del curso..." wrapText="true" />
+    </VBox>
+    <VBox spacing="5.0">
+        <Label text="Imagen de Portada:">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font></Label>
+        <HBox alignment="CENTER_LEFT" spacing="10.0">
+            <TextField fx:id="txtRutaImagen" editable="false" promptText="Ruta de la imagen..." HBox.hgrow="ALWAYS" />
+            <Button onAction="#handleSeleccionarImagen" text="Seleccionar Imagen" />
+        </HBox>
+    </VBox>
+    <VBox spacing="5.0">
+        <Label text="Añadir Alumnos:">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font></Label>
+        <HBox alignment="CENTER_LEFT" spacing="10.0">
+            <TextField fx:id="txtBuscarAlumno" promptText="Buscar por nombre o email..." HBox.hgrow="ALWAYS" />
+            <Button onAction="#handleBuscarAlumno" text="➕ Añadir" />
+        </HBox>
+        <Label text="Alumnos seleccionados:">
+            <VBox.margin>
+                <Insets top="10.0" />
+            </VBox.margin>
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+        </Label>
+        <ListView fx:id="listaAlumnos" prefHeight="150.0" />
+    </VBox>
+    <HBox alignment="CENTER_RIGHT" spacing="15.0">
+        <VBox.margin>
+            <Insets top="10.0" />
+        </VBox.margin>
+        <Button cancelButton="true" onAction="#handleCancelar" text="Cancelar" />
+        <Button fx:id="btnCrear" onAction="#handleCrear" text="Crear Curso" />
+    </HBox>
+</VBox>
