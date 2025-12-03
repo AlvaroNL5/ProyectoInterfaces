@@ -21,6 +21,8 @@ public class LoginController {
     @FXML
     private Button btnLogin;
     
+    private String passwordGuardada = "12345";
+    
     @FXML
     public void initialize() {
         btnLogin.setOnAction(event -> handleLogin());
@@ -30,7 +32,7 @@ public class LoginController {
         String email = txtEmail.getText();
         String password = txtPassword.getText();
         
-        if (email.equals("admin") && password.equals("12345")) {
+        if (email.equals("Admin") && password.equals(passwordGuardada)) {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/Cursos.fxml"));
                 Parent root = loader.load();
@@ -48,5 +50,9 @@ public class LoginController {
             alert.setContentText("Usuario o contraseña incorrectos");
             alert.showAndWait();
         }
+    }
+    
+    public void setPasswordGuardada(String nuevaPassword) {
+        this.passwordGuardada = nuevaPassword;
     }
 }

@@ -9,59 +9,64 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefHeight="300.0" prefWidth="400.0" spacing="20.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.javafx.A_holamundofxml.InsertarController">
+<VBox prefHeight="300.0" prefWidth="400.0" spacing="20.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.javafx.A_holamundofxml.CrearUsuarioController">
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
     
-    <Label text="Editar Información">
+    <Label text="Crear Nuevo Usuario">
         <font>
             <Font name="System Bold" size="24.0" />
         </font>
     </Label>
     
     <VBox spacing="5.0">
-        <Label text="Alumno Seleccionado:">
+        <Label text="Nombre:">
             <font>
                 <Font name="System Bold" size="12.0" />
             </font>
         </Label>
-        <Label fx:id="lblNombreAlumno" />
+        <TextField fx:id="txtNombre" prefWidth="460.0" promptText="Nombre del usuario" />
     </VBox>
     
     <VBox spacing="5.0">
-        <Label text="Curso:">
+        <Label text="Apellidos:">
             <font>
                 <Font name="System Bold" size="12.0" />
             </font>
         </Label>
-        <ComboBox fx:id="comboCurso" prefWidth="460.0" />
+        <TextField fx:id="txtApellidos" prefWidth="460.0" promptText="Apellidos del usuario" />
     </VBox>
     
     <VBox spacing="5.0">
-        <Label text="Número de faltas:">
+        <Label text="Email:">
             <font>
                 <Font name="System Bold" size="12.0" />
             </font>
         </Label>
-        <TextField fx:id="txtFaltas" prefWidth="460.0" promptText="Ej: 3" />
+        <TextField fx:id="txtEmail" prefWidth="460.0" promptText="Email del usuario" />
     </VBox>
     
     <VBox spacing="5.0">
-        <Label text="Nota:">
+        <Label text="Rol:">
             <font>
                 <Font name="System Bold" size="12.0" />
             </font>
         </Label>
-        <TextField fx:id="txtNota" prefWidth="460.0" promptText="Ej: 7.5" />
+        <ComboBox fx:id="comboRol" prefWidth="460.0" />
+    </VBox>
+    
+    <VBox spacing="5.0">
+        <Label text="Edad:">
+            <font>
+                <Font name="System Bold" size="12.0" />
+            </font>
+        </Label>
+        <TextField fx:id="txtEdad" prefWidth="460.0" promptText="Edad del usuario" />
     </VBox>
     
     <HBox alignment="CENTER_RIGHT" spacing="15.0">
-        <VBox.margin>
-            <Insets top="10.0" />
-        </VBox.margin>
-        
         <Button cancelButton="true" onAction="#handleCancelar" text="Cancelar" />
-        <Button fx:id="btnActualizar" onAction="#handleActualizar" text="Aplicar" />
+        <Button fx:id="btnCrear" onAction="#handleCrear" text="Crear Usuario" />
     </HBox>
 </VBox>

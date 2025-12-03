@@ -2,60 +2,66 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefHeight="400.0" prefWidth="500.0" spacing="20.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.javafx.A_holamundofxml.CrearCursoController">
+<VBox prefHeight="300.0" prefWidth="400.0" spacing="20.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.javafx.A_holamundofxml.InsertarController">
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
     
-    <Label text="Insertar nuevo alumno">
-      <font>
-         <Font name="System Bold" size="24.0" />
-      </font></Label>
+    <Label text="Editar Información">
+        <font>
+            <Font name="System Bold" size="24.0" />
+        </font>
+    </Label>
+    
     <VBox spacing="5.0">
-        <Label text="Nombre del alumno:">
-         <font>
-            <Font name="System Bold" size="12.0" />
-         </font></Label>
-        <TextField fx:id="txtNombreCurso" prefWidth="560.0" promptText="Ej: Pepe" />
+        <Label text="Alumno Seleccionado:">
+            <font>
+                <Font name="System Bold" size="12.0" />
+            </font>
+        </Label>
+        <Label fx:id="lblNombreAlumno" />
     </VBox>
+    
     <VBox spacing="5.0">
-        <Label text="Apellidos:">
-         <font>
-            <Font name="System Bold" size="12.0" />
-         </font></Label>
-      <TextField fx:id="txtNombreCurso1" prefWidth="560.0" promptText="Ej: Pepe" />
+        <Label text="Curso:">
+            <font>
+                <Font name="System Bold" size="12.0" />
+            </font>
+        </Label>
+        <ComboBox fx:id="comboCurso" prefWidth="460.0" />
     </VBox>
+    
     <VBox spacing="5.0">
         <Label text="Número de faltas:">
-         <font>
-            <Font name="System Bold" size="12.0" />
-         </font></Label>
-        <HBox alignment="CENTER_LEFT" spacing="10.0">
-            <TextField fx:id="txtRutaImagen" editable="false" promptText="Número" HBox.hgrow="ALWAYS" />
-        </HBox>
+            <font>
+                <Font name="System Bold" size="12.0" />
+            </font>
+        </Label>
+        <TextField fx:id="txtFaltas" prefWidth="460.0" promptText="Ej: 3" />
     </VBox>
+    
     <VBox spacing="5.0">
         <Label text="Nota:">
-         <font>
-            <Font name="System Bold" size="12.0" />
-         </font></Label>
-        
-        <HBox alignment="CENTER_LEFT" spacing="10.0">
-            <TextField fx:id="txtBuscarAlumno" promptText="Nota" HBox.hgrow="ALWAYS" />
-        </HBox>
+            <font>
+                <Font name="System Bold" size="12.0" />
+            </font>
+        </Label>
+        <TextField fx:id="txtNota" prefWidth="460.0" promptText="Ej: 7.5" />
     </VBox>
+    
     <HBox alignment="CENTER_RIGHT" spacing="15.0">
         <VBox.margin>
             <Insets top="10.0" />
         </VBox.margin>
         
         <Button cancelButton="true" onAction="#handleCancelar" text="Cancelar" />
-        <Button fx:id="btnCrear" onAction="#handleCrear" text="Insertar" />
+        <Button fx:id="btnActualizar" onAction="#handleActualizar" text="Aplicar" />
     </HBox>
 </VBox>

@@ -29,137 +29,64 @@ import java.sql.SQLException;
 
 public class CursosController {
 
-    @FXML
-    private Button btnAjustes;
+    @FXML private Button btnAjustes;
+    @FXML private Button btnAsistencias;
+    @FXML private Button btnCerrarSesion;
+    @FXML private Button btnCrearCurso;
+    @FXML private Button btnInsertar;
+    @FXML private Button btnCursos;
+    @FXML private Button btnExpulsar;
+    @FXML private Button btnExpulsar1;
+    @FXML private Button btnUsuarios;
+    @FXML private Button btnVerCursoConcreto;
+    @FXML private Button btnVerPerfil1;
+    @FXML private TableColumn<Usuario, String> colApellidos1;
+    @FXML private TableColumn<Asistencia, String> colApellidos11;
+    @FXML private TableColumn<Usuario, Integer> colEdad1;
+    @FXML private TableColumn<Asistencia, String> colNota11;
+    @FXML private TableColumn<Usuario, String> colEmail1;
+    @FXML private TableColumn<Usuario, String> colNombre1;
+    @FXML private TableColumn<Asistencia, String> colNombre11;
+    @FXML private TableColumn<Usuario, String> colTipo1;
+    @FXML private TableColumn<Asistencia, Integer> colFaltas11;
+    @FXML private TableColumn<Asistencia, Integer> colIdUsuarioAsistencia;
+    @FXML private TableColumn<Asistencia, Integer> colIdCursoAsistencia;
+    @FXML private TableColumn<Asistencia, String> colNombreCursoAsistencia;
+    @FXML private TableColumn<Usuario, Integer> colIdUsuario1;
+    @FXML private TableColumn<Curso, Integer> colIdCurso;
+    @FXML private HBox hboxAcciones;
+    @FXML private HBox hboxAcciones1;
+    @FXML private Label lblFecha;
+    @FXML private Label lblNombreUsuario;
+    @FXML private Label lblTipoUsuario;
+    @FXML private TableView<Curso> tablaCursos;
+    @FXML private TableView<Usuario> tablaUsuarios1;
+    @FXML private TableView<Asistencia> tablaUsuarios11;
+    @FXML private TextField txtBuscar;
+    @FXML private TextField txtBuscar1;
+    @FXML private TextField txtBuscar11;
+    @FXML private VBox vboxCursos;
+    @FXML private VBox vboxUsuarios;
+    @FXML private VBox vboxAsistencias;
+    @FXML private TableColumn<Curso, String> colNombreCurso;
+    @FXML private TableColumn<Curso, String> colDescripcion;
+    @FXML private TableColumn<Curso, Integer> colCantUsuarios;
+    @FXML private Button btnCrearUsuario;
 
-    @FXML
-    private Button btnAsistencias;
-
-    @FXML
-    private Button btnCerrarSesion;
-
-    @FXML
-    private Button btnCrearCurso;
-
-    @FXML
-    private Button btnInsertar;
-
-    @FXML
-    private Button btnCursos;
-
-    @FXML
-    private Button btnExpulsar;
-
-    @FXML
-    private Button btnExpulsar1;
-
-    @FXML
-    private Button btnUsuarios;
-
-    @FXML
-    private Button btnVerCursoConcreto;
-
-    @FXML
-    private Button btnVerPerfil1;
-
-    @FXML
-    private TableColumn<Usuario, String> colApellidos;
-
-    @FXML
-    private TableColumn<Usuario, String> colApellidos1;
-
-    @FXML
-    private TableColumn<Asistencia, String> colApellidos11;
-
-    @FXML
-    private TableColumn<Usuario, Integer> colEdad;
-
-    @FXML
-    private TableColumn<Usuario, Integer> colEdad1;
-
-    @FXML
-    private TableColumn<Asistencia, String> colEdad11;
-
-    @FXML
-    private TableColumn<Usuario, String> colEmail;
-
-    @FXML
-    private TableColumn<Usuario, String> colEmail1;
-
-    @FXML
-    private TableColumn<Usuario, String> colNombre;
-
-    @FXML
-    private TableColumn<Usuario, String> colNombre1;
-
-    @FXML
-    private TableColumn<Asistencia, String> colNombre11;
-
-    @FXML
-    private TableColumn<Usuario, String> colTipo;
-
-    @FXML
-    private TableColumn<Usuario, String> colTipo1;
-
-    @FXML
-    private TableColumn<Asistencia, Integer> colTipo11;
-
-    @FXML
-    private HBox hboxAcciones;
-
-    @FXML
-    private HBox hboxAcciones1;
-
-    @FXML
-    private Label lblFecha;
-
-    @FXML
-    private Label lblNombreUsuario;
-
-    @FXML
-    private Label lblTipoUsuario;
-
-    @FXML
-    private TableView<Curso> tablaCursos;
-
-    @FXML
-    private TableView<Usuario> tablaUsuarios1;
-
-    @FXML
-    private TableView<Asistencia> tablaUsuarios11;
-
-    @FXML
-    private TextField txtBuscar;
-
-    @FXML
-    private TextField txtBuscar1;
-
-    @FXML
-    private VBox vboxCursos;
-
-    @FXML
-    private VBox vboxUsuarios;
-
-    @FXML
-    private VBox vboxAsistencias;
-
-    @FXML
-    private TableColumn<Curso, String> colNombreCurso;
-
-    @FXML
-    private TableColumn<Curso, String> colDescripcion;
-
-    @FXML
-    private TableColumn<Curso, Integer> colCantUsuarios;
+    private ObservableList<Curso> todosLosCursos = FXCollections.observableArrayList();
+    private ObservableList<Usuario> todosLosUsuarios = FXCollections.observableArrayList();
+    private ObservableList<Asistencia> todasLasAsistencias = FXCollections.observableArrayList();
 
     public static class Usuario {
+        private final SimpleIntegerProperty idUsuario;
         private final SimpleStringProperty nombre;
         private final SimpleStringProperty apellidos;
         private final SimpleStringProperty email;
         private final SimpleStringProperty tipo;
         private final SimpleIntegerProperty edad;
 
-        public Usuario(String nombre, String apellidos, String email, String tipo, int edad) {
+        public Usuario(int idUsuario, String nombre, String apellidos, String email, String tipo, int edad) {
+            this.idUsuario = new SimpleIntegerProperty(idUsuario);
             this.nombre = new SimpleStringProperty(nombre);
             this.apellidos = new SimpleStringProperty(apellidos);
             this.email = new SimpleStringProperty(email);
@@ -167,6 +94,7 @@ public class CursosController {
             this.edad = new SimpleIntegerProperty(edad);
         }
 
+        public int getIdUsuario() { return idUsuario.get(); }
         public String getNombre() { return nombre.get(); }
         public String getApellidos() { return apellidos.get(); }
         public String getEmail() { return email.get(); }
@@ -178,64 +106,102 @@ public class CursosController {
         private final SimpleStringProperty nombreCurso;
         private final SimpleStringProperty descripcion;
         private final SimpleIntegerProperty cantUsuarios;
+        private final SimpleIntegerProperty idCurso;
 
-        public Curso(String nombreCurso, String descripcion, int cantUsuarios) {
+        public Curso(int idCurso, String nombreCurso, String descripcion, int cantUsuarios) {
+            this.idCurso = new SimpleIntegerProperty(idCurso);
             this.nombreCurso = new SimpleStringProperty(nombreCurso);
             this.descripcion = new SimpleStringProperty(descripcion);
             this.cantUsuarios = new SimpleIntegerProperty(cantUsuarios);
         }
 
+        public int getIdCurso() { return idCurso.get(); }
         public String getNombreCurso() { return nombreCurso.get(); }
         public String getDescripcion() { return descripcion.get(); }
         public int getCantUsuarios() { return cantUsuarios.get(); }
     }
 
     public static class Asistencia {
+        private final SimpleIntegerProperty idUsuario;
         private final SimpleStringProperty nombre;
         private final SimpleStringProperty apellidos;
         private final SimpleIntegerProperty faltas;
         private final SimpleStringProperty nota;
+        private final SimpleIntegerProperty idCurso;
+        private final SimpleStringProperty nombreCurso;
 
-        public Asistencia(String nombre, String apellidos, int faltas, String nota) {
+        public Asistencia(int idUsuario, String nombre, String apellidos, int faltas, String nota, int idCurso, String nombreCurso) {
+            this.idUsuario = new SimpleIntegerProperty(idUsuario);
             this.nombre = new SimpleStringProperty(nombre);
             this.apellidos = new SimpleStringProperty(apellidos);
             this.faltas = new SimpleIntegerProperty(faltas);
             this.nota = new SimpleStringProperty(nota);
+            this.idCurso = new SimpleIntegerProperty(idCurso);
+            this.nombreCurso = new SimpleStringProperty(nombreCurso);
         }
 
+        public int getIdUsuario() { return idUsuario.get(); }
         public String getNombre() { return nombre.get(); }
         public String getApellidos() { return apellidos.get(); }
         public int getFaltas() { return faltas.get(); }
         public String getNota() { return nota.get(); }
+        public int getIdCurso() { return idCurso.get(); }
+        public String getNombreCurso() { return nombreCurso.get(); }
     }
 
     @FXML
     void handleBuscar(ActionEvent event) {
-        String textoBusqueda = txtBuscar.getText().toLowerCase();
-        if (!textoBusqueda.isEmpty()) {
-            filtrarCursos(textoBusqueda);
-        } else {
-            cargarCursos();
+        if (vboxCursos.isVisible()) {
+            filtrarCursos(txtBuscar.getText().toLowerCase());
+        } else if (vboxUsuarios.isVisible()) {
+            filtrarUsuarios(txtBuscar1.getText().toLowerCase());
+        } else if (vboxAsistencias.isVisible()) {
+            filtrarAsistencias(txtBuscar11.getText().toLowerCase());
         }
     }
 
     @FXML
     void handleExpulsar(ActionEvent event) {
-        Usuario usuarioSeleccionado = tablaUsuarios1.getSelectionModel().getSelectedItem();
-        if (usuarioSeleccionado != null) {
-            mostrarAlerta("Expulsar", "Usuario expulsado: " + usuarioSeleccionado.getNombre());
-        } else {
-            mostrarAlerta("Error", "Por favor selecciona un usuario");
+        if (vboxCursos.isVisible()) {
+            Curso cursoSeleccionado = tablaCursos.getSelectionModel().getSelectedItem();
+            if (cursoSeleccionado != null) {
+                borrarCurso(cursoSeleccionado);
+            } else {
+                mostrarAlerta("Error", "Debes seleccionar un curso para borrar");
+            }
+        } else if (vboxUsuarios.isVisible()) {
+            Usuario usuarioSeleccionado = tablaUsuarios1.getSelectionModel().getSelectedItem();
+            if (usuarioSeleccionado != null) {
+                borrarUsuario(usuarioSeleccionado);
+            } else {
+                mostrarAlerta("Error", "Por favor selecciona un usuario");
+            }
+        } else if (vboxAsistencias.isVisible()) {
+            Asistencia asistenciaSeleccionada = tablaUsuarios11.getSelectionModel().getSelectedItem();
+            if (asistenciaSeleccionada != null) {
+                borrarAsistencia(asistenciaSeleccionada);
+            } else {
+                mostrarAlerta("Error", "Por favor selecciona una asistencia");
+            }
         }
     }
 
     @FXML
     void handleVerPerfil(ActionEvent event) {
-        Usuario usuarioSeleccionado = tablaUsuarios1.getSelectionModel().getSelectedItem();
-        if (usuarioSeleccionado != null) {
-            mostrarAlerta("Perfil", "Ver perfil de: " + usuarioSeleccionado.getNombre());
-        } else {
-            mostrarAlerta("Error", "Por favor selecciona un usuario");
+        if (vboxCursos.isVisible()) {
+            Curso cursoSeleccionado = tablaCursos.getSelectionModel().getSelectedItem();
+            if (cursoSeleccionado != null) {
+                abrirDetalleCurso(cursoSeleccionado);
+            } else {
+                mostrarAlerta("Error", "Debes seleccionar un curso para poder ver sus detalles");
+            }
+        } else if (vboxUsuarios.isVisible()) {
+            Usuario usuarioSeleccionado = tablaUsuarios1.getSelectionModel().getSelectedItem();
+            if (usuarioSeleccionado != null) {
+                abrirPerfilUsuario(usuarioSeleccionado);
+            } else {
+                mostrarAlerta("Error", "Por favor selecciona un usuario");
+            }
         }
     }
 
@@ -258,47 +224,161 @@ public class CursosController {
         });
         btnAjustes.setOnAction(event -> abrirVentana("/Ajustes.fxml"));
         btnCerrarSesion.setOnAction(event -> cerrarSesion());
-        btnCrearCurso.setOnAction(event -> lanzarAjustes());
-        btnVerCursoConcreto.setOnAction(event -> abrirVentana("/CursoDetalle.fxml"));
+        btnCrearCurso.setOnAction(event -> lanzarCrearCurso());
         btnInsertar.setOnAction(event -> lanzarInsertar());
+        btnCrearUsuario.setOnAction(event -> lanzarCrearUsuario());
 
         cargarCursos();
         cargarUsuarios();
         cargarAsistencias();
         configurarColumnas();
+        
+        txtBuscar.textProperty().addListener((observable, oldValue, newValue) -> {
+            filtrarCursos(newValue.toLowerCase());
+        });
+        
+        txtBuscar1.textProperty().addListener((observable, oldValue, newValue) -> {
+            filtrarUsuarios(newValue.toLowerCase());
+        });
+        
+        txtBuscar11.textProperty().addListener((observable, oldValue, newValue) -> {
+            filtrarAsistencias(newValue.toLowerCase());
+        });
     }
     
-    public void lanzarAjustes() {
+    public void lanzarCrearCurso() {
         try {
             Stage modal = new Stage();
-            modal.setTitle("Settings");
+            modal.setTitle("Crear Curso");
             modal.initModality(Modality.APPLICATION_MODAL);
-            modal.initOwner(btnAjustes.getScene().getWindow());
+            modal.initOwner(btnCrearCurso.getScene().getWindow());
+            
+            javafx.scene.image.Image icon = new javafx.scene.image.Image(getClass().getResourceAsStream("/muudle.png"));
+            modal.getIcons().add(icon);
 
-            FXMLLoader loader = new FXMLLoader(Main.class.getResource("/CrearCurso.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/CrearCurso.fxml"));
             Scene scene = new Scene(loader.load());
             modal.setScene(scene);
 
-            modal.show();
+            CrearCursoController controller = loader.getController();
+            controller.setCursosController(this);
+
+            modal.showAndWait();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void lanzarCrearUsuario() {
+        try {
+            Stage modal = new Stage();
+            modal.setTitle("Crear Usuario");
+            modal.initModality(Modality.APPLICATION_MODAL);
+            modal.initOwner(btnCrearUsuario.getScene().getWindow());
+            
+            javafx.scene.image.Image icon = new javafx.scene.image.Image(getClass().getResourceAsStream("/muudle.png"));
+            modal.getIcons().add(icon);
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/CrearUsuario.fxml"));
+            Scene scene = new Scene(loader.load());
+            modal.setScene(scene);
+
+            CrearUsuarioController controller = loader.getController();
+            controller.setCursosController(this);
+
+            modal.showAndWait();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public void lanzarInsertar() {
+        Asistencia asistenciaSeleccionada = tablaUsuarios11.getSelectionModel().getSelectedItem();
+        
+        if (asistenciaSeleccionada == null) {
+            mostrarAlerta("Error", "Debe seleccionar un alumno de la tabla para actualizar");
+            return;
+        }
+        
         try {
             Stage modal = new Stage();
-            modal.setTitle("Settings");
+            modal.setTitle("Actualizar Información");
             modal.initModality(Modality.APPLICATION_MODAL);
-            modal.initOwner(btnAjustes.getScene().getWindow());
+            modal.initOwner(btnInsertar.getScene().getWindow());
+            
+            javafx.scene.image.Image icon = new javafx.scene.image.Image(getClass().getResourceAsStream("/muudle.png"));
+            modal.getIcons().add(icon);
 
-            FXMLLoader loader = new FXMLLoader(Main.class.getResource("/Insertar.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Insertar.fxml"));
             Scene scene = new Scene(loader.load());
             modal.setScene(scene);
 
+            InsertarController controller = loader.getController();
+            controller.setCursosController(this);
+            
+            String nombre = asistenciaSeleccionada.getNombre();
+            String apellidos = asistenciaSeleccionada.getApellidos();
+            int faltas = asistenciaSeleccionada.getFaltas();
+            double nota = Double.parseDouble(asistenciaSeleccionada.getNota());
+            int idCurso = asistenciaSeleccionada.getIdCurso();
+            String nombreCurso = asistenciaSeleccionada.getNombreCurso();
+            int idUsuario = asistenciaSeleccionada.getIdUsuario();
+            
+            controller.setDatosAlumno(idUsuario, nombre, apellidos, idCurso, nombreCurso, faltas, nota);
+
+            modal.showAndWait();
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void abrirDetalleCurso(Curso curso) {
+        try {
+            Stage stage = new Stage();
+            stage.setTitle("Detalle del Curso: " + curso.getNombreCurso());
+            
+            javafx.scene.image.Image icon = new javafx.scene.image.Image(getClass().getResourceAsStream("/muudle.png"));
+            stage.getIcons().add(icon);
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/CursoDetalle.fxml"));
+            Scene scene = new Scene(loader.load());
+            stage.setScene(scene);
+
+            CursoDetalleController controller = loader.getController();
+            controller.cargarDatosCurso(curso.getIdCurso());
+            controller.setCursosController(this);
+
+            stage.show();
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+            mostrarAlerta("Error", "No se pudo abrir el detalle del curso: " + e.getMessage());
+        }
+    }
+
+    private void abrirPerfilUsuario(Usuario usuario) {
+        try {
+            Stage modal = new Stage();
+            modal.setTitle("Perfil de Usuario");
+            modal.initModality(Modality.APPLICATION_MODAL);
+            modal.initOwner(tablaUsuarios1.getScene().getWindow());
+            
+            javafx.scene.image.Image icon = new javafx.scene.image.Image(getClass().getResourceAsStream("/muudle.png"));
+            modal.getIcons().add(icon);
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/PerfilDetalle.fxml"));
+            Parent root = loader.load();
+            
+            PerfilDetalleController controller = loader.getController();
+            controller.cargarDatosUsuario(usuario);
+            controller.setCursosController(this);
+            
+            modal.setScene(new Scene(root));
             modal.show();
         } catch (IOException e) {
             e.printStackTrace();
+            mostrarAlerta("Error", "No se pudo abrir el perfil del usuario: " + e.getMessage());
         }
     }
 
@@ -309,6 +389,10 @@ public class CursosController {
             
             Stage stage = (Stage) btnCursos.getScene().getWindow();
             stage.setScene(new Scene(root));
+            
+            javafx.scene.image.Image icon = new javafx.scene.image.Image(getClass().getResourceAsStream("/muudle.png"));
+            stage.getIcons().add(icon);
+            
             stage.show();
         } catch (Exception e) {
             e.getMessage();
@@ -322,28 +406,33 @@ public class CursosController {
             
             Stage stage = (Stage) btnCerrarSesion.getScene().getWindow();
             stage.setScene(new Scene(root));
+            
+            javafx.scene.image.Image icon = new javafx.scene.image.Image(getClass().getResourceAsStream("/muudle.png"));
+            stage.getIcons().add(icon);
+            
             stage.show();
         } catch (Exception e) {
             e.getMessage();
         }
     }
 
-    private void cargarCursos() {
+    public void cargarCursos() {
         try (Connection conn = DatabaseConnection.getConnection()) {
-            String query = "SELECT nombre_curso, descripcion, cant_usuarios FROM CURSO";
+            String query = "SELECT id_curso, nombre_curso, descripcion, cant_usuarios FROM CURSO";
             PreparedStatement stmt = conn.prepareStatement(query);
             ResultSet rs = stmt.executeQuery();
 
-            ObservableList<Curso> cursos = FXCollections.observableArrayList();
+            todosLosCursos.clear();
             while (rs.next()) {
-                cursos.add(new Curso(
+                todosLosCursos.add(new Curso(
+                    rs.getInt("id_curso"),
                     rs.getString("nombre_curso"),
                     rs.getString("descripcion"),
                     rs.getInt("cant_usuarios")
                 ));
             }
 
-            tablaCursos.setItems(cursos);
+            tablaCursos.setItems(todosLosCursos);
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -351,15 +440,16 @@ public class CursosController {
         }
     }
 
-    private void cargarUsuarios() {
+    public void cargarUsuarios() {
         try (Connection conn = DatabaseConnection.getConnection()) {
-            String query = "SELECT nombre, apellido, email, tipo_usuario, edad FROM USUARIO";
+            String query = "SELECT id_usuario, nombre, apellido, email, tipo_usuario, edad FROM USUARIO";
             PreparedStatement stmt = conn.prepareStatement(query);
             ResultSet rs = stmt.executeQuery();
 
-            ObservableList<Usuario> usuarios = FXCollections.observableArrayList();
+            todosLosUsuarios.clear();
             while (rs.next()) {
-                usuarios.add(new Usuario(
+                todosLosUsuarios.add(new Usuario(
+                    rs.getInt("id_usuario"),
                     rs.getString("nombre"),
                     rs.getString("apellido"),
                     rs.getString("email"),
@@ -368,7 +458,7 @@ public class CursosController {
                 ));
             }
 
-            tablaUsuarios1.setItems(usuarios);
+            tablaUsuarios1.setItems(todosLosUsuarios);
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -376,25 +466,29 @@ public class CursosController {
         }
     }
 
-    private void cargarAsistencias() {
+    public void cargarAsistencias() {
         try (Connection conn = DatabaseConnection.getConnection()) {
-            String query = "SELECT u.nombre, a.apellidos, a.nFaltas, a.nota " +
-                          "FROM ASISTENCIA a " +
-                          "JOIN USUARIO u ON a.id_usuario = u.id_usuario";
+            String query = "SELECT u.id_usuario, u.nombre, u.apellido, a.nFaltas, a.nota, a.id_curso, c.nombre_curso " +
+                        "FROM ASISTENCIA a " +
+                        "JOIN USUARIO u ON a.id_usuario = u.id_usuario " +
+                        "JOIN CURSO c ON a.id_curso = c.id_curso";
             PreparedStatement stmt = conn.prepareStatement(query);
             ResultSet rs = stmt.executeQuery();
 
-            ObservableList<Asistencia> asistencias = FXCollections.observableArrayList();
+            todasLasAsistencias.clear();
             while (rs.next()) {
-                asistencias.add(new Asistencia(
+                todasLasAsistencias.add(new Asistencia(
+                    rs.getInt("id_usuario"),
                     rs.getString("nombre"),
-                    rs.getString("apellidos"),
+                    rs.getString("apellido"),
                     rs.getInt("nFaltas"),
-                    String.valueOf(rs.getDouble("nota"))
+                    String.valueOf(rs.getDouble("nota")),
+                    rs.getInt("id_curso"),
+                    rs.getString("nombre_curso")
                 ));
             }
 
-            tablaUsuarios11.setItems(asistencias);
+            tablaUsuarios11.setItems(todasLasAsistencias);
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -403,33 +497,175 @@ public class CursosController {
     }
 
     private void configurarColumnas() {
+        colIdCurso.setCellValueFactory(new PropertyValueFactory<>("idCurso"));
         colNombreCurso.setCellValueFactory(new PropertyValueFactory<>("nombreCurso"));
         colDescripcion.setCellValueFactory(new PropertyValueFactory<>("descripcion"));
         colCantUsuarios.setCellValueFactory(new PropertyValueFactory<>("cantUsuarios"));
 
+        colIdUsuario1.setCellValueFactory(new PropertyValueFactory<>("idUsuario"));
         colNombre1.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         colApellidos1.setCellValueFactory(new PropertyValueFactory<>("apellidos"));
         colEmail1.setCellValueFactory(new PropertyValueFactory<>("email"));
         colTipo1.setCellValueFactory(new PropertyValueFactory<>("tipo"));
         colEdad1.setCellValueFactory(new PropertyValueFactory<>("edad"));
 
+        colIdUsuarioAsistencia.setCellValueFactory(new PropertyValueFactory<>("idUsuario"));
         colNombre11.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         colApellidos11.setCellValueFactory(new PropertyValueFactory<>("apellidos"));
-        colTipo11.setCellValueFactory(new PropertyValueFactory<>("faltas"));
-        colEdad11.setCellValueFactory(new PropertyValueFactory<>("nota"));
+        colFaltas11.setCellValueFactory(new PropertyValueFactory<>("faltas"));
+        colNota11.setCellValueFactory(new PropertyValueFactory<>("nota"));
+        colIdCursoAsistencia.setCellValueFactory(new PropertyValueFactory<>("idCurso"));
+        colNombreCursoAsistencia.setCellValueFactory(new PropertyValueFactory<>("nombreCurso"));
     }
 
     private void filtrarCursos(String filtro) {
-        ObservableList<Curso> cursosFiltrados = FXCollections.observableArrayList();
-        ObservableList<Curso> todosCursos = tablaCursos.getItems();
+        if (filtro == null || filtro.trim().isEmpty()) {
+            tablaCursos.setItems(todosLosCursos);
+            return;
+        }
         
-        for (Curso curso : todosCursos) {
+        ObservableList<Curso> cursosFiltrados = FXCollections.observableArrayList();
+        
+        for (Curso curso : todosLosCursos) {
             if (curso.getNombreCurso().toLowerCase().contains(filtro) ||
+                String.valueOf(curso.getIdCurso()).contains(filtro) ||
                 curso.getDescripcion().toLowerCase().contains(filtro)) {
                 cursosFiltrados.add(curso);
             }
         }
         tablaCursos.setItems(cursosFiltrados);
+    }
+
+    private void filtrarUsuarios(String filtro) {
+        if (filtro == null || filtro.trim().isEmpty()) {
+            tablaUsuarios1.setItems(todosLosUsuarios);
+            return;
+        }
+        
+        ObservableList<Usuario> usuariosFiltrados = FXCollections.observableArrayList();
+        
+        for (Usuario usuario : todosLosUsuarios) {
+            if (usuario.getNombre().toLowerCase().contains(filtro) ||
+                usuario.getApellidos().toLowerCase().contains(filtro) ||
+                usuario.getEmail().toLowerCase().contains(filtro) ||
+                String.valueOf(usuario.getIdUsuario()).contains(filtro)) {
+                usuariosFiltrados.add(usuario);
+            }
+        }
+        tablaUsuarios1.setItems(usuariosFiltrados);
+    }
+
+    private void filtrarAsistencias(String filtro) {
+        if (filtro == null || filtro.trim().isEmpty()) {
+            tablaUsuarios11.setItems(todasLasAsistencias);
+            return;
+        }
+        
+        ObservableList<Asistencia> asistenciasFiltradas = FXCollections.observableArrayList();
+        
+        for (Asistencia asistencia : todasLasAsistencias) {
+            if (asistencia.getNombre().toLowerCase().contains(filtro) || 
+                asistencia.getApellidos().toLowerCase().contains(filtro) ||
+                asistencia.getNombreCurso().toLowerCase().contains(filtro) ||
+                String.valueOf(asistencia.getIdUsuario()).contains(filtro) ||
+                String.valueOf(asistencia.getIdCurso()).contains(filtro)) {
+                asistenciasFiltradas.add(asistencia);
+            }
+        }
+        tablaUsuarios11.setItems(asistenciasFiltradas);
+    }
+
+    private void borrarCurso(Curso curso) {
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            String deleteAsistencias = "DELETE FROM ASISTENCIA WHERE id_curso = ?";
+            PreparedStatement stmt1 = conn.prepareStatement(deleteAsistencias);
+            stmt1.setInt(1, curso.getIdCurso());
+            stmt1.executeUpdate();
+            
+            String query = "DELETE FROM CURSO WHERE id_curso = ?";
+            PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setInt(1, curso.getIdCurso());
+            stmt.executeUpdate();
+
+            cargarCursos();
+            cargarAsistencias();
+            mostrarAlerta("Éxito", "Curso eliminado correctamente");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            mostrarAlerta("Error", "No se pudo eliminar el curso: " + e.getMessage());
+        }
+    }
+
+    private void borrarAsistencia(Asistencia asistencia) {
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            int idCurso = asistencia.getIdCurso();
+            
+            String query = "DELETE FROM ASISTENCIA WHERE id_usuario = ? AND id_curso = ?";
+            PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setInt(1, asistencia.getIdUsuario());
+            stmt.setInt(2, idCurso);
+            int filas = stmt.executeUpdate();
+            
+            if (filas > 0) {
+                String updateCurso = "UPDATE CURSO SET cant_usuarios = " +
+                                    "(SELECT COUNT(DISTINCT id_usuario) FROM ASISTENCIA WHERE id_curso = ?) " +
+                                    "WHERE id_curso = ?";
+                PreparedStatement updateStmt = conn.prepareStatement(updateCurso);
+                updateStmt.setInt(1, idCurso);
+                updateStmt.setInt(2, idCurso);
+                updateStmt.executeUpdate();
+                
+                cargarAsistencias();
+                cargarCursos();
+                mostrarAlerta("Éxito", "Alumno eliminado del curso. Ahora puede ser asignado a otro curso.");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            mostrarAlerta("Error", "No se pudo eliminar la asistencia: " + e.getMessage());
+        }
+    }
+
+    private void borrarUsuario(Usuario usuario) {
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            conn.setAutoCommit(false);
+            
+            String selectCursos = "SELECT id_curso FROM ASISTENCIA WHERE id_usuario = ?";
+            PreparedStatement selectStmt = conn.prepareStatement(selectCursos);
+            selectStmt.setInt(1, usuario.getIdUsuario());
+            ResultSet rs = selectStmt.executeQuery();
+            
+            String deleteAsistencias = "DELETE FROM ASISTENCIA WHERE id_usuario = ?";
+            PreparedStatement stmt1 = conn.prepareStatement(deleteAsistencias);
+            stmt1.setInt(1, usuario.getIdUsuario());
+            stmt1.executeUpdate();
+            
+            String query = "DELETE FROM USUARIO WHERE id_usuario = ?";
+            PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setInt(1, usuario.getIdUsuario());
+            int filas = stmt.executeUpdate();
+            
+            if (filas > 0) {
+                while (rs.next()) {
+                    int idCurso = rs.getInt("id_curso");
+                    String updateCurso = "UPDATE CURSO SET cant_usuarios = " +
+                                        "(SELECT COUNT(DISTINCT id_usuario) FROM ASISTENCIA WHERE id_curso = ?) " +
+                                        "WHERE id_curso = ?";
+                    PreparedStatement updateStmt = conn.prepareStatement(updateCurso);
+                    updateStmt.setInt(1, idCurso);
+                    updateStmt.setInt(2, idCurso);
+                    updateStmt.executeUpdate();
+                }
+                
+                conn.commit();
+                cargarUsuarios();
+                cargarAsistencias(); 
+                cargarCursos(); 
+                mostrarAlerta("Éxito", "Usuario eliminado correctamente");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            mostrarAlerta("Error", "No se pudo eliminar al usuario: " + e.getMessage());
+        }
     }
 
     private void mostrarAlerta(String titulo, String mensaje) {

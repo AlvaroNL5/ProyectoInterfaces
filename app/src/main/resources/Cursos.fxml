@@ -18,19 +18,21 @@
     <top>
         <HBox alignment="CENTER">
             <Label text="MUUDLE">
-            <font>
-               <Font name="System Bold" size="30.0" />
-            </font></Label>
+                <font>
+                    <Font name="System Bold" size="30.0" />
+                </font>
+            </Label>
             
             <HBox HBox.hgrow="ALWAYS" />
             
-            <Label fx:id="lblFecha" text="Prof. Manuel">
-            <font>
-               <Font name="System" size="12.0" />
-            </font>
-            <HBox.margin>
-               <Insets right="5.0" />
-            </HBox.margin></Label>
+            <Label fx:id="lblFecha" text="Prof. Admin">
+                <font>
+                    <Font name="System" size="12.0" />
+                </font>
+                <HBox.margin>
+                    <Insets right="5.0" />
+                </HBox.margin>
+            </Label>
             
             <Separator orientation="VERTICAL" />
             
@@ -40,9 +42,10 @@
             </VBox>
             
             <Button fx:id="btnCerrarSesion" text="🙍‍♂️">
-            <HBox.margin>
-               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-            </HBox.margin></Button>
+                <HBox.margin>
+                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                </HBox.margin>
+            </Button>
         </HBox>
     </top>
    
@@ -52,179 +55,187 @@
                 <VBox.margin>
                     <Insets />
                 </VBox.margin>
-            <font>
-               <Font name="System Bold" size="16.0" />
-            </font>
+                <font>
+                    <Font name="System Bold" size="16.0" />
+                </font>
             </Label>
             
-                  <Button fx:id="btnCursos" prefWidth="100.0" text="📚 Cursos">
-            <font>
-               <Font name="System" size="12.0" />
-            </font>
-         </Button>
+            <Button fx:id="btnCursos" prefWidth="100.0" text="📚 Cursos">
+                <font>
+                    <Font name="System" size="12.0" />
+                </font>
+            </Button>
             
-                  <Button fx:id="btnUsuarios" prefWidth="100.0" text="👥 Usuarios">
-            <font>
-               <Font name="System" size="12.0" />
-            </font>
-         </Button>
-         <Button fx:id="btnAsistencias" mnemonicParsing="false" prefWidth="100.0" text="🗒 Asistencias" />
+            <Button fx:id="btnUsuarios" prefWidth="100.0" text="👥 Usuarios">
+                <font>
+                    <Font name="System" size="12.0" />
+                </font>
+            </Button>
             
-                  <Button fx:id="btnAjustes" prefWidth="100.0" text="⚙ Ajustes">
-            <font>
-               <Font name="System" size="12.0" />
-            </font>
-         </Button>
+            <Button fx:id="btnAsistencias" mnemonicParsing="false" prefWidth="100.0" text="🗒 Matriculación" />
+            
+            <Button fx:id="btnAjustes" prefWidth="100.0" text="⚙ Ajustes">
+                <font>
+                    <Font name="System" size="12.0" />
+                </font>
+            </Button>
         </VBox>
     </left>
-   <padding>
-      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-   </padding>
-   <center>
-      <StackPane prefHeight="150.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-         <children>
-            <VBox fx:id="vboxCursos" prefHeight="200.0" prefWidth="100.0">
-               <children>
-                  
-                     <HBox alignment="CENTER_LEFT" spacing="20.0">
-                         <Label text="Mis Cursos">
-                        <font>
-                           <Font name="System Bold" size="18.0" />
-                        </font>
-                     </Label>
-                        <HBox HBox.hgrow="ALWAYS" />
-                        <Button fx:id="btnCrearCurso" text="➕ Crear Curso">
-                        <font>
-                           <Font name="System" size="12.0" />
-                        </font>
-                     </Button>
-                     <padding>
-                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                     </padding>
-                     </HBox>
-                     
-                     <Separator />
-                  <VBox prefHeight="606.0" prefWidth="841.0" spacing="20.0">
-                     <padding>
+   
+    <padding>
+        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+    </padding>
+   
+    <center>
+        <StackPane prefHeight="150.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+            <children>
+                <VBox fx:id="vboxCursos" prefHeight="200.0" prefWidth="100.0">
+                    <children>
+                        
+                        <VBox prefHeight="606.0" prefWidth="841.0" spacing="20.0">
+                            <padding>
+                                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                            </padding>
+                            <children>
+                                <HBox alignment="CENTER_LEFT" spacing="20.0">
+                                    <children>
+                                        <Label alignment="CENTER" text="📚 Cursos">
+                                            <font>
+                                                <Font name="System Bold" size="24.0" />
+                                            </font>
+                                        </Label>
+                                        <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+                                 <children>
+                                           <Button fx:id="btnCrearCurso" alignment="CENTER_RIGHT" contentDisplay="CENTER" text="➕ Crear Curso">
+                                               <font>
+                                                   <Font name="System" size="12.0" />
+                                               </font>
+                                           </Button>
+                                 </children></HBox>
+                                    </children>
+                                </HBox>
+                                
+                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                    <children>
+                                        <TextField fx:id="txtBuscar" promptText="Buscar cursos..." HBox.hgrow="ALWAYS" />
+                                    </children>
+                                </HBox>
+                                
+                                <TableView fx:id="tablaCursos" prefHeight="43.0" prefWidth="761.0" VBox.vgrow="ALWAYS">
+                                    <columns>
+                                        <TableColumn fx:id="colIdCurso" prefWidth="60.0" text="ID" />
+                                        <TableColumn fx:id="colNombreCurso" prefWidth="200.0" text="Nombre del Curso" />
+                                        <TableColumn fx:id="colDescripcion" prefWidth="350.0" text="Descripción" />
+                                        <TableColumn fx:id="colCantUsuarios" prefWidth="100.0" text="Cant. Usuarios" />
+                                    </columns>
+                                </TableView>
+                                
+                                <HBox fx:id="hboxAcciones" alignment="CENTER_RIGHT" spacing="10.0">
+                                    <children>
+                                        <Button fx:id="btnVerCursoConcreto" onAction="#handleVerPerfil" text="Ver curso" />
+                                        <Button fx:id="btnExpulsar" onAction="#handleExpulsar" text="🗑 Borrar" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+                    </children>
+                </VBox>
+                
+                <VBox fx:id="vboxUsuarios" spacing="20.0" visible="false">
+                    <padding>
                         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-                     </padding>
-                     <children>
+                    </padding>
+                    <children>
                         <HBox alignment="CENTER_LEFT" spacing="20.0">
-                           <children>
-                              <Label text="📚 Cursos">
-                                 <font>
-                                    <Font name="System Bold" size="24.0" />
-                                 </font>
-                              </Label>
-                              <HBox HBox.hgrow="ALWAYS" />
-                           </children>
+                            <children>
+                                <Label text="👥 Usuarios">
+                                    <font>
+                                        <Font name="System Bold" size="24.0" />
+                                    </font>
+                                </Label>
+                                <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Button fx:id="btnCrearUsuario" alignment="CENTER_RIGHT" contentDisplay="CENTER" text="➕ Crear Usuario">
+                                            <font>
+                                                <Font name="System" size="12.0" />
+                                            </font>
+                                        </Button>
+                                    </children>
+                                </HBox>
+                            </children>
                         </HBox>
+                        
                         <HBox alignment="CENTER_LEFT" spacing="10.0">
-                           <children>
-                              <TextField fx:id="txtBuscar" promptText="Buscar cursos..." HBox.hgrow="ALWAYS" />
-                              <Button onAction="#handleBuscar" text="🔍 Buscar" />
-                           </children>
+                            <children>
+                                <TextField fx:id="txtBuscar1" promptText="Buscar usuario..." HBox.hgrow="ALWAYS" />
+                            </children>
                         </HBox>
-                        <TableView fx:id="tablaCursos" prefHeight="43.0" prefWidth="761.0" VBox.vgrow="ALWAYS">
-                           <columns>
-                              <TableColumn fx:id="colNombreCurso" prefWidth="250.0" text="Nombre del Curso" />
-                              <TableColumn fx:id="colDescripcion" prefWidth="400.0" text="Descripción" />
-                              <TableColumn fx:id="colCantUsuarios" prefWidth="150.0" text="Cant. Usuarios" />
-                           </columns>
+                        
+                        <TableView fx:id="tablaUsuarios1" VBox.vgrow="ALWAYS">
+                            <columns>
+                                <TableColumn fx:id="colIdUsuario1" prefWidth="60.0" text="ID Usuario" />
+                                <TableColumn fx:id="colNombre1" prefWidth="150.0" text="Nombre" />
+                                <TableColumn fx:id="colApellidos1" prefWidth="150.0" text="Apellidos" />
+                                <TableColumn fx:id="colEmail1" prefWidth="200.0" text="Email" />
+                                <TableColumn fx:id="colTipo1" prefWidth="100.0" text="Rol" />
+                                <TableColumn fx:id="colEdad1" prefWidth="80.0" text="Edad" />
+                            </columns>
                         </TableView>
-                        <HBox fx:id="hboxAcciones" alignment="CENTER_RIGHT" spacing="10.0">
-                           <children>
-                              <Button fx:id="btnVerCursoConcreto" onAction="#handleVerPerfil" text="Ver curso" />
-                              <Button fx:id="btnExpulsar" onAction="#handleExpulsar" text="🗑 Borrar" />
-                           </children>
+                        
+                        <HBox fx:id="hboxAcciones1" alignment="CENTER_RIGHT" spacing="10.0">
+                            <children>
+                                <Button fx:id="btnVerPerfil1" onAction="#handleVerPerfil" text="Ver Perfil" />
+                                <Button fx:id="btnExpulsar1" onAction="#handleExpulsar" text="🗑 Expulsar" />
+                            </children>
                         </HBox>
-                     </children>
-                  </VBox>
-               </children>
-            </VBox>
-            <VBox fx:id="vboxUsuarios" spacing="20.0" visible="false">
-               <padding>
-                  <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-               </padding>
-               <children>
-                  <HBox alignment="CENTER_LEFT" spacing="20.0">
-                     <children>
-                        <Label text="👥 Usuarios">
-                           <font>
-                              <Font name="System Bold" size="24.0" />
-                           </font>
-                        </Label>
-                        <HBox HBox.hgrow="ALWAYS" />
-                     </children>
-                  </HBox>
-                  <HBox alignment="CENTER_LEFT" spacing="10.0">
-                     <children>
-                        <TextField fx:id="txtBuscar1" promptText="Buscar usuario..." HBox.hgrow="ALWAYS" />
-                        <Button onAction="#handleBuscar" text="🔍 Buscar" />
-                     </children>
-                  </HBox>
-                  <TableView fx:id="tablaUsuarios1" VBox.vgrow="ALWAYS">
-                     <columns>
-                        <TableColumn fx:id="colNombre1" prefWidth="150.0" text="Nombre" />
-                        <TableColumn fx:id="colApellidos1" prefWidth="200.0" text="Apellidos" />
-                        <TableColumn fx:id="colEmail1" prefWidth="136.00006103515625" text="Email" />
-                        <TableColumn fx:id="colTipo1" prefWidth="102.39996337890625" text="Rol" />
-                        <TableColumn fx:id="colEdad1" prefWidth="192.0" text="Edad" />
-                     </columns>
-                  </TableView>
-                  <HBox fx:id="hboxAcciones1" alignment="CENTER_RIGHT" spacing="10.0">
-                     <children>
-                        <Button fx:id="btnVerPerfil1" onAction="#handleVerPerfil" text="Ver Perfil" />
-                        <Button fx:id="btnExpulsar1" onAction="#handleExpulsar" text="🗑 Expulsar" />
-                     </children>
-                  </HBox>
-               </children>
-            </VBox>
-            <VBox fx:id="vboxAsistencias" spacing="20.0" visible="false">
-               <padding>
-                  <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-               </padding>
-               <children>
-                  <HBox alignment="CENTER_LEFT" spacing="20.0">
-                     <children>
-                        <Label text="🗒 Asistencias">
-                           <font>
-                              <Font name="System Bold" size="24.0" />
-                           </font>
-                        </Label>
-                     </children>
-                  </HBox>
-                  <HBox>
-                     <children>
-                        <TextField fx:id="txtBuscar11" prefHeight="26.0" prefWidth="620.0" promptText="Buscar usuario...">
-                           <HBox.margin>
-                              <Insets right="10.0" />
-                           </HBox.margin>
-                        </TextField>
-                        <Button onAction="#handleBuscar" text="🔍 Buscar" />
-                     </children>
-                  </HBox>
-                  <TableView fx:id="tablaUsuarios11" VBox.vgrow="ALWAYS">
-                     <columns>
-                        <TableColumn fx:id="colNombre11" prefWidth="150.0" text="Nombre" />
-                        <TableColumn fx:id="colApellidos11" prefWidth="200.0" text="Apellidos" />
-                        <TableColumn fx:id="colTipo11" prefWidth="200.00006103515625" text="Faltas" />
-                        <TableColumn fx:id="colEdad11" prefWidth="184.7999389648437" text="Nota" />
-                     </columns>
-                  </TableView>
-                  <HBox alignment="CENTER_RIGHT">
-                     <children>
-                        <Button fx:id="btnInsertar" mnemonicParsing="false" text="Insertar" />
-                        <Button fx:id="btnVerPerfil2" onAction="#handleVerPerfil" text="Borrar">
-                           <HBox.margin>
-                              <Insets left="10.0" />
-                           </HBox.margin>
-                        </Button>
-                     </children>
-                  </HBox>
-               </children>
-            </VBox>
-         </children>
-      </StackPane>
-   </center>
+                    </children>
+                </VBox>
+                
+                <VBox fx:id="vboxAsistencias" spacing="20.0" visible="false">
+                    <padding>
+                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                    </padding>
+                    <children>
+                        <HBox alignment="CENTER_LEFT" spacing="20.0">
+                            <children>
+                                <Label text="🗒 Matriculación">
+                                    <font>
+                                        <Font name="System Bold" size="24.0" />
+                                    </font>
+                                </Label>
+                            </children>
+                        </HBox>
+                        
+                        <HBox>
+                            <children>
+                                <TextField fx:id="txtBuscar11" prefHeight="26.0" prefWidth="745.0" promptText="Buscar usuario...">
+                                    <HBox.margin>
+                                        <Insets />
+                                    </HBox.margin>
+                                </TextField>
+                            </children>
+                        </HBox>
+                        
+                        <TableView fx:id="tablaUsuarios11" VBox.vgrow="ALWAYS">
+                            <columns>
+                                <TableColumn fx:id="colIdUsuarioAsistencia" prefWidth="70.0" text="ID Usuario" />
+                                <TableColumn fx:id="colNombre11" prefWidth="120.0" text="Nombre" />
+                                <TableColumn fx:id="colApellidos11" prefWidth="130.0" text="Apellidos" />
+                                <TableColumn fx:id="colFaltas11" prefWidth="80.0" text="Faltas" />
+                                <TableColumn fx:id="colNota11" prefWidth="70.0" text="Nota" />
+                                <TableColumn fx:id="colIdCursoAsistencia" prefWidth="70.0" text="ID Curso" />
+                                <TableColumn fx:id="colNombreCursoAsistencia" prefWidth="150.0" text="Curso" />
+                            </columns>
+                        </TableView>
+                        
+                        <HBox alignment="CENTER_RIGHT">
+                            <children>
+                                <Button fx:id="btnInsertar" mnemonicParsing="false" text="Editar" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </children>
+        </StackPane>
+    </center>
 </BorderPane>
