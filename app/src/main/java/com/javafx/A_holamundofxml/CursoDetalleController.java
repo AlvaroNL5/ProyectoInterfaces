@@ -107,11 +107,21 @@ public class CursoDetalleController {
 
             if (rs.next()) {
                 String nombreCurso = rs.getString("nombre_curso");
-                lblNombreCurso.setText(nombreCurso);
-                txtInfoNombre.setText(nombreCurso);
-                txtInfoDescripcion.setText(rs.getString("descripcion"));
-                lblInfoAlumnos.setText(String.valueOf(rs.getInt("cant_usuarios")));
-                lblInfoCursoId.setText(String.valueOf(idCurso));
+                if (lblNombreCurso != null) {
+                    lblNombreCurso.setText(nombreCurso);
+                }
+                if (txtInfoNombre != null) {
+                    txtInfoNombre.setText(nombreCurso);
+                }
+                if (txtInfoDescripcion != null) {
+                    txtInfoDescripcion.setText(rs.getString("descripcion"));
+                }
+                if (lblInfoAlumnos != null) {
+                    lblInfoAlumnos.setText(String.valueOf(rs.getInt("cant_usuarios")));
+                }
+                if (lblInfoCursoId != null) {
+                    lblInfoCursoId.setText(String.valueOf(idCurso));
+                }
             }
 
         } catch (SQLException e) {
@@ -142,7 +152,9 @@ public class CursoDetalleController {
                 ));
             }
 
-            tablaUsuarios.setItems(usuariosCurso);
+            if (tablaUsuarios != null) {
+                tablaUsuarios.setItems(usuariosCurso);
+            }
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -156,7 +168,7 @@ public class CursoDetalleController {
                           "COUNT(a.id_curso) as cursos_actuales " +
                           "FROM USUARIO u " +
                           "LEFT JOIN ASISTENCIA a ON u.id_usuario = a.id_usuario " +
-                          "WHERE u.tipo_usuario = 'alumno' " +
+                          "WHERE u.tipo_usuario IN ('alumno', 'profesor') " +
                           "AND u.id_usuario NOT IN (SELECT a2.id_usuario FROM ASISTENCIA a2 WHERE a2.id_curso = ?) " +
                           "GROUP BY u.id_usuario, u.nombre, u.apellido, u.email " +
                           "HAVING cursos_actuales < 2 " +
@@ -176,20 +188,32 @@ public class CursoDetalleController {
                 ));
             }
 
-            comboAlumnosDisponibles.setItems(alumnosDisponibles);
+            if (comboAlumnosDisponibles != null) {
+                comboAlumnosDisponibles.setItems(alumnosDisponibles);
+            }
 
         } catch (SQLException e) {
             e.printStackTrace();
-            mostrarError("Error al cargar alumnos disponibles: " + e.getMessage());
+            mostrarError("Error al cargar usuarios disponibles: " + e.getMessage());
         }
     }
 
     private void configurarColumnas() {
-        colUsuarioNombre.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getNombre()));
-        colUsuarioApellidos.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getApellidos()));
-        colUsuarioEmail.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getEmail()));
-        colUsuarioTipo.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getTipo()));
-        colUsuarioEdad.setCellValueFactory(cellData -> new javafx.beans.property.SimpleIntegerProperty(cellData.getValue().getEdad()).asObject());
+        if (colUsuarioNombre != null) {
+            colUsuarioNombre.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getNombre()));
+        }
+        if (colUsuarioApellidos != null) {
+            colUsuarioApellidos.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getApellidos()));
+        }
+        if (colUsuarioEmail != null) {
+            colUsuarioEmail.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getEmail()));
+        }
+        if (colUsuarioTipo != null) {
+            colUsuarioTipo.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getTipo()));
+        }
+        if (colUsuarioEdad != null) {
+            colUsuarioEdad.setCellValueFactory(cellData -> new javafx.beans.property.SimpleIntegerProperty(cellData.getValue().getEdad()).asObject());
+        }
     }
 
     @FXML
@@ -200,6 +224,8 @@ public class CursoDetalleController {
 
     @FXML
     void handleEliminarUsuarioCurso(ActionEvent event) {
+        if (tablaUsuarios == null) return;
+        
         UsuarioCurso usuarioSeleccionado = tablaUsuarios.getSelectionModel().getSelectedItem();
         if (usuarioSeleccionado == null) {
             mostrarError("Selecciona un usuario para eliminar del curso");
@@ -225,8 +251,10 @@ public class CursoDetalleController {
             usuariosCurso.remove(usuarioSeleccionado);
             tablaUsuarios.refresh();
 
-            int nuevosUsuarios = Integer.parseInt(lblInfoAlumnos.getText()) - 1;
-            lblInfoAlumnos.setText(String.valueOf(nuevosUsuarios));
+            if (lblInfoAlumnos != null) {
+                int nuevosUsuarios = Integer.parseInt(lblInfoAlumnos.getText()) - 1;
+                lblInfoAlumnos.setText(String.valueOf(nuevosUsuarios));
+            }
 
             cargarAlumnosDisponibles();
 
@@ -245,14 +273,16 @@ public class CursoDetalleController {
 
     @FXML
     void handleAnadirAlumnoCurso(ActionEvent event) {
+        if (comboAlumnosDisponibles == null) return;
+        
         AlumnoItem alumnoSeleccionado = comboAlumnosDisponibles.getValue();
         if (alumnoSeleccionado == null) {
-            mostrarError("Selecciona un alumno para añadir al curso");
+            mostrarError("Selecciona un usuario para añadir al curso");
             return;
         }
 
         if (alumnoSeleccionado.getCursosAsignados() >= 2) {
-            mostrarError("Este alumno ya está en 2 cursos. No puede asignarse a más cursos.");
+            mostrarError("Este usuario ya está en 2 cursos. No puede asignarse a más cursos.");
             return;
         }
 
@@ -293,8 +323,10 @@ public class CursoDetalleController {
 
             tablaUsuarios.refresh();
 
-            int nuevosUsuarios = Integer.parseInt(lblInfoAlumnos.getText()) + 1;
-            lblInfoAlumnos.setText(String.valueOf(nuevosUsuarios));
+            if (lblInfoAlumnos != null) {
+                int nuevosUsuarios = Integer.parseInt(lblInfoAlumnos.getText()) + 1;
+                lblInfoAlumnos.setText(String.valueOf(nuevosUsuarios));
+            }
 
             cargarAlumnosDisponibles();
             comboAlumnosDisponibles.getSelectionModel().clearSelection();
@@ -304,11 +336,11 @@ public class CursoDetalleController {
                 cursosController.cargarAsistencias();
             }
 
-            mostrarExito("Alumno añadido al curso correctamente");
+            mostrarExito("Usuario añadido al curso correctamente");
 
         } catch (SQLException e) {
             e.printStackTrace();
-            mostrarError("Error al añadir alumno al curso: " + e.getMessage());
+            mostrarError("Error al añadir usuario al curso: " + e.getMessage());
         }
     }
 
@@ -363,7 +395,9 @@ public class CursoDetalleController {
 
             int filasActualizadas = stmt.executeUpdate();
             if (filasActualizadas > 0) {
-                lblNombreCurso.setText(nuevoNombre);
+                if (lblNombreCurso != null) {
+                    lblNombreCurso.setText(nuevoNombre);
+                }
                 if (cursosController != null) {
                     cursosController.cargarCursos();
                     cursosController.cargarAsistencias();

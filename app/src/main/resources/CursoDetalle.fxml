@@ -27,14 +27,13 @@
                 </HBox.margin>
             </Label>
             
-            <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
-            <children>
-                  <Button fx:id="btnVolverCursos" onAction="#handleVolverCursos" text="← Volver a Cursos">
-                      <HBox.margin>
-                          <Insets right="10.0" />
-                      </HBox.margin>
-                  </Button>
-            </children></HBox>
+            <HBox HBox.hgrow="ALWAYS" />
+            
+            <Button fx:id="btnVolverCursos" onAction="#handleVolverCursos" text="← Volver a Cursos">
+                <HBox.margin>
+                    <Insets right="10.0" />
+                </HBox.margin>
+            </Button>
         </HBox>
     </top>
     <center>
@@ -52,10 +51,10 @@
                     </Label>
                     
                     <HBox alignment="CENTER_LEFT" spacing="10.0">
-                        <ComboBox fx:id="comboAlumnosDisponibles" prefWidth="300.0" promptText="Selecciona un alumno para añadir" />
-                        <Button onAction="#handleAnadirAlumnoCurso" text="➕ Añadir Alumno" />
+                        <ComboBox fx:id="comboAlumnosDisponibles" prefWidth="300.0" promptText="Selecciona un usuario para añadir" />
+                        <Button onAction="#handleAnadirAlumnoCurso" text="➕ Añadir Usuario" />
                         <HBox HBox.hgrow="ALWAYS" />
-                        <Button fx:id="btnEliminarUsuarioCurso" onAction="#handleEliminarUsuarioCurso" text="🗑 Eliminar Alumno" />
+                        <Button fx:id="btnEliminarUsuarioCurso" onAction="#handleEliminarUsuarioCurso" text="🗑 Eliminar Usuario" />
                     </HBox>
                     
                     <TableView fx:id="tablaUsuarios" VBox.vgrow="ALWAYS">
@@ -118,6 +117,7 @@
                     </VBox>
                     
                     <HBox alignment="CENTER_RIGHT" spacing="10.0">
+                        <Button onAction="#handleAplicarCambios" text="Aplicar Cambios" />
                         <Button onAction="#handleGuardarCambios" text="Guardar" />
                     </HBox>
                 </VBox>
