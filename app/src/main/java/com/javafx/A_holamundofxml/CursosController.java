@@ -1,5 +1,9 @@
 package com.javafx.A_holamundofxml;
 
+import javafx.animation.FadeTransition;
+import javafx.animation.ParallelTransition;
+import javafx.animation.ScaleTransition;
+import javafx.animation.SequentialTransition;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -20,6 +24,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -208,25 +213,46 @@ public class CursosController {
     @FXML
     public void initialize() {
         btnCursos.setOnAction(event -> {
-            vboxCursos.setVisible(true);
-            vboxUsuarios.setVisible(false);
-            vboxAsistencias.setVisible(false);
+            if (!vboxCursos.isVisible()) {
+                animarCambioVista(vboxUsuarios.isVisible() ? vboxUsuarios : vboxAsistencias, vboxCursos);
+                vboxUsuarios.setVisible(false);
+                vboxAsistencias.setVisible(false);
+            }
         });
         btnUsuarios.setOnAction(event -> {
-            vboxUsuarios.setVisible(true);
-            vboxCursos.setVisible(false);
-            vboxAsistencias.setVisible(false);
+            if (!vboxUsuarios.isVisible()) {
+                animarCambioVista(vboxCursos.isVisible() ? vboxCursos : vboxAsistencias, vboxUsuarios);
+                vboxCursos.setVisible(false);
+                vboxAsistencias.setVisible(false);
+            }
         });
         btnAsistencias.setOnAction(event -> {
-            vboxAsistencias.setVisible(true);
-            vboxCursos.setVisible(false);
-            vboxUsuarios.setVisible(false);
+            if (!vboxAsistencias.isVisible()) {
+                animarCambioVista(vboxCursos.isVisible() ? vboxCursos : vboxUsuarios, vboxAsistencias);
+                vboxCursos.setVisible(false);
+                vboxUsuarios.setVisible(false);
+            }
         });
         btnAjustes.setOnAction(event -> abrirVentana("/Ajustes.fxml"));
-        btnCerrarSesion.setOnAction(event -> cerrarSesion());
-        btnCrearCurso.setOnAction(event -> lanzarCrearCurso());
-        btnInsertar.setOnAction(event -> lanzarInsertar());
-        btnCrearUsuario.setOnAction(event -> lanzarCrearUsuario());
+        btnCerrarSesion.setOnAction(event -> {
+            FadeTransition fadeOut = new FadeTransition(Duration.millis(300), btnCerrarSesion.getScene().getRoot());
+            fadeOut.setFromValue(1.0);
+            fadeOut.setToValue(0.0);
+            fadeOut.setOnFinished(e -> cerrarSesion());
+            fadeOut.play();
+        });
+        btnCrearCurso.setOnAction(event -> {
+            animarBoton(btnCrearCurso);
+            lanzarCrearCurso();
+        });
+        btnInsertar.setOnAction(event -> {
+            animarBoton(btnInsertar);
+            lanzarInsertar();
+        });
+        btnCrearUsuario.setOnAction(event -> {
+            animarBoton(btnCrearUsuario);
+            lanzarCrearUsuario();
+        });
 
         cargarCursos();
         cargarUsuarios();
@@ -246,6 +272,53 @@ public class CursosController {
         });
     }
     
+    private void animarCambioVista(VBox vistaAnterior, VBox vistaNueva) {
+        if (vistaAnterior != null && vistaAnterior.isVisible()) {
+            FadeTransition fadeOut = new FadeTransition(Duration.millis(200), vistaAnterior);
+            fadeOut.setFromValue(1.0);
+            fadeOut.setToValue(0.0);
+            fadeOut.setOnFinished(e -> {
+                vistaAnterior.setVisible(false);
+                
+                vistaNueva.setVisible(true);
+                vistaNueva.setOpacity(0.0);
+                
+                FadeTransition fadeIn = new FadeTransition(Duration.millis(200), vistaNueva);
+                fadeIn.setFromValue(0.0);
+                fadeIn.setToValue(1.0);
+                fadeIn.play();
+            });
+            fadeOut.play();
+        } else {
+            vistaNueva.setVisible(true);
+            vistaNueva.setOpacity(0.0);
+            
+            FadeTransition fadeIn = new FadeTransition(Duration.millis(200), vistaNueva);
+            fadeIn.setFromValue(0.0);
+            fadeIn.setToValue(1.0);
+            fadeIn.play();
+        }
+    }
+    
+    private void animarBoton(Button boton) {
+        ScaleTransition scale = new ScaleTransition(Duration.millis(100), boton);
+        scale.setFromX(1.0);
+        scale.setFromY(1.0);
+        scale.setToX(0.95);
+        scale.setToY(0.95);
+        scale.setAutoReverse(true);
+        scale.setCycleCount(2);
+        
+        ScaleTransition scaleBack = new ScaleTransition(Duration.millis(100), boton);
+        scaleBack.setFromX(0.95);
+        scaleBack.setFromY(0.95);
+        scaleBack.setToX(1.0);
+        scaleBack.setToY(1.0);
+        
+        SequentialTransition sequence = new SequentialTransition(scale, scaleBack);
+        sequence.play();
+    }
+    
     public void lanzarCrearCurso() {
         try {
             Stage modal = new Stage();
@@ -257,14 +330,30 @@ public class CursosController {
             modal.getIcons().add(icon);
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/CrearCurso.fxml"));
-            Scene scene = new Scene(loader.load());
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
             scene.getStylesheets().addAll(btnCrearCurso.getScene().getStylesheets());
             modal.setScene(scene);
+
+            root.setOpacity(0);
+            FadeTransition fadeIn = new FadeTransition(Duration.millis(300), root);
+            fadeIn.setFromValue(0.0);
+            fadeIn.setToValue(1.0);
+            
+            ScaleTransition scaleIn = new ScaleTransition(Duration.millis(300), root);
+            scaleIn.setFromX(0.9);
+            scaleIn.setFromY(0.9);
+            scaleIn.setToX(1.0);
+            scaleIn.setToY(1.0);
+            
+            ParallelTransition parallel = new ParallelTransition(fadeIn, scaleIn);
+            
+            modal.show();
+            parallel.play();
 
             CrearCursoController controller = loader.getController();
             controller.setCursosController(this);
 
-            modal.showAndWait();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -284,9 +373,6 @@ public class CursosController {
             Scene scene = new Scene(loader.load());
             scene.getStylesheets().addAll(btnCrearUsuario.getScene().getStylesheets());
             modal.setScene(scene);
-
-            CrearUsuarioController controller = loader.getController();
-            controller.setCursosController(this);
 
             modal.showAndWait();
         } catch (IOException e) {

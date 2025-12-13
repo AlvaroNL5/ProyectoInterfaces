@@ -1,5 +1,7 @@
 package com.javafx.A_holamundofxml;
 
+import javafx.animation.RotateTransition;
+import javafx.animation.FadeTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -11,6 +13,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class AjustesController {
     
@@ -49,6 +52,11 @@ public class AjustesController {
     
     @FXML
     public void handleTema(ActionEvent event) {
+        RotateTransition rotate = new RotateTransition(Duration.millis(300), btnTema);
+        rotate.setFromAngle(0);
+        rotate.setToAngle(360);
+        rotate.play();
+        
         temaOscuro = !temaOscuro;
         temaCambiado = true;
         actualizarTextoBotonTema();
@@ -148,7 +156,7 @@ public class AjustesController {
     }
     
     private boolean validarEmail(String email) {
-        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
+        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*\\.[A-Za-z]{2,}$";
         return email.matches(emailRegex);
     }
     

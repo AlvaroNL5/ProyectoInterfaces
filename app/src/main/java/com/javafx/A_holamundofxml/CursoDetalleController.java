@@ -1,11 +1,13 @@
 package com.javafx.A_holamundofxml;
 
+import javafx.animation.FadeTransition;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -341,6 +343,13 @@ public class CursoDetalleController {
         } catch (SQLException e) {
             e.printStackTrace();
             mostrarError("Error al añadir usuario al curso: " + e.getMessage());
+        }
+        
+        if (tablaUsuarios != null) {
+            FadeTransition fade = new FadeTransition(Duration.millis(300), tablaUsuarios);
+            fade.setFromValue(0.5);
+            fade.setToValue(1.0);
+            fade.play();
         }
     }
 
