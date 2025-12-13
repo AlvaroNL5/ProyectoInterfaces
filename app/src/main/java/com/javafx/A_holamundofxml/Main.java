@@ -7,19 +7,17 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
-    /**
-     *
-     * @author Alvaro
-     */
-    public class Main extends Application {
+public class Main extends Application {
     public static void main(String[] args) {
         launch(args);
     }
 
     @Override
     public void start(Stage primeraEscena) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("/Login.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Login.fxml"));
+        Parent root = loader.load();
         Scene scene = new Scene(root);
+        scene.getStylesheets().add(getClass().getResource("/estilos_claro.css").toExternalForm());
         primeraEscena.setScene(scene);
         primeraEscena.setTitle("Login");
         agregarIcono(primeraEscena);

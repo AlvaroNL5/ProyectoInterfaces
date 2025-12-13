@@ -117,7 +117,6 @@
                     </VBox>
                     
                     <HBox alignment="CENTER_RIGHT" spacing="10.0">
-                        <Button onAction="#handleAplicarCambios" text="Aplicar Cambios" />
                         <Button onAction="#handleGuardarCambios" text="Guardar" />
                     </HBox>
                 </VBox>

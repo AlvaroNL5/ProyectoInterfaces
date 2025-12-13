@@ -84,7 +84,7 @@ public class CrearUsuarioController {
         }
         
         String email = txtEmail.getText().trim();
-        if (!email.contains("@") || !email.contains(".")) {
+        if (!validarEmail(email)) {
             mostrarError("El email debe tener un formato válido (ejemplo: usuario@dominio.com)");
             return false;
         }
@@ -106,6 +106,11 @@ public class CrearUsuarioController {
         }
         
         return true;
+    }
+    
+    private boolean validarEmail(String email) {
+        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
+        return email.matches(emailRegex);
     }
     
     private void crearUsuario() {

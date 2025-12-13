@@ -258,6 +258,7 @@ public class CursosController {
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/CrearCurso.fxml"));
             Scene scene = new Scene(loader.load());
+            scene.getStylesheets().addAll(btnCrearCurso.getScene().getStylesheets());
             modal.setScene(scene);
 
             CrearCursoController controller = loader.getController();
@@ -281,6 +282,7 @@ public class CursosController {
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/CrearUsuario.fxml"));
             Scene scene = new Scene(loader.load());
+            scene.getStylesheets().addAll(btnCrearUsuario.getScene().getStylesheets());
             modal.setScene(scene);
 
             CrearUsuarioController controller = loader.getController();
@@ -311,6 +313,7 @@ public class CursosController {
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Insertar.fxml"));
             Scene scene = new Scene(loader.load());
+            scene.getStylesheets().addAll(btnInsertar.getScene().getStylesheets());
             modal.setScene(scene);
 
             InsertarController controller = loader.getController();
@@ -343,6 +346,7 @@ public class CursosController {
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/CursoDetalle.fxml"));
             Scene scene = new Scene(loader.load());
+            scene.getStylesheets().addAll(tablaCursos.getScene().getStylesheets());
             stage.setScene(scene);
 
             CursoDetalleController controller = loader.getController();
@@ -369,12 +373,14 @@ public class CursosController {
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/PerfilDetalle.fxml"));
             Parent root = loader.load();
+            Scene scene = new Scene(root);
+            scene.getStylesheets().addAll(tablaUsuarios1.getScene().getStylesheets());
             
             PerfilDetalleController controller = loader.getController();
             controller.cargarDatosUsuario(usuario);
             controller.setCursosController(this);
             
-            modal.setScene(new Scene(root));
+            modal.setScene(scene);
             modal.show();
         } catch (IOException e) {
             e.printStackTrace();
@@ -388,14 +394,12 @@ public class CursosController {
             Parent root = loader.load();
             
             Stage stage = (Stage) btnCursos.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            
-            javafx.scene.image.Image icon = new javafx.scene.image.Image(getClass().getResourceAsStream("/muudle.png"));
-            stage.getIcons().add(icon);
-            
+            Scene scene = new Scene(root);
+            scene.getStylesheets().addAll(btnCursos.getScene().getStylesheets());
+            stage.setScene(scene);
             stage.show();
         } catch (Exception e) {
-            e.getMessage();
+            e.printStackTrace();
         }
     }
     
@@ -405,14 +409,12 @@ public class CursosController {
             Parent root = loader.load();
             
             Stage stage = (Stage) btnCerrarSesion.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            
-            javafx.scene.image.Image icon = new javafx.scene.image.Image(getClass().getResourceAsStream("/muudle.png"));
-            stage.getIcons().add(icon);
-            
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/estilos_claro.css").toExternalForm());
+            stage.setScene(scene);
             stage.show();
         } catch (Exception e) {
-            e.getMessage();
+            e.printStackTrace();
         }
     }
 

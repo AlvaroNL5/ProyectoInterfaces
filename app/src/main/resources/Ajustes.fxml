@@ -15,12 +15,28 @@
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
     
-    <Label text="⚙ Ajustes">
+    <Label styleClass="label-title" text="⚙ Ajustes">
       <font>
          <Font size="24.0" />
-      </font></Label>
+      </font>
+    </Label>
     
     <Separator />
+    
+    <VBox spacing="10.0">
+        <Label text="🎨 Tema de la Aplicación">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+        </Label>
+        
+        <Label style="-fx-text-fill: #666; -fx-font-size: 11px;" text="Nota: Los cambios de tema se aplicarán al guardar" />
+        
+        <Button fx:id="btnTema" onAction="#handleTema" prefWidth="250.0" text="☀Cambiar a Modo Oscuro" />
+    </VBox>
+    
+    <Separator />
+    
    <HBox prefHeight="100.0" prefWidth="200.0">
       <children>
          <VBox prefHeight="200.0" prefWidth="400.0" spacing="10.0">
@@ -66,7 +82,8 @@
         <Label text="✏ Cambiar Mis Datos">
          <font>
             <Font name="System Bold" size="12.0" />
-         </font></Label>
+         </font>
+        </Label>
         
         <VBox spacing="5.0">
             <Label text="Nueva Contraseña:" />

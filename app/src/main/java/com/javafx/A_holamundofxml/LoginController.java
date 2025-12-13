@@ -38,10 +38,12 @@ public class LoginController {
                 Parent root = loader.load();
                 
                 Stage stage = (Stage) btnLogin.getScene().getWindow();
-                stage.setScene(new Scene(root));
+                Scene scene = new Scene(root);
+                scene.getStylesheets().addAll(btnLogin.getScene().getStylesheets());
+                stage.setScene(scene);
                 stage.show();
             } catch (Exception e) {
-                e.getMessage();
+                e.printStackTrace();
             }
         } else {
             Alert alert = new Alert(Alert.AlertType.ERROR);
