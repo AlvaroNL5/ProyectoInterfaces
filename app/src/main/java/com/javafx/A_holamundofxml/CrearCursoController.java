@@ -1,11 +1,13 @@
 package com.javafx.A_holamundofxml;
 
+import javafx.animation.TranslateTransition;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -71,6 +73,15 @@ public class CrearCursoController {
         cargarAlumnosDisponibles();
     }
     
+    private void shakeNode(javafx.scene.Node node) {
+        TranslateTransition shake = new TranslateTransition(Duration.millis(100), node);
+        shake.setFromX(0);
+        shake.setByX(10);
+        shake.setCycleCount(6);
+        shake.setAutoReverse(true);
+        shake.playFromStart();
+    }
+    
     @FXML
     void handleAnadirAlumno(ActionEvent event) {
         UsuarioItem seleccionado = listaAlumnosDisponibles.getSelectionModel().getSelectedItem();
@@ -81,6 +92,7 @@ public class CrearCursoController {
                 idsAlumnosSeleccionados.add(seleccionado.getId());
             } else {
                 mostrarError("Este alumno ya está en 2 cursos. No puede asignarse a más cursos.");
+                shakeNode(listaAlumnosDisponibles);
             }
         }
     }
@@ -184,19 +196,23 @@ public class CrearCursoController {
     private boolean validarCampos() {
         String nombreCurso = txtNombreCurso.getText().trim();
         String descripcion = txtDescripcion.getText().trim();
+        StringBuilder errores = new StringBuilder();
         
         if (nombreCurso.isEmpty()) {
-            mostrarError("El nombre del curso es obligatorio");
-            return false;
+            errores.append("El nombre del curso es obligatorio\n");
+            shakeNode(txtNombreCurso);
+        } else if (nombreCurso.length() > 255) {
+            errores.append("El nombre del curso no puede exceder los 255 caracteres\n");
+            shakeNode(txtNombreCurso);
         }
         
         if (descripcion.isEmpty()) {
-            mostrarError("La descripción es obligatoria");
-            return false;
+            errores.append("La descripción es obligatoria\n");
+            shakeNode(txtDescripcion);
         }
         
-        if (nombreCurso.length() > 255) {
-            mostrarError("El nombre del curso no puede exceder los 255 caracteres");
+        if (errores.length() > 0) {
+            mostrarError(errores.toString().trim());
             return false;
         }
         
@@ -222,6 +238,7 @@ public class CrearCursoController {
             
             if (checkRs.next() && checkRs.getInt(1) > 0) {
                 mostrarError("Ya existe un curso con este nombre");
+                shakeNode(txtNombreCurso);
                 return;
             }
             

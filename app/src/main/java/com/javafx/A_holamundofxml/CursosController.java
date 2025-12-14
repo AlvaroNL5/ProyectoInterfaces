@@ -370,9 +370,13 @@ public class CursosController {
             modal.getIcons().add(icon);
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/CrearUsuario.fxml"));
-            Scene scene = new Scene(loader.load());
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
             scene.getStylesheets().addAll(btnCrearUsuario.getScene().getStylesheets());
             modal.setScene(scene);
+
+            CrearUsuarioController controller = loader.getController();
+            controller.setCursosController(this);
 
             modal.showAndWait();
         } catch (IOException e) {
@@ -481,7 +485,13 @@ public class CursosController {
             
             Stage stage = (Stage) btnCursos.getScene().getWindow();
             Scene scene = new Scene(root);
-            scene.getStylesheets().addAll(btnCursos.getScene().getStylesheets());
+            
+            if (Configuracion.isTemaOscuro()) {
+                scene.getStylesheets().add(getClass().getResource("/estilos_oscuro.css").toExternalForm());
+            } else {
+                scene.getStylesheets().add(getClass().getResource("/estilos_claro.css").toExternalForm());
+            }
+            
             stage.setScene(scene);
             stage.show();
         } catch (Exception e) {
@@ -496,7 +506,13 @@ public class CursosController {
             
             Stage stage = (Stage) btnCerrarSesion.getScene().getWindow();
             Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/estilos_claro.css").toExternalForm());
+            
+            if (Configuracion.isTemaOscuro()) {
+                scene.getStylesheets().add(getClass().getResource("/estilos_oscuro.css").toExternalForm());
+            } else {
+                scene.getStylesheets().add(getClass().getResource("/estilos_claro.css").toExternalForm());
+            }
+            
             stage.setScene(scene);
             stage.show();
         } catch (Exception e) {

@@ -1,7 +1,6 @@
 package com.javafx.A_holamundofxml;
 
 import javafx.animation.RotateTransition;
-import javafx.animation.FadeTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -31,8 +30,6 @@ public class AjustesController {
     private String passwordActual = "12345";
     private int edadActual = 19;
     private String emailActual = "admin@gmail.com";
-    private boolean temaOscuro = false;
-    private boolean temaCambiado = false;
     
     @FXML
     public void initialize() {
@@ -57,44 +54,36 @@ public class AjustesController {
         rotate.setToAngle(360);
         rotate.play();
         
-        temaOscuro = !temaOscuro;
-        temaCambiado = true;
+        Configuracion.setTemaOscuro(!Configuracion.isTemaOscuro());
+        aplicarTemaATodasLasVentanas();
         actualizarTextoBotonTema();
-        mostrarExito("Tema cambiado a " + (temaOscuro ? "oscuro" : "claro") + ". No olvides guardar los cambios.");
+        mostrarExito("Tema cambiado a " + (Configuracion.isTemaOscuro() ? "oscuro" : "claro") + " en todas las ventanas.");
     }
     
-    private void actualizarTextoBotonTema() {
-        btnTema.setText(temaOscuro ? "🌙 Cambiar a Modo Claro" : "☀️ Cambiar a Modo Oscuro");
+    private void aplicarTemaATodasLasVentanas() {
+        aplicarTemaAVentanaActual();
     }
     
-    @FXML
-    public void handleGuardarCambios(ActionEvent event) {
-        boolean cambiosRealizados = false;
-        
-        if (temaCambiado) {
-            aplicarCambioTema();
-            cambiosRealizados = true;
-        }
-        
-        if (aplicarCambiosDatos()) {
-            cambiosRealizados = true;
-        }
-        
-        if (cambiosRealizados) {
-            mostrarExito("Todos los cambios han sido guardados y aplicados.");
-        }
-    }
-    
-    private void aplicarCambioTema() {
+    private void aplicarTemaAVentanaActual() {
         Scene escena = btnTema.getScene();
         if (escena != null) {
             escena.getStylesheets().clear();
-            if (temaOscuro) {
+            if (Configuracion.isTemaOscuro()) {
                 escena.getStylesheets().add(getClass().getResource("/estilos_oscuro.css").toExternalForm());
             } else {
                 escena.getStylesheets().add(getClass().getResource("/estilos_claro.css").toExternalForm());
             }
-            temaCambiado = false;
+        }
+    }
+    
+    private void actualizarTextoBotonTema() {
+        btnTema.setText(Configuracion.isTemaOscuro() ? "🌙 Cambiar a Modo Claro" : "☀️ Cambiar a Modo Oscuro");
+    }
+    
+    @FXML
+    public void handleGuardarCambios(ActionEvent event) {
+        if (aplicarCambiosDatos()) {
+            mostrarExito("Datos personales guardados correctamente.");
         }
     }
     
@@ -166,10 +155,11 @@ public class AjustesController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Cursos.fxml"));
             Parent root = loader.load();
             
-            Stage stage = (Stage) lblNombre.getScene().getWindow();
+            CursosController cursosController = loader.getController();
+            Stage stage = (Stage) btnTema.getScene().getWindow();
             Scene scene = new Scene(root);
             
-            if (temaOscuro) {
+            if (Configuracion.isTemaOscuro()) {
                 scene.getStylesheets().add(getClass().getResource("/estilos_oscuro.css").toExternalForm());
             } else {
                 scene.getStylesheets().add(getClass().getResource("/estilos_claro.css").toExternalForm());

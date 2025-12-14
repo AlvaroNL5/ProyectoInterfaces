@@ -17,7 +17,13 @@ public class Main extends Application {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/Login.fxml"));
         Parent root = loader.load();
         Scene scene = new Scene(root);
-        scene.getStylesheets().add(getClass().getResource("/estilos_claro.css").toExternalForm());
+        
+        if (Configuracion.isTemaOscuro()) {
+            scene.getStylesheets().add(getClass().getResource("/estilos_oscuro.css").toExternalForm());
+        } else {
+            scene.getStylesheets().add(getClass().getResource("/estilos_claro.css").toExternalForm());
+        }
+        
         primeraEscena.setScene(scene);
         primeraEscena.setTitle("Login");
         agregarIcono(primeraEscena);

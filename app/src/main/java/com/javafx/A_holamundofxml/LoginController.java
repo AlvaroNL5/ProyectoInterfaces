@@ -57,7 +57,13 @@ public class LoginController {
                     try {
                         Stage stage = (Stage) btnLogin.getScene().getWindow();
                         Scene scene = new Scene(root);
-                        scene.getStylesheets().addAll(btnLogin.getScene().getStylesheets());
+                        
+                        if (Configuracion.isTemaOscuro()) {
+                            scene.getStylesheets().add(getClass().getResource("/estilos_oscuro.css").toExternalForm());
+                        } else {
+                            scene.getStylesheets().add(getClass().getResource("/estilos_claro.css").toExternalForm());
+                        }
+                        
                         stage.setScene(scene);
                         
                         FadeTransition fadeIn = new FadeTransition(Duration.millis(300), root);

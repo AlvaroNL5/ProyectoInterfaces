@@ -1,6 +1,7 @@
 package com.javafx.A_holamundofxml;
 
 import javafx.animation.FadeTransition;
+import javafx.animation.TranslateTransition;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -8,7 +9,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -280,11 +280,13 @@ public class CursoDetalleController {
         AlumnoItem alumnoSeleccionado = comboAlumnosDisponibles.getValue();
         if (alumnoSeleccionado == null) {
             mostrarError("Selecciona un usuario para añadir al curso");
+            shakeNode(comboAlumnosDisponibles);
             return;
         }
 
         if (alumnoSeleccionado.getCursosAsignados() >= 2) {
             mostrarError("Este usuario ya está en 2 cursos. No puede asignarse a más cursos.");
+            shakeNode(comboAlumnosDisponibles);
             return;
         }
 
@@ -365,22 +367,36 @@ public class CursoDetalleController {
         }
     }
 
+    private void shakeNode(javafx.scene.Node node) {
+        TranslateTransition shake = new TranslateTransition(Duration.millis(100), node);
+        shake.setFromX(0);
+        shake.setByX(10);
+        shake.setCycleCount(6);
+        shake.setAutoReverse(true);
+        shake.playFromStart();
+    }
+
     private boolean actualizarCurso() {
         String nuevoNombre = txtInfoNombre.getText().trim();
         String nuevaDescripcion = txtInfoDescripcion.getText().trim();
 
+        StringBuilder errores = new StringBuilder();
+
         if (nuevoNombre.isEmpty()) {
-            mostrarError("El nombre del curso no puede estar vacío");
-            return false;
+            errores.append("El nombre del curso no puede estar vacío\n");
+            shakeNode(txtInfoNombre);
+        } else if (nuevoNombre.length() > 255) {
+            errores.append("El nombre del curso no puede exceder los 255 caracteres\n");
+            shakeNode(txtInfoNombre);
         }
         
         if (nuevaDescripcion.isEmpty()) {
-            mostrarError("La descripción del curso no puede estar vacía");
-            return false;
+            errores.append("La descripción del curso no puede estar vacía\n");
+            shakeNode(txtInfoDescripcion);
         }
-        
-        if (nuevoNombre.length() > 255) {
-            mostrarError("El nombre del curso no puede exceder los 255 caracteres");
+
+        if (errores.length() > 0) {
+            mostrarError(errores.toString().trim());
             return false;
         }
 
@@ -393,6 +409,7 @@ public class CursoDetalleController {
             
             if (rs.next() && rs.getInt(1) > 0) {
                 mostrarError("Ya existe un curso con este nombre");
+                shakeNode(txtInfoNombre);
                 return false;
             }
 

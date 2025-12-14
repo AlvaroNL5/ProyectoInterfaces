@@ -1,11 +1,13 @@
 package com.javafx.A_holamundofxml;
 
+import javafx.animation.TranslateTransition;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -33,6 +35,15 @@ public class CrearUsuarioController {
         comboRol.setValue("alumno");
     }
     
+    private void shakeNode(javafx.scene.Node node) {
+        TranslateTransition shake = new TranslateTransition(Duration.millis(100), node);
+        shake.setFromX(0);
+        shake.setByX(10);
+        shake.setCycleCount(6);
+        shake.setAutoReverse(true);
+        shake.playFromStart();
+    }
+    
     @FXML
     void handleCancelar(ActionEvent event) {
         ((Stage) txtNombre.getScene().getWindow()).close();
@@ -42,66 +53,59 @@ public class CrearUsuarioController {
     void handleCrear(ActionEvent event) {
         if (validarCampos()) {
             crearUsuario();
-            ((Stage) txtNombre.getScene().getWindow()).close();
         }
     }
     
     private boolean validarCampos() {
-        if (txtNombre.getText().trim().isEmpty()) {
-            mostrarError("El nombre es obligatorio");
-            return false;
-        }
-        
-        if (txtApellidos.getText().trim().isEmpty()) {
-            mostrarError("Los apellidos son obligatorios");
-            return false;
-        }
-        
-        if (txtEmail.getText().trim().isEmpty()) {
-            mostrarError("El email es obligatorio");
-            return false;
-        }
-        
-        if (comboRol.getValue() == null) {
-            mostrarError("El rol es obligatorio");
-            return false;
-        }
-        
-        if (txtEdad.getText().trim().isEmpty()) {
-            mostrarError("La edad es obligatoria");
-            return false;
-        }
-        
-        try {
-            int edad = Integer.parseInt(txtEdad.getText().trim());
-            if (edad < 0 || edad > 150) {
-                mostrarError("La edad debe estar entre 0 y 150 años");
-                return false;
-            }
-        } catch (NumberFormatException e) {
-            mostrarError("La edad debe ser un número válido");
-            return false;
-        }
-        
+        String nombre = txtNombre.getText().trim();
+        String apellidos = txtApellidos.getText().trim();
         String email = txtEmail.getText().trim();
-        if (!validarEmail(email)) {
-            mostrarError("El email debe tener un formato válido (ejemplo: usuario@dominio.com)");
-            return false;
+        String rol = comboRol.getValue();
+        String edadStr = txtEdad.getText().trim();
+        
+        StringBuilder errores = new StringBuilder();
+        
+        if (nombre.isEmpty()) {
+            errores.append("El nombre es obligatorio\n");
+            shakeNode(txtNombre);
         }
         
-        try (Connection conn = DatabaseConnection.getConnection()) {
-            String query = "SELECT COUNT(*) FROM USUARIO WHERE email = ?";
-            PreparedStatement stmt = conn.prepareStatement(query);
-            stmt.setString(1, email);
-            ResultSet rs = stmt.executeQuery();
-            
-            if (rs.next() && rs.getInt(1) > 0) {
-                mostrarError("Ya existe un usuario con este email");
-                return false;
+        if (apellidos.isEmpty()) {
+            errores.append("Los apellidos son obligatorios\n");
+            shakeNode(txtApellidos);
+        }
+        
+        if (email.isEmpty()) {
+            errores.append("El email es obligatorio\n");
+            shakeNode(txtEmail);
+        } else if (!validarEmail(email)) {
+            errores.append("El email debe tener un formato válido (ejemplo: usuario@dominio.com)\n");
+            shakeNode(txtEmail);
+        }
+        
+        if (rol == null) {
+            errores.append("El rol es obligatorio\n");
+            shakeNode(comboRol);
+        }
+        
+        if (edadStr.isEmpty()) {
+            errores.append("La edad es obligatoria\n");
+            shakeNode(txtEdad);
+        } else {
+            try {
+                int edad = Integer.parseInt(edadStr);
+                if (edad < 0 || edad > 150) {
+                    errores.append("La edad debe estar entre 0 y 150 años\n");
+                    shakeNode(txtEdad);
+                }
+            } catch (NumberFormatException e) {
+                errores.append("La edad debe ser un número válido\n");
+                shakeNode(txtEdad);
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            mostrarError("Error al verificar el email");
+        }
+        
+        if (errores.length() > 0) {
+            mostrarError(errores.toString().trim());
             return false;
         }
         
@@ -114,12 +118,25 @@ public class CrearUsuarioController {
     }
     
     private void crearUsuario() {
+        String email = txtEmail.getText().trim();
+        
         try (Connection conn = DatabaseConnection.getConnection()) {
+            String checkQuery = "SELECT COUNT(*) FROM USUARIO WHERE email = ?";
+            PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
+            checkStmt.setString(1, email);
+            ResultSet rs = checkStmt.executeQuery();
+            
+            if (rs.next() && rs.getInt(1) > 0) {
+                mostrarError("Ya existe un usuario con este email");
+                shakeNode(txtEmail);
+                return;
+            }
+            
             String query = "INSERT INTO USUARIO (nombre, apellido, email, contraseña, tipo_usuario, edad) VALUES (?, ?, ?, ?, ?, ?)";
             PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setString(1, txtNombre.getText().trim());
             stmt.setString(2, txtApellidos.getText().trim());
-            stmt.setString(3, txtEmail.getText().trim());
+            stmt.setString(3, email);
             stmt.setString(4, "password123");
             stmt.setString(5, comboRol.getValue());
             stmt.setInt(6, Integer.parseInt(txtEdad.getText().trim()));
@@ -128,9 +145,11 @@ public class CrearUsuarioController {
             
             if (cursosController != null) {
                 cursosController.cargarUsuarios();
+                cursosController.cargarAsistencias();
             }
             
             mostrarExito("Usuario creado correctamente");
+            ((Stage) txtNombre.getScene().getWindow()).close();
             
         } catch (SQLException e) {
             e.printStackTrace();

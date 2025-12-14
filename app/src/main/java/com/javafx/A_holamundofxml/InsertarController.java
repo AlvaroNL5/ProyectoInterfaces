@@ -1,5 +1,6 @@
 package com.javafx.A_holamundofxml;
 
+import javafx.animation.TranslateTransition;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -10,6 +11,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -113,41 +115,60 @@ public class InsertarController {
         }
     }
     
+    private void shakeNode(javafx.scene.Node node) {
+        TranslateTransition shake = new TranslateTransition(Duration.millis(100), node);
+        shake.setFromX(0);
+        shake.setByX(10);
+        shake.setCycleCount(6);
+        shake.setAutoReverse(true);
+        shake.playFromStart();
+    }
+    
     private boolean validarCampos() {
-        if (txtFaltas.getText().trim().isEmpty()) {
-            mostrarError("Las faltas son obligatorias");
-            return false;
-        }
+        String faltasStr = txtFaltas.getText().trim();
+        String notaStr = txtNota.getText().trim();
         
-        if (txtNota.getText().trim().isEmpty()) {
-            mostrarError("La nota es obligatoria");
-            return false;
-        }
+        StringBuilder errores = new StringBuilder();
         
-        try {
-            int faltas = Integer.parseInt(txtFaltas.getText().trim());
-            if (faltas < 0) {
-                mostrarError("Las faltas no pueden ser negativas");
-                return false;
+        if (faltasStr.isEmpty()) {
+            errores.append("Las faltas son obligatorias\n");
+            shakeNode(txtFaltas);
+        } else {
+            try {
+                int faltas = Integer.parseInt(faltasStr);
+                if (faltas < 0) {
+                    errores.append("Las faltas no pueden ser negativas\n");
+                    shakeNode(txtFaltas);
+                }
+            } catch (NumberFormatException e) {
+                errores.append("Las faltas deben ser un número entero\n");
+                shakeNode(txtFaltas);
             }
-        } catch (NumberFormatException e) {
-            mostrarError("Las faltas deben ser un número entero");
-            return false;
         }
         
-        try {
-            double nota = Double.parseDouble(txtNota.getText().trim());
-            if (nota < 0 || nota > 10) {
-                mostrarError("La nota debe estar entre 0 y 10 (ambos incluidos)");
-                return false;
+        if (notaStr.isEmpty()) {
+            errores.append("La nota es obligatoria\n");
+            shakeNode(txtNota);
+        } else {
+            try {
+                double nota = Double.parseDouble(notaStr);
+                if (nota < 0 || nota > 10) {
+                    errores.append("La nota debe estar entre 0 y 10 (ambos incluidos)\n");
+                    shakeNode(txtNota);
+                }
+            } catch (NumberFormatException e) {
+                errores.append("La nota debe ser un número\n");
+                shakeNode(txtNota);
             }
-        } catch (NumberFormatException e) {
-            mostrarError("La nota debe ser un número");
-            return false;
         }
         
         if (comboCurso.getValue() == null) {
-            mostrarError("Debe seleccionar un curso");
+            errores.append("Debe seleccionar un curso\n");
+            shakeNode(comboCurso);
+        }
+        
+        if (errores.length() > 0) {
+            mostrarError(errores.toString().trim());
             return false;
         }
         

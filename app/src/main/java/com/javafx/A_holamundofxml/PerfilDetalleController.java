@@ -1,11 +1,13 @@
 package com.javafx.A_holamundofxml;
 
+import javafx.animation.TranslateTransition;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -67,6 +69,15 @@ public class PerfilDetalleController {
         }
     }
     
+    private void shakeNode(javafx.scene.Node node) {
+        TranslateTransition shake = new TranslateTransition(Duration.millis(100), node);
+        shake.setFromX(0);
+        shake.setByX(10);
+        shake.setCycleCount(6);
+        shake.setAutoReverse(true);
+        shake.playFromStart();
+    }
+    
     private boolean actualizarUsuario() {
         if (usuario == null) {
             mostrarError("No hay usuario seleccionado");
@@ -79,25 +90,49 @@ public class PerfilDetalleController {
         String nuevoTipo = comboTipo.getValue();
         String nuevaEdadStr = txtEdad.getText().trim();
         
-        if (nuevoNombre.isEmpty() || nuevosApellidos.isEmpty() || nuevoEmail.isEmpty() || nuevoTipo == null || nuevaEdadStr.isEmpty()) {
-            mostrarError("Todos los campos son obligatorios");
-            return false;
+        StringBuilder errores = new StringBuilder();
+        
+        if (nuevoNombre.isEmpty()) {
+            errores.append("El nombre es obligatorio\n");
+            shakeNode(txtNombre);
         }
         
-        int nuevaEdad;
-        try {
-            nuevaEdad = Integer.parseInt(nuevaEdadStr);
-            if (nuevaEdad < 0 || nuevaEdad > 150) {
-                mostrarError("La edad debe estar entre 0 y 150 años");
-                return false;
+        if (nuevosApellidos.isEmpty()) {
+            errores.append("Los apellidos son obligatorios\n");
+            shakeNode(txtApellidos);
+        }
+        
+        if (nuevoEmail.isEmpty()) {
+            errores.append("El email es obligatorio\n");
+            shakeNode(txtEmail);
+        } else if (!nuevoEmail.contains("@") || !nuevoEmail.contains(".")) {
+            errores.append("El email debe tener un formato válido (ejemplo: usuario@dominio.com)\n");
+            shakeNode(txtEmail);
+        }
+        
+        if (nuevoTipo == null) {
+            errores.append("El tipo es obligatorio\n");
+            shakeNode(comboTipo);
+        }
+        
+        if (nuevaEdadStr.isEmpty()) {
+            errores.append("La edad es obligatoria\n");
+            shakeNode(txtEdad);
+        } else {
+            try {
+                int nuevaEdad = Integer.parseInt(nuevaEdadStr);
+                if (nuevaEdad < 0 || nuevaEdad > 150) {
+                    errores.append("La edad debe estar entre 0 y 150 años\n");
+                    shakeNode(txtEdad);
+                }
+            } catch (NumberFormatException e) {
+                errores.append("La edad debe ser un número válido\n");
+                shakeNode(txtEdad);
             }
-        } catch (NumberFormatException e) {
-            mostrarError("La edad debe ser un número válido");
-            return false;
         }
         
-        if (!nuevoEmail.contains("@") || !nuevoEmail.contains(".")) {
-            mostrarError("El email debe tener un formato válido (ejemplo: usuario@dominio.com)");
+        if (errores.length() > 0) {
+            mostrarError(errores.toString().trim());
             return false;
         }
         
@@ -111,6 +146,7 @@ public class PerfilDetalleController {
                 
                 if (rs.next() && rs.getInt(1) > 0) {
                     mostrarError("Ya existe otro usuario con este email");
+                    shakeNode(txtEmail);
                     return false;
                 }
             }
@@ -121,7 +157,7 @@ public class PerfilDetalleController {
             stmt.setString(2, nuevosApellidos);
             stmt.setString(3, nuevoEmail);
             stmt.setString(4, nuevoTipo);
-            stmt.setInt(5, nuevaEdad);
+            stmt.setInt(5, Integer.parseInt(nuevaEdadStr));
             stmt.setInt(6, usuario.getIdUsuario());
             
             int filasActualizadas = stmt.executeUpdate();
