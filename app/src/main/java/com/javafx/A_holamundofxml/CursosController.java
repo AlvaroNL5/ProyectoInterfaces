@@ -486,11 +486,11 @@ public class CursosController {
             Stage stage = (Stage) btnCursos.getScene().getWindow();
             Scene scene = new Scene(root);
             
-            if (Configuracion.isTemaOscuro()) {
+            /*if (Configuracion.isTemaOscuro()) {
                 scene.getStylesheets().add(getClass().getResource("/estilos_oscuro.css").toExternalForm());
             } else {
                 scene.getStylesheets().add(getClass().getResource("/estilos_claro.css").toExternalForm());
-            }
+            }*/
             
             stage.setScene(scene);
             stage.show();
@@ -507,11 +507,11 @@ public class CursosController {
             Stage stage = (Stage) btnCerrarSesion.getScene().getWindow();
             Scene scene = new Scene(root);
             
-            if (Configuracion.isTemaOscuro()) {
+            /*if (Configuracion.isTemaOscuro()) {
                 scene.getStylesheets().add(getClass().getResource("/estilos_oscuro.css").toExternalForm());
             } else {
                 scene.getStylesheets().add(getClass().getResource("/estilos_claro.css").toExternalForm());
-            }
+            }*/
             
             stage.setScene(scene);
             stage.show();

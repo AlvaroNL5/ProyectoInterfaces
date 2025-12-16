@@ -18,11 +18,11 @@ public class Main extends Application {
         Parent root = loader.load();
         Scene scene = new Scene(root);
         
-        if (Configuracion.isTemaOscuro()) {
+        /*if (Configuracion.isTemaOscuro()) {
             scene.getStylesheets().add(getClass().getResource("/estilos_oscuro.css").toExternalForm());
         } else {
             scene.getStylesheets().add(getClass().getResource("/estilos_claro.css").toExternalForm());
-        }
+        }*/
         
         primeraEscena.setScene(scene);
         primeraEscena.setTitle("Login");

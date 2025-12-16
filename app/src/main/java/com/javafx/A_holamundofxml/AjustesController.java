@@ -68,11 +68,11 @@ public class AjustesController {
         Scene escena = btnTema.getScene();
         if (escena != null) {
             escena.getStylesheets().clear();
-            if (Configuracion.isTemaOscuro()) {
+            /*if (Configuracion.isTemaOscuro()) {
                 escena.getStylesheets().add(getClass().getResource("/estilos_oscuro.css").toExternalForm());
             } else {
                 escena.getStylesheets().add(getClass().getResource("/estilos_claro.css").toExternalForm());
-            }
+            }*/
         }
     }
     
@@ -159,11 +159,11 @@ public class AjustesController {
             Stage stage = (Stage) btnTema.getScene().getWindow();
             Scene scene = new Scene(root);
             
-            if (Configuracion.isTemaOscuro()) {
+            /*if (Configuracion.isTemaOscuro()) {
                 scene.getStylesheets().add(getClass().getResource("/estilos_oscuro.css").toExternalForm());
             } else {
                 scene.getStylesheets().add(getClass().getResource("/estilos_claro.css").toExternalForm());
-            }
+            }*/
             
             stage.setScene(scene);
             stage.show();
