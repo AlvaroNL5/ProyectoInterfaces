@@ -18,16 +18,23 @@ public class Main extends Application {
         Parent root = loader.load();
         Scene scene = new Scene(root);
         
-        /*if (Configuracion.isTemaOscuro()) {
-            scene.getStylesheets().add(getClass().getResource("/estilos_oscuro.css").toExternalForm());
-        } else {
-            scene.getStylesheets().add(getClass().getResource("/estilos_claro.css").toExternalForm());
-        }*/
+        aplicarTema(scene);
         
         primeraEscena.setScene(scene);
         primeraEscena.setTitle("Login");
         agregarIcono(primeraEscena);
         primeraEscena.show();
+    }
+    
+    public static void aplicarTema(Scene scene) {
+        scene.getStylesheets().clear();
+        String css;
+        if (Configuracion.isTemaOscuro()) {
+            css = Main.class.getResource("/estilos_oscuro.css").toExternalForm();
+        } else {
+            css = Main.class.getResource("/estilos_claro.css").toExternalForm();
+        }
+        scene.getStylesheets().add(css);
     }
     
     private void agregarIcono(Stage stage) {

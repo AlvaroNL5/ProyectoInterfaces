@@ -14,7 +14,7 @@ public class DatabaseConnection {
         try {
             if (conexion == null || conexion.isClosed()) {
                 conexion = DriverManager.getConnection(URL, USER, PASSWORD);
-                System.out.println("Conexion realizada");
+                System.out.println("Conexión realizada");
             }
         } catch (SQLException e) {
             System.out.println("No se conectó con la base de datos, error: " + e.getMessage());

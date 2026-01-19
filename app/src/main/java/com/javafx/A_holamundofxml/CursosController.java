@@ -81,6 +81,8 @@ public class CursosController {
     private ObservableList<Curso> todosLosCursos = FXCollections.observableArrayList();
     private ObservableList<Usuario> todosLosUsuarios = FXCollections.observableArrayList();
     private ObservableList<Asistencia> todasLasAsistencias = FXCollections.observableArrayList();
+    private int idUsuarioActual;
+    private String tipoUsuarioActual;
 
     public static class Usuario {
         private final SimpleIntegerProperty idUsuario;
@@ -154,6 +156,21 @@ public class CursosController {
         public String getNombreCurso() { return nombreCurso.get(); }
     }
 
+    public void setUsuarioActual(int idUsuario, String nombre, String tipo) {
+        this.idUsuarioActual = idUsuario;
+        this.tipoUsuarioActual = tipo;
+        lblNombreUsuario.setText("Usuario: " + nombre);
+        lblTipoUsuario.setText("Tipo: " + tipo);
+        
+        if (tipo.equals("alumno")) {
+            btnCrearCurso.setDisable(true);
+            btnCrearUsuario.setDisable(true);
+            btnExpulsar.setDisable(true);
+            btnExpulsar1.setDisable(true);
+            btnVerPerfil1.setDisable(true);
+        }
+    }
+
     @FXML
     void handleBuscar(ActionEvent event) {
         if (vboxCursos.isVisible()) {
@@ -167,6 +184,11 @@ public class CursosController {
 
     @FXML
     void handleExpulsar(ActionEvent event) {
+        if (tipoUsuarioActual.equals("alumno")) {
+            mostrarAlerta("Error", "No tienes permisos para realizar esta acción");
+            return;
+        }
+        
         if (vboxCursos.isVisible()) {
             Curso cursoSeleccionado = tablaCursos.getSelectionModel().getSelectedItem();
             if (cursoSeleccionado != null) {
@@ -320,6 +342,11 @@ public class CursosController {
     }
     
     public void lanzarCrearCurso() {
+        if (tipoUsuarioActual.equals("alumno")) {
+            mostrarAlerta("Error", "No tienes permisos para crear cursos");
+            return;
+        }
+        
         try {
             Stage modal = new Stage();
             modal.setTitle("Crear Curso");
@@ -332,7 +359,9 @@ public class CursosController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/CrearCurso.fxml"));
             Parent root = loader.load();
             Scene scene = new Scene(root);
-            scene.getStylesheets().addAll(btnCrearCurso.getScene().getStylesheets());
+            
+            Main.aplicarTema(scene);
+            
             modal.setScene(scene);
 
             root.setOpacity(0);
@@ -360,6 +389,11 @@ public class CursosController {
     }
 
     public void lanzarCrearUsuario() {
+        if (tipoUsuarioActual.equals("alumno")) {
+            mostrarAlerta("Error", "No tienes permisos para crear usuarios");
+            return;
+        }
+        
         try {
             Stage modal = new Stage();
             modal.setTitle("Crear Usuario");
@@ -372,11 +406,12 @@ public class CursosController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/CrearUsuario.fxml"));
             Parent root = loader.load();
             Scene scene = new Scene(root);
-            scene.getStylesheets().addAll(btnCrearUsuario.getScene().getStylesheets());
+            
+            Main.aplicarTema(scene);
+            
             modal.setScene(scene);
 
             CrearUsuarioController controller = loader.getController();
-            controller.setCursosController(this);
 
             modal.showAndWait();
         } catch (IOException e) {
@@ -403,7 +438,9 @@ public class CursosController {
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Insertar.fxml"));
             Scene scene = new Scene(loader.load());
-            scene.getStylesheets().addAll(btnInsertar.getScene().getStylesheets());
+            
+            Main.aplicarTema(scene);
+            
             modal.setScene(scene);
 
             InsertarController controller = loader.getController();
@@ -436,7 +473,9 @@ public class CursosController {
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/CursoDetalle.fxml"));
             Scene scene = new Scene(loader.load());
-            scene.getStylesheets().addAll(tablaCursos.getScene().getStylesheets());
+            
+            Main.aplicarTema(scene);
+            
             stage.setScene(scene);
 
             CursoDetalleController controller = loader.getController();
@@ -464,7 +503,8 @@ public class CursosController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/PerfilDetalle.fxml"));
             Parent root = loader.load();
             Scene scene = new Scene(root);
-            scene.getStylesheets().addAll(tablaUsuarios1.getScene().getStylesheets());
+            
+            Main.aplicarTema(scene);
             
             PerfilDetalleController controller = loader.getController();
             controller.cargarDatosUsuario(usuario);
@@ -483,14 +523,12 @@ public class CursosController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
             
+            AjustesController ajustesController = loader.getController();
+            
             Stage stage = (Stage) btnCursos.getScene().getWindow();
             Scene scene = new Scene(root);
             
-            /*if (Configuracion.isTemaOscuro()) {
-                scene.getStylesheets().add(getClass().getResource("/estilos_oscuro.css").toExternalForm());
-            } else {
-                scene.getStylesheets().add(getClass().getResource("/estilos_claro.css").toExternalForm());
-            }*/
+            Main.aplicarTema(scene);
             
             stage.setScene(scene);
             stage.show();
@@ -507,11 +545,7 @@ public class CursosController {
             Stage stage = (Stage) btnCerrarSesion.getScene().getWindow();
             Scene scene = new Scene(root);
             
-            /*if (Configuracion.isTemaOscuro()) {
-                scene.getStylesheets().add(getClass().getResource("/estilos_oscuro.css").toExternalForm());
-            } else {
-                scene.getStylesheets().add(getClass().getResource("/estilos_claro.css").toExternalForm());
-            }*/
+            Main.aplicarTema(scene);
             
             stage.setScene(scene);
             stage.show();

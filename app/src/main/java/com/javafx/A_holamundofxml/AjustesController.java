@@ -14,6 +14,11 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 public class AjustesController {
     
     @FXML private Label lblNombre;
@@ -27,9 +32,7 @@ public class AjustesController {
     @FXML private TextField txtEmail;
     @FXML private Button btnTema;
     
-    private String passwordActual = "12345";
-    private int edadActual = 19;
-    private String emailActual = "admin@gmail.com";
+    private int idUsuarioActual;
     
     @FXML
     public void initialize() {
@@ -38,13 +41,24 @@ public class AjustesController {
     }
     
     private void cargarDatosUsuario() {
-        lblNombre.setText("Admin");
-        lblApellidos.setText("Algar Morales");
-        lblEmail.setText(emailActual);
-        lblTipo.setText("Profesor");
-        lblEdad.setText(String.valueOf(edadActual));
-        txtEdad.setText(String.valueOf(edadActual));
-        txtEmail.setText(emailActual);
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            String query = "SELECT nombre, apellido, email, tipo_usuario, edad FROM USUARIO WHERE id_usuario = ?";
+            PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setInt(1, 1);
+            ResultSet rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                lblNombre.setText(rs.getString("nombre"));
+                lblApellidos.setText(rs.getString("apellido"));
+                lblEmail.setText(rs.getString("email"));
+                lblTipo.setText(rs.getString("tipo_usuario"));
+                lblEdad.setText(String.valueOf(rs.getInt("edad")));
+                txtEdad.setText(String.valueOf(rs.getInt("edad")));
+                txtEmail.setText(rs.getString("email"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
     
     @FXML
@@ -55,29 +69,20 @@ public class AjustesController {
         rotate.play();
         
         Configuracion.setTemaOscuro(!Configuracion.isTemaOscuro());
-        aplicarTemaATodasLasVentanas();
+        aplicarTemaAVentanaActual();
         actualizarTextoBotonTema();
         mostrarExito("Tema cambiado a " + (Configuracion.isTemaOscuro() ? "oscuro" : "claro") + " en todas las ventanas.");
-    }
-    
-    private void aplicarTemaATodasLasVentanas() {
-        aplicarTemaAVentanaActual();
     }
     
     private void aplicarTemaAVentanaActual() {
         Scene escena = btnTema.getScene();
         if (escena != null) {
-            escena.getStylesheets().clear();
-            /*if (Configuracion.isTemaOscuro()) {
-                escena.getStylesheets().add(getClass().getResource("/estilos_oscuro.css").toExternalForm());
-            } else {
-                escena.getStylesheets().add(getClass().getResource("/estilos_claro.css").toExternalForm());
-            }*/
+            Main.aplicarTema(escena);
         }
     }
     
     private void actualizarTextoBotonTema() {
-        btnTema.setText(Configuracion.isTemaOscuro() ? "🌙 Cambiar a Modo Claro" : "☀️ Cambiar a Modo Oscuro");
+        btnTema.setText(Configuracion.isTemaOscuro() ? "Cambiar a Modo Claro" : "Cambiar a Modo Oscuro");
     }
     
     @FXML
@@ -100,12 +105,21 @@ public class AjustesController {
                 mostrarError("Las contraseñas no coinciden");
                 return false;
             }
-            if (!nuevaPassword.equals(passwordActual)) {
-                passwordActual = nuevaPassword;
-                mostrarExito("Contraseña actualizada correctamente.");
+            
+            try (Connection conn = DatabaseConnection.getConnection()) {
+                String query = "UPDATE USUARIO SET contraseña = ? WHERE id_usuario = ?";
+                PreparedStatement stmt = conn.prepareStatement(query);
+                stmt.setString(1, nuevaPassword);
+                stmt.setInt(2, 1);
+                stmt.executeUpdate();
+                
                 txtNuevaPassword.clear();
                 txtConfirmarPassword.clear();
                 cambiosRealizados = true;
+            } catch (SQLException e) {
+                e.printStackTrace();
+                mostrarError("Error al actualizar la contraseña");
+                return false;
             }
         }
         
@@ -116,11 +130,20 @@ public class AjustesController {
                     mostrarError("La edad debe estar entre 0 y 150");
                     return false;
                 }
-                if (nuevaEdad != edadActual) {
-                    edadActual = nuevaEdad;
+                
+                try (Connection conn = DatabaseConnection.getConnection()) {
+                    String query = "UPDATE USUARIO SET edad = ? WHERE id_usuario = ?";
+                    PreparedStatement stmt = conn.prepareStatement(query);
+                    stmt.setInt(1, nuevaEdad);
+                    stmt.setInt(2, 1);
+                    stmt.executeUpdate();
+                    
                     lblEdad.setText(String.valueOf(nuevaEdad));
-                    mostrarExito("Edad actualizada a: " + nuevaEdad);
                     cambiosRealizados = true;
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    mostrarError("Error al actualizar la edad");
+                    return false;
                 }
             } catch (NumberFormatException e) {
                 mostrarError("La edad debe ser un número válido");
@@ -133,11 +156,20 @@ public class AjustesController {
                 mostrarError("El email debe ser válido (formato: usuario@dominio.com)");
                 return false;
             }
-            if (!nuevoEmail.equals(emailActual)) {
-                emailActual = nuevoEmail;
+            
+            try (Connection conn = DatabaseConnection.getConnection()) {
+                String query = "UPDATE USUARIO SET email = ? WHERE id_usuario = ?";
+                PreparedStatement stmt = conn.prepareStatement(query);
+                stmt.setString(1, nuevoEmail);
+                stmt.setInt(2, 1);
+                stmt.executeUpdate();
+                
                 lblEmail.setText(nuevoEmail);
-                mostrarExito("Email actualizado a: " + nuevoEmail);
                 cambiosRealizados = true;
+            } catch (SQLException e) {
+                e.printStackTrace();
+                mostrarError("Error al actualizar el email");
+                return false;
             }
         }
         
@@ -155,15 +187,10 @@ public class AjustesController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Cursos.fxml"));
             Parent root = loader.load();
             
-            CursosController cursosController = loader.getController();
             Stage stage = (Stage) btnTema.getScene().getWindow();
             Scene scene = new Scene(root);
             
-            /*if (Configuracion.isTemaOscuro()) {
-                scene.getStylesheets().add(getClass().getResource("/estilos_oscuro.css").toExternalForm());
-            } else {
-                scene.getStylesheets().add(getClass().getResource("/estilos_claro.css").toExternalForm());
-            }*/
+            Main.aplicarTema(scene);
             
             stage.setScene(scene);
             stage.show();

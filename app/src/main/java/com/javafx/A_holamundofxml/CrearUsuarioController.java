@@ -18,15 +18,11 @@ public class CrearUsuarioController {
     @FXML private TextField txtNombre;
     @FXML private TextField txtApellidos;
     @FXML private TextField txtEmail;
+    @FXML private PasswordField txtPassword;
+    @FXML private PasswordField txtConfirmarPassword;
     @FXML private ComboBox<String> comboRol;
     @FXML private TextField txtEdad;
     @FXML private Button btnCrear;
-    
-    private CursosController cursosController;
-    
-    public void setCursosController(CursosController controller) {
-        this.cursosController = controller;
-    }
     
     @FXML
     public void initialize() {
@@ -46,7 +42,8 @@ public class CrearUsuarioController {
     
     @FXML
     void handleCancelar(ActionEvent event) {
-        ((Stage) txtNombre.getScene().getWindow()).close();
+        Stage stage = (Stage) txtNombre.getScene().getWindow();
+        stage.close();
     }
     
     @FXML
@@ -60,6 +57,8 @@ public class CrearUsuarioController {
         String nombre = txtNombre.getText().trim();
         String apellidos = txtApellidos.getText().trim();
         String email = txtEmail.getText().trim();
+        String password = txtPassword.getText().trim();
+        String confirmarPassword = txtConfirmarPassword.getText().trim();
         String rol = comboRol.getValue();
         String edadStr = txtEdad.getText().trim();
         
@@ -81,6 +80,19 @@ public class CrearUsuarioController {
         } else if (!validarEmail(email)) {
             errores.append("El email debe tener un formato válido (ejemplo: usuario@dominio.com)\n");
             shakeNode(txtEmail);
+        }
+        
+        if (password.isEmpty()) {
+            errores.append("La contraseña es obligatoria\n");
+            shakeNode(txtPassword);
+        } else if (password.length() < 4) {
+            errores.append("La contraseña debe tener al menos 4 caracteres\n");
+            shakeNode(txtPassword);
+        }
+        
+        if (!password.equals(confirmarPassword)) {
+            errores.append("Las contraseñas no coinciden\n");
+            shakeNode(txtConfirmarPassword);
         }
         
         if (rol == null) {
@@ -119,6 +131,7 @@ public class CrearUsuarioController {
     
     private void crearUsuario() {
         String email = txtEmail.getText().trim();
+        String password = txtPassword.getText().trim();
         
         try (Connection conn = DatabaseConnection.getConnection()) {
             String checkQuery = "SELECT COUNT(*) FROM USUARIO WHERE email = ?";
@@ -137,19 +150,16 @@ public class CrearUsuarioController {
             stmt.setString(1, txtNombre.getText().trim());
             stmt.setString(2, txtApellidos.getText().trim());
             stmt.setString(3, email);
-            stmt.setString(4, "password123");
+            stmt.setString(4, password);
             stmt.setString(5, comboRol.getValue());
             stmt.setInt(6, Integer.parseInt(txtEdad.getText().trim()));
             
             stmt.executeUpdate();
             
-            if (cursosController != null) {
-                cursosController.cargarUsuarios();
-                cursosController.cargarAsistencias();
-            }
-            
             mostrarExito("Usuario creado correctamente");
-            ((Stage) txtNombre.getScene().getWindow()).close();
+            
+            Stage stage = (Stage) txtNombre.getScene().getWindow();
+            stage.close();
             
         } catch (SQLException e) {
             e.printStackTrace();
