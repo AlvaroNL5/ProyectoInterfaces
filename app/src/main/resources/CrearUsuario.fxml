@@ -49,21 +49,21 @@
     </VBox>
     
     <VBox spacing="5.0">
-        <Label text="Contraseña:">
+        <Label text="ContraseÃ±a:">
             <font>
                 <Font name="System Bold" size="12.0" />
             </font>
         </Label>
-        <PasswordField fx:id="txtPassword" prefWidth="460.0" promptText="Contraseña" />
+        <PasswordField fx:id="txtPassword" prefWidth="460.0" promptText="ContraseÃ±a" />
     </VBox>
     
     <VBox spacing="5.0">
-        <Label text="Confirmar Contraseña:">
+        <Label text="Confirmar ContraseÃ±a:">
             <font>
                 <Font name="System Bold" size="12.0" />
             </font>
         </Label>
-        <PasswordField fx:id="txtConfirmarPassword" prefWidth="460.0" promptText="Confirmar contraseña" />
+        <PasswordField fx:id="txtConfirmarPassword" prefWidth="460.0" promptText="Confirmar contraseÃ±a" />
     </VBox>
     
     <VBox spacing="5.0">

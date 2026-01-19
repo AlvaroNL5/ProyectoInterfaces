@@ -27,20 +27,20 @@
                 <Font name="System Bold" size="12.0" />
             </font>
         </Label>
-        <TextField fx:id="txtNombreCurso" prefWidth="760.0" promptText="Ej: 1º DAM" />
+        <TextField fx:id="txtNombreCurso" prefWidth="760.0" promptText="Ej: 1Âº DAM" />
     </VBox>
     
     <VBox spacing="5.0">
-        <Label text="Descripción:">
+        <Label text="DescripciÃ³n:">
             <font>
                 <Font name="System Bold" size="12.0" />
             </font>
         </Label>
-        <TextArea fx:id="txtDescripcion" prefHeight="100.0" prefWidth="760.0" promptText="Descripción del curso..." wrapText="true" />
+        <TextArea fx:id="txtDescripcion" prefHeight="100.0" prefWidth="760.0" promptText="DescripciÃ³n del curso..." wrapText="true" />
     </VBox>
     
     <VBox spacing="5.0">
-        <Label text="Añadir Alumnos al Curso:">
+        <Label text="AÃ±adir Alumnos al Curso:">
             <font>
                 <Font name="System Bold" size="14.0" />
             </font>
@@ -57,8 +57,8 @@
             </VBox>
             
             <VBox alignment="CENTER" spacing="10.0">
-                <Button onAction="#handleAnadirAlumno" text="➡ Añadir" />
-                <Button onAction="#handleQuitarAlumno" text="⬅ Quitar" />
+                <Button onAction="#handleAnadirAlumno" text="âž¡ AÃ±adir" />
+                <Button onAction="#handleQuitarAlumno" text="â¬… Quitar" />
             </VBox>
             
             <VBox spacing="5.0" HBox.hgrow="ALWAYS">

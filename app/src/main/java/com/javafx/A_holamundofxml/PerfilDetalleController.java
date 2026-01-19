@@ -6,11 +6,11 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class PerfilDetalleController {
@@ -20,6 +20,7 @@ public class PerfilDetalleController {
     @FXML private TextField txtEmail;
     @FXML private ComboBox<String> comboTipo;
     @FXML private TextField txtEdad;
+    @FXML private Button btnGuardar;
     
     private CursosController cursosController;
     private CursosController.Usuario usuario;
@@ -32,6 +33,29 @@ public class PerfilDetalleController {
     public void initialize() {
         ObservableList<String> tipos = FXCollections.observableArrayList("profesor", "alumno");
         comboTipo.setItems(tipos);
+        
+        configurarPermisos();
+        
+        txtNombre.setTooltip(new Tooltip("Nombre del usuario"));
+        txtApellidos.setTooltip(new Tooltip("Apellidos del usuario"));
+        txtEmail.setTooltip(new Tooltip("Email del usuario"));
+        comboTipo.setTooltip(new Tooltip("Rol del usuario"));
+        txtEdad.setTooltip(new Tooltip("Edad del usuario"));
+    }
+    
+    private void configurarPermisos() {
+        boolean esProfesor = Configuracion.esProfesor();
+        
+        txtNombre.setEditable(esProfesor);
+        txtApellidos.setEditable(esProfesor);
+        txtEmail.setEditable(esProfesor);
+        comboTipo.setDisable(!esProfesor);
+        txtEdad.setEditable(esProfesor);
+        
+        if (btnGuardar != null) {
+            btnGuardar.setVisible(esProfesor);
+            btnGuardar.setManaged(esProfesor);
+        }
     }
     
     public void cargarDatosUsuario(CursosController.Usuario usuario) {
@@ -42,12 +66,6 @@ public class PerfilDetalleController {
             txtEmail.setText(usuario.getEmail());
             comboTipo.setValue(usuario.getTipo());
             txtEdad.setText(String.valueOf(usuario.getEdad()));
-        } else {
-            txtNombre.setText("No disponible");
-            txtApellidos.setText("No disponible");
-            txtEmail.setText("No disponible");
-            comboTipo.setValue("alumno");
-            txtEdad.setText("0");
         }
     }
     
@@ -58,12 +76,11 @@ public class PerfilDetalleController {
     }
     
     @FXML
-    void handleAplicarCambios(ActionEvent event) {
-        actualizarUsuario();
-    }
-    
-    @FXML
     void handleGuardarCambios(ActionEvent event) {
+        if (!Configuracion.esProfesor()) {
+            mostrarError("Solo los profesores pueden modificar usuarios");
+            return;
+        }
         if (actualizarUsuario()) {
             mostrarExito("Cambios guardados correctamente");
         }
@@ -106,7 +123,7 @@ public class PerfilDetalleController {
             errores.append("El email es obligatorio\n");
             shakeNode(txtEmail);
         } else if (!nuevoEmail.contains("@") || !nuevoEmail.contains(".")) {
-            errores.append("El email debe tener un formato válido (ejemplo: usuario@dominio.com)\n");
+            errores.append("El email debe tener un formato valido\n");
             shakeNode(txtEmail);
         }
         
@@ -122,11 +139,11 @@ public class PerfilDetalleController {
             try {
                 int nuevaEdad = Integer.parseInt(nuevaEdadStr);
                 if (nuevaEdad < 0 || nuevaEdad > 150) {
-                    errores.append("La edad debe estar entre 0 y 150 años\n");
+                    errores.append("La edad debe estar entre 0 y 150\n");
                     shakeNode(txtEdad);
                 }
             } catch (NumberFormatException e) {
-                errores.append("La edad debe ser un número válido\n");
+                errores.append("La edad debe ser un numero valido\n");
                 shakeNode(txtEdad);
             }
         }
@@ -136,7 +153,9 @@ public class PerfilDetalleController {
             return false;
         }
         
-        try (Connection conn = DatabaseConnection.getConnection()) {
+        try {
+            Connection conn = DatabaseConnection.getConnection();
+            
             if (!nuevoEmail.equals(usuario.getEmail())) {
                 String checkQuery = "SELECT COUNT(*) FROM USUARIO WHERE email = ? AND id_usuario != ?";
                 PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
@@ -147,8 +166,12 @@ public class PerfilDetalleController {
                 if (rs.next() && rs.getInt(1) > 0) {
                     mostrarError("Ya existe otro usuario con este email");
                     shakeNode(txtEmail);
+                    rs.close();
+                    checkStmt.close();
                     return false;
                 }
+                rs.close();
+                checkStmt.close();
             }
             
             String query = "UPDATE USUARIO SET nombre = ?, apellido = ?, email = ?, tipo_usuario = ?, edad = ? WHERE id_usuario = ?";
@@ -161,6 +184,8 @@ public class PerfilDetalleController {
             stmt.setInt(6, usuario.getIdUsuario());
             
             int filasActualizadas = stmt.executeUpdate();
+            stmt.close();
+            
             if (filasActualizadas > 0) {
                 if (cursosController != null) {
                     cursosController.cargarUsuarios();
@@ -181,14 +206,24 @@ public class PerfilDetalleController {
         alert.setTitle("Error");
         alert.setHeaderText(null);
         alert.setContentText(mensaje);
+        agregarIconoAlerta(alert);
         alert.showAndWait();
     }
     
     private void mostrarExito(String mensaje) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Éxito");
+        alert.setTitle("Exito");
         alert.setHeaderText(null);
         alert.setContentText(mensaje);
+        agregarIconoAlerta(alert);
         alert.showAndWait();
+    }
+    
+    private void agregarIconoAlerta(Alert alert) {
+        try {
+            Stage alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
+            alertStage.getIcons().add(new Image(getClass().getResourceAsStream("/muudle.png")));
+        } catch (Exception e) {
+        }
     }
 }

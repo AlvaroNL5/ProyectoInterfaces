@@ -1,9 +1,7 @@
 package com.javafx.A_holamundofxml;
 
 import javafx.animation.FadeTransition;
-import javafx.animation.ParallelTransition;
 import javafx.animation.ScaleTransition;
-import javafx.animation.SequentialTransition;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -19,7 +17,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
@@ -81,8 +81,6 @@ public class CursosController {
     private ObservableList<Curso> todosLosCursos = FXCollections.observableArrayList();
     private ObservableList<Usuario> todosLosUsuarios = FXCollections.observableArrayList();
     private ObservableList<Asistencia> todasLasAsistencias = FXCollections.observableArrayList();
-    private int idUsuarioActual;
-    private String tipoUsuarioActual;
 
     public static class Usuario {
         private final SimpleIntegerProperty idUsuario;
@@ -156,36 +154,102 @@ public class CursosController {
         public String getNombreCurso() { return nombreCurso.get(); }
     }
 
-    public void setUsuarioActual(int idUsuario, String nombre, String tipo) {
-        this.idUsuarioActual = idUsuario;
-        this.tipoUsuarioActual = tipo;
-        lblNombreUsuario.setText("Usuario: " + nombre);
-        lblTipoUsuario.setText("Tipo: " + tipo);
-        
-        if (tipo.equals("alumno")) {
-            btnCrearCurso.setDisable(true);
-            btnCrearUsuario.setDisable(true);
-            btnExpulsar.setDisable(true);
-            btnExpulsar1.setDisable(true);
-            btnVerPerfil1.setDisable(true);
-        }
-    }
-
     @FXML
-    void handleBuscar(ActionEvent event) {
-        if (vboxCursos.isVisible()) {
-            filtrarCursos(txtBuscar.getText().toLowerCase());
-        } else if (vboxUsuarios.isVisible()) {
-            filtrarUsuarios(txtBuscar1.getText().toLowerCase());
-        } else if (vboxAsistencias.isVisible()) {
-            filtrarAsistencias(txtBuscar11.getText().toLowerCase());
-        }
+    public void initialize() {
+        lblNombreUsuario.setText("Usuario: " + Configuracion.getNombreUsuarioActual());
+        String tipo = Configuracion.getTipoUsuarioActual();
+        lblTipoUsuario.setText("Rol: " + (tipo.substring(0, 1).toUpperCase() + tipo.substring(1)));
+        
+        configurarPermisosPorRol();
+        
+        btnCursos.setTooltip(new Tooltip("Ver listado de cursos (Alt+C)"));
+        btnUsuarios.setTooltip(new Tooltip("Ver listado de usuarios (Alt+U)"));
+        btnAsistencias.setTooltip(new Tooltip("Ver matriculas (Alt+M)"));
+        btnAjustes.setTooltip(new Tooltip("Configuracion y perfil (Alt+A)"));
+        btnCerrarSesion.setTooltip(new Tooltip("Cerrar sesion"));
+        
+        txtBuscar.setPromptText("Buscar por ID, nombre o descripcion...");
+        txtBuscar1.setPromptText("Buscar por ID, nombre, apellidos o email...");
+        txtBuscar11.setPromptText("Buscar por ID, nombre o curso...");
+        
+        btnCursos.setOnAction(event -> {
+            if (!vboxCursos.isVisible()) {
+                animarCambioVista(vboxUsuarios.isVisible() ? vboxUsuarios : vboxAsistencias, vboxCursos);
+                vboxUsuarios.setVisible(false);
+                vboxAsistencias.setVisible(false);
+            }
+        });
+        btnUsuarios.setOnAction(event -> {
+            if (!vboxUsuarios.isVisible()) {
+                animarCambioVista(vboxCursos.isVisible() ? vboxCursos : vboxAsistencias, vboxUsuarios);
+                vboxCursos.setVisible(false);
+                vboxAsistencias.setVisible(false);
+            }
+        });
+        btnAsistencias.setOnAction(event -> {
+            if (!vboxAsistencias.isVisible()) {
+                animarCambioVista(vboxCursos.isVisible() ? vboxCursos : vboxUsuarios, vboxAsistencias);
+                vboxCursos.setVisible(false);
+                vboxUsuarios.setVisible(false);
+            }
+        });
+        btnAjustes.setOnAction(event -> abrirAjustes());
+        btnCerrarSesion.setOnAction(event -> cerrarSesion());
+        btnCrearCurso.setOnAction(event -> {
+            animarBoton(btnCrearCurso);
+            lanzarCrearCurso();
+        });
+        btnInsertar.setOnAction(event -> {
+            animarBoton(btnInsertar);
+            lanzarInsertar();
+        });
+        btnCrearUsuario.setOnAction(event -> {
+            animarBoton(btnCrearUsuario);
+            lanzarCrearUsuario();
+        });
+
+        cargarCursos();
+        cargarUsuarios();
+        cargarAsistencias();
+        configurarColumnas();
+        
+        txtBuscar.textProperty().addListener((observable, oldValue, newValue) -> {
+            filtrarCursos(newValue.toLowerCase());
+        });
+        
+        txtBuscar1.textProperty().addListener((observable, oldValue, newValue) -> {
+            filtrarUsuarios(newValue.toLowerCase());
+        });
+        
+        txtBuscar11.textProperty().addListener((observable, oldValue, newValue) -> {
+            filtrarAsistencias(newValue.toLowerCase());
+        });
+    }
+    
+    private void configurarPermisosPorRol() {
+        boolean esProfesor = Configuracion.esProfesor();
+        
+        btnCrearCurso.setVisible(esProfesor);
+        btnCrearCurso.setManaged(esProfesor);
+        btnCrearUsuario.setVisible(esProfesor);
+        btnCrearUsuario.setManaged(esProfesor);
+        
+        btnExpulsar.setVisible(esProfesor);
+        btnExpulsar.setManaged(esProfesor);
+        btnExpulsar1.setVisible(esProfesor);
+        btnExpulsar1.setManaged(esProfesor);
+        
+        btnInsertar.setVisible(esProfesor);
+        btnInsertar.setManaged(esProfesor);
+        
+        btnVerPerfil1.setVisible(true);
+        btnVerCursoConcreto.setVisible(true);
     }
 
     @FXML
     void handleExpulsar(ActionEvent event) {
-        if (tipoUsuarioActual.equals("alumno")) {
-            mostrarAlerta("Error", "No tienes permisos para realizar esta acción");
+        if (!Configuracion.esProfesor()) {
+            mostrarAlerta("Acceso denegado", "Solo los profesores pueden realizar esta accion");
             return;
         }
         
@@ -220,7 +284,7 @@ public class CursosController {
             if (cursoSeleccionado != null) {
                 abrirDetalleCurso(cursoSeleccionado);
             } else {
-                mostrarAlerta("Error", "Debes seleccionar un curso para poder ver sus detalles");
+                mostrarAlerta("Error", "Debes seleccionar un curso para ver sus detalles");
             }
         } else if (vboxUsuarios.isVisible()) {
             Usuario usuarioSeleccionado = tablaUsuarios1.getSelectionModel().getSelectedItem();
@@ -231,81 +295,17 @@ public class CursosController {
             }
         }
     }
-
-    @FXML
-    public void initialize() {
-        btnCursos.setOnAction(event -> {
-            if (!vboxCursos.isVisible()) {
-                animarCambioVista(vboxUsuarios.isVisible() ? vboxUsuarios : vboxAsistencias, vboxCursos);
-                vboxUsuarios.setVisible(false);
-                vboxAsistencias.setVisible(false);
-            }
-        });
-        btnUsuarios.setOnAction(event -> {
-            if (!vboxUsuarios.isVisible()) {
-                animarCambioVista(vboxCursos.isVisible() ? vboxCursos : vboxAsistencias, vboxUsuarios);
-                vboxCursos.setVisible(false);
-                vboxAsistencias.setVisible(false);
-            }
-        });
-        btnAsistencias.setOnAction(event -> {
-            if (!vboxAsistencias.isVisible()) {
-                animarCambioVista(vboxCursos.isVisible() ? vboxCursos : vboxUsuarios, vboxAsistencias);
-                vboxCursos.setVisible(false);
-                vboxUsuarios.setVisible(false);
-            }
-        });
-        btnAjustes.setOnAction(event -> abrirVentana("/Ajustes.fxml"));
-        btnCerrarSesion.setOnAction(event -> {
-            FadeTransition fadeOut = new FadeTransition(Duration.millis(300), btnCerrarSesion.getScene().getRoot());
-            fadeOut.setFromValue(1.0);
-            fadeOut.setToValue(0.0);
-            fadeOut.setOnFinished(e -> cerrarSesion());
-            fadeOut.play();
-        });
-        btnCrearCurso.setOnAction(event -> {
-            animarBoton(btnCrearCurso);
-            lanzarCrearCurso();
-        });
-        btnInsertar.setOnAction(event -> {
-            animarBoton(btnInsertar);
-            lanzarInsertar();
-        });
-        btnCrearUsuario.setOnAction(event -> {
-            animarBoton(btnCrearUsuario);
-            lanzarCrearUsuario();
-        });
-
-        cargarCursos();
-        cargarUsuarios();
-        cargarAsistencias();
-        configurarColumnas();
-        
-        txtBuscar.textProperty().addListener((observable, oldValue, newValue) -> {
-            filtrarCursos(newValue.toLowerCase());
-        });
-        
-        txtBuscar1.textProperty().addListener((observable, oldValue, newValue) -> {
-            filtrarUsuarios(newValue.toLowerCase());
-        });
-        
-        txtBuscar11.textProperty().addListener((observable, oldValue, newValue) -> {
-            filtrarAsistencias(newValue.toLowerCase());
-        });
-    }
     
     private void animarCambioVista(VBox vistaAnterior, VBox vistaNueva) {
         if (vistaAnterior != null && vistaAnterior.isVisible()) {
-            FadeTransition fadeOut = new FadeTransition(Duration.millis(200), vistaAnterior);
+            FadeTransition fadeOut = new FadeTransition(Duration.millis(150), vistaAnterior);
             fadeOut.setFromValue(1.0);
             fadeOut.setToValue(0.0);
             fadeOut.setOnFinished(e -> {
                 vistaAnterior.setVisible(false);
-                
                 vistaNueva.setVisible(true);
                 vistaNueva.setOpacity(0.0);
-                
-                FadeTransition fadeIn = new FadeTransition(Duration.millis(200), vistaNueva);
+                FadeTransition fadeIn = new FadeTransition(Duration.millis(150), vistaNueva);
                 fadeIn.setFromValue(0.0);
                 fadeIn.setToValue(1.0);
                 fadeIn.play();
@@ -314,8 +314,7 @@ public class CursosController {
         } else {
             vistaNueva.setVisible(true);
             vistaNueva.setOpacity(0.0);
-            
-            FadeTransition fadeIn = new FadeTransition(Duration.millis(200), vistaNueva);
+            FadeTransition fadeIn = new FadeTransition(Duration.millis(150), vistaNueva);
             fadeIn.setFromValue(0.0);
             fadeIn.setToValue(1.0);
             fadeIn.play();
@@ -330,20 +329,12 @@ public class CursosController {
         scale.setToY(0.95);
         scale.setAutoReverse(true);
         scale.setCycleCount(2);
-        
-        ScaleTransition scaleBack = new ScaleTransition(Duration.millis(100), boton);
-        scaleBack.setFromX(0.95);
-        scaleBack.setFromY(0.95);
-        scaleBack.setToX(1.0);
-        scaleBack.setToY(1.0);
-        
-        SequentialTransition sequence = new SequentialTransition(scale, scaleBack);
-        sequence.play();
+        scale.play();
     }
     
     public void lanzarCrearCurso() {
-        if (tipoUsuarioActual.equals("alumno")) {
-            mostrarAlerta("Error", "No tienes permisos para crear cursos");
+        if (!Configuracion.esProfesor()) {
+            mostrarAlerta("Acceso denegado", "Solo los profesores pueden crear cursos");
             return;
         }
         
@@ -352,45 +343,27 @@ public class CursosController {
             modal.setTitle("Crear Curso");
             modal.initModality(Modality.APPLICATION_MODAL);
             modal.initOwner(btnCrearCurso.getScene().getWindow());
-            
-            javafx.scene.image.Image icon = new javafx.scene.image.Image(getClass().getResourceAsStream("/muudle.png"));
-            modal.getIcons().add(icon);
+            agregarIconoVentana(modal);
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/CrearCurso.fxml"));
             Parent root = loader.load();
             Scene scene = new Scene(root);
-            
             Main.aplicarTema(scene);
-            
             modal.setScene(scene);
-
-            root.setOpacity(0);
-            FadeTransition fadeIn = new FadeTransition(Duration.millis(300), root);
-            fadeIn.setFromValue(0.0);
-            fadeIn.setToValue(1.0);
-            
-            ScaleTransition scaleIn = new ScaleTransition(Duration.millis(300), root);
-            scaleIn.setFromX(0.9);
-            scaleIn.setFromY(0.9);
-            scaleIn.setToX(1.0);
-            scaleIn.setToY(1.0);
-            
-            ParallelTransition parallel = new ParallelTransition(fadeIn, scaleIn);
-            
-            modal.show();
-            parallel.play();
 
             CrearCursoController controller = loader.getController();
             controller.setCursosController(this);
 
+            modal.showAndWait();
+            
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public void lanzarCrearUsuario() {
-        if (tipoUsuarioActual.equals("alumno")) {
-            mostrarAlerta("Error", "No tienes permisos para crear usuarios");
+        if (!Configuracion.esProfesor()) {
+            mostrarAlerta("Acceso denegado", "Solo los profesores pueden crear usuarios");
             return;
         }
         
@@ -399,27 +372,30 @@ public class CursosController {
             modal.setTitle("Crear Usuario");
             modal.initModality(Modality.APPLICATION_MODAL);
             modal.initOwner(btnCrearUsuario.getScene().getWindow());
-            
-            javafx.scene.image.Image icon = new javafx.scene.image.Image(getClass().getResourceAsStream("/muudle.png"));
-            modal.getIcons().add(icon);
+            agregarIconoVentana(modal);
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/CrearUsuario.fxml"));
             Parent root = loader.load();
             Scene scene = new Scene(root);
-            
             Main.aplicarTema(scene);
-            
             modal.setScene(scene);
 
             CrearUsuarioController controller = loader.getController();
+            controller.setCursosController(this);
 
             modal.showAndWait();
+            cargarUsuarios();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public void lanzarInsertar() {
+        if (!Configuracion.esProfesor()) {
+            mostrarAlerta("Acceso denegado", "Solo los profesores pueden editar matriculas");
+            return;
+        }
+        
         Asistencia asistenciaSeleccionada = tablaUsuarios11.getSelectionModel().getSelectedItem();
         
         if (asistenciaSeleccionada == null) {
@@ -429,18 +405,14 @@ public class CursosController {
         
         try {
             Stage modal = new Stage();
-            modal.setTitle("Actualizar Información");
+            modal.setTitle("Actualizar Informacion");
             modal.initModality(Modality.APPLICATION_MODAL);
             modal.initOwner(btnInsertar.getScene().getWindow());
-            
-            javafx.scene.image.Image icon = new javafx.scene.image.Image(getClass().getResourceAsStream("/muudle.png"));
-            modal.getIcons().add(icon);
+            agregarIconoVentana(modal);
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Insertar.fxml"));
             Scene scene = new Scene(loader.load());
-            
             Main.aplicarTema(scene);
-            
             modal.setScene(scene);
 
             InsertarController controller = loader.getController();
@@ -467,20 +439,17 @@ public class CursosController {
         try {
             Stage stage = new Stage();
             stage.setTitle("Detalle del Curso: " + curso.getNombreCurso());
-            
-            javafx.scene.image.Image icon = new javafx.scene.image.Image(getClass().getResourceAsStream("/muudle.png"));
-            stage.getIcons().add(icon);
+            agregarIconoVentana(stage);
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/CursoDetalle.fxml"));
-            Scene scene = new Scene(loader.load());
-            
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
             Main.aplicarTema(scene);
-            
             stage.setScene(scene);
 
             CursoDetalleController controller = loader.getController();
-            controller.cargarDatosCurso(curso.getIdCurso());
             controller.setCursosController(this);
+            controller.cargarDatosCurso(curso.getIdCurso());
 
             stage.show();
             
@@ -496,19 +465,16 @@ public class CursosController {
             modal.setTitle("Perfil de Usuario");
             modal.initModality(Modality.APPLICATION_MODAL);
             modal.initOwner(tablaUsuarios1.getScene().getWindow());
-            
-            javafx.scene.image.Image icon = new javafx.scene.image.Image(getClass().getResourceAsStream("/muudle.png"));
-            modal.getIcons().add(icon);
+            agregarIconoVentana(modal);
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/PerfilDetalle.fxml"));
             Parent root = loader.load();
             Scene scene = new Scene(root);
-            
             Main.aplicarTema(scene);
             
             PerfilDetalleController controller = loader.getController();
-            controller.cargarDatosUsuario(usuario);
             controller.setCursosController(this);
+            controller.cargarDatosUsuario(usuario);
             
             modal.setScene(scene);
             modal.show();
@@ -518,16 +484,13 @@ public class CursosController {
         }
     }
 
-    private void abrirVentana(String fxmlPath) {
+    private void abrirAjustes() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Ajustes.fxml"));
             Parent root = loader.load();
-            
-            AjustesController ajustesController = loader.getController();
             
             Stage stage = (Stage) btnCursos.getScene().getWindow();
             Scene scene = new Scene(root);
-            
             Main.aplicarTema(scene);
             
             stage.setScene(scene);
@@ -539,23 +502,36 @@ public class CursosController {
     
     private void cerrarSesion() {
         try {
+            Configuracion.setIdUsuarioActual(0);
+            Configuracion.setNombreUsuarioActual("");
+            Configuracion.setTipoUsuarioActual("alumno");
+            
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Login.fxml"));
             Parent root = loader.load();
             
             Stage stage = (Stage) btnCerrarSesion.getScene().getWindow();
             Scene scene = new Scene(root);
-            
             Main.aplicarTema(scene);
             
+            stage.setTitle("Login - Muudle");
             stage.setScene(scene);
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+    
+    private void agregarIconoVentana(Stage stage) {
+        try {
+            Image icon = new Image(getClass().getResourceAsStream("/muudle.png"));
+            stage.getIcons().add(icon);
+        } catch (Exception e) {
+        }
+    }
 
     public void cargarCursos() {
-        try (Connection conn = DatabaseConnection.getConnection()) {
+        try {
+            Connection conn = DatabaseConnection.getConnection();
             String query = "SELECT id_curso, nombre_curso, descripcion, cant_usuarios FROM CURSO";
             PreparedStatement stmt = conn.prepareStatement(query);
             ResultSet rs = stmt.executeQuery();
@@ -571,6 +547,8 @@ public class CursosController {
             }
 
             tablaCursos.setItems(todosLosCursos);
+            rs.close();
+            stmt.close();
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -579,7 +557,8 @@ public class CursosController {
     }
 
     public void cargarUsuarios() {
-        try (Connection conn = DatabaseConnection.getConnection()) {
+        try {
+            Connection conn = DatabaseConnection.getConnection();
             String query = "SELECT id_usuario, nombre, apellido, email, tipo_usuario, edad FROM USUARIO";
             PreparedStatement stmt = conn.prepareStatement(query);
             ResultSet rs = stmt.executeQuery();
@@ -597,6 +576,8 @@ public class CursosController {
             }
 
             tablaUsuarios1.setItems(todosLosUsuarios);
+            rs.close();
+            stmt.close();
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -605,7 +586,8 @@ public class CursosController {
     }
 
     public void cargarAsistencias() {
-        try (Connection conn = DatabaseConnection.getConnection()) {
+        try {
+            Connection conn = DatabaseConnection.getConnection();
             String query = "SELECT u.id_usuario, u.nombre, u.apellido, a.nFaltas, a.nota, a.id_curso, c.nombre_curso " +
                         "FROM ASISTENCIA a " +
                         "JOIN USUARIO u ON a.id_usuario = u.id_usuario " +
@@ -627,6 +609,8 @@ public class CursosController {
             }
 
             tablaUsuarios11.setItems(todasLasAsistencias);
+            rs.close();
+            stmt.close();
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -667,7 +651,7 @@ public class CursosController {
         for (Curso curso : todosLosCursos) {
             if (curso.getNombreCurso().toLowerCase().contains(filtro) ||
                 String.valueOf(curso.getIdCurso()).contains(filtro) ||
-                curso.getDescripcion().toLowerCase().contains(filtro)) {
+                (curso.getDescripcion() != null && curso.getDescripcion().toLowerCase().contains(filtro))) {
                 cursosFiltrados.add(curso);
             }
         }
@@ -714,20 +698,24 @@ public class CursosController {
     }
 
     private void borrarCurso(Curso curso) {
-        try (Connection conn = DatabaseConnection.getConnection()) {
+        try {
+            Connection conn = DatabaseConnection.getConnection();
+            
             String deleteAsistencias = "DELETE FROM ASISTENCIA WHERE id_curso = ?";
             PreparedStatement stmt1 = conn.prepareStatement(deleteAsistencias);
             stmt1.setInt(1, curso.getIdCurso());
             stmt1.executeUpdate();
+            stmt1.close();
             
             String query = "DELETE FROM CURSO WHERE id_curso = ?";
             PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setInt(1, curso.getIdCurso());
             stmt.executeUpdate();
+            stmt.close();
 
             cargarCursos();
             cargarAsistencias();
-            mostrarAlerta("Éxito", "Curso eliminado correctamente");
+            mostrarAlerta("Exito", "Curso eliminado correctamente");
         } catch (SQLException e) {
             e.printStackTrace();
             mostrarAlerta("Error", "No se pudo eliminar el curso: " + e.getMessage());
@@ -735,7 +723,8 @@ public class CursosController {
     }
 
     private void borrarAsistencia(Asistencia asistencia) {
-        try (Connection conn = DatabaseConnection.getConnection()) {
+        try {
+            Connection conn = DatabaseConnection.getConnection();
             int idCurso = asistencia.getIdCurso();
             
             String query = "DELETE FROM ASISTENCIA WHERE id_usuario = ? AND id_curso = ?";
@@ -743,6 +732,7 @@ public class CursosController {
             stmt.setInt(1, asistencia.getIdUsuario());
             stmt.setInt(2, idCurso);
             int filas = stmt.executeUpdate();
+            stmt.close();
             
             if (filas > 0) {
                 String updateCurso = "UPDATE CURSO SET cant_usuarios = " +
@@ -752,10 +742,11 @@ public class CursosController {
                 updateStmt.setInt(1, idCurso);
                 updateStmt.setInt(2, idCurso);
                 updateStmt.executeUpdate();
+                updateStmt.close();
                 
                 cargarAsistencias();
                 cargarCursos();
-                mostrarAlerta("Éxito", "Alumno eliminado del curso. Ahora puede ser asignado a otro curso.");
+                mostrarAlerta("Exito", "Alumno eliminado del curso.");
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -764,7 +755,8 @@ public class CursosController {
     }
 
     private void borrarUsuario(Usuario usuario) {
-        try (Connection conn = DatabaseConnection.getConnection()) {
+        try {
+            Connection conn = DatabaseConnection.getConnection();
             conn.setAutoCommit(false);
             
             String selectCursos = "SELECT id_curso FROM ASISTENCIA WHERE id_usuario = ?";
@@ -776,11 +768,13 @@ public class CursosController {
             PreparedStatement stmt1 = conn.prepareStatement(deleteAsistencias);
             stmt1.setInt(1, usuario.getIdUsuario());
             stmt1.executeUpdate();
+            stmt1.close();
             
             String query = "DELETE FROM USUARIO WHERE id_usuario = ?";
             PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setInt(1, usuario.getIdUsuario());
             int filas = stmt.executeUpdate();
+            stmt.close();
             
             if (filas > 0) {
                 while (rs.next()) {
@@ -792,14 +786,20 @@ public class CursosController {
                     updateStmt.setInt(1, idCurso);
                     updateStmt.setInt(2, idCurso);
                     updateStmt.executeUpdate();
+                    updateStmt.close();
                 }
                 
                 conn.commit();
                 cargarUsuarios();
                 cargarAsistencias(); 
                 cargarCursos(); 
-                mostrarAlerta("Éxito", "Usuario eliminado correctamente");
+                mostrarAlerta("Exito", "Usuario eliminado correctamente");
             }
+            
+            rs.close();
+            selectStmt.close();
+            conn.setAutoCommit(true);
+            
         } catch (SQLException e) {
             e.printStackTrace();
             mostrarAlerta("Error", "No se pudo eliminar al usuario: " + e.getMessage());
@@ -811,6 +811,11 @@ public class CursosController {
         alert.setTitle(titulo);
         alert.setHeaderText(null);
         alert.setContentText(mensaje);
+        try {
+            Stage alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
+            alertStage.getIcons().add(new Image(getClass().getResourceAsStream("/muudle.png")));
+        } catch (Exception e) {
+        }
         alert.showAndWait();
     }
 }

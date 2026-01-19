@@ -8,41 +8,48 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 public class Main extends Application {
-    public static void main(String[] args) {
-        launch(args);
-    }
-
+    
     @Override
-    public void start(Stage primeraEscena) throws Exception {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Login.fxml"));
-        Parent root = loader.load();
+    public void start(Stage primaryStage) throws Exception {
+        Parent root = FXMLLoader.load(getClass().getResource("/Login.fxml"));
         Scene scene = new Scene(root);
         
         aplicarTema(scene);
         
-        primeraEscena.setScene(scene);
-        primeraEscena.setTitle("Login");
-        agregarIcono(primeraEscena);
-        primeraEscena.show();
+        primaryStage.setTitle("Login - Muudle");
+        primaryStage.setScene(scene);
+        
+        try {
+            primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/muudle.png")));
+        } catch (Exception e) {
+            System.out.println("No se pudo cargar el icono");
+        }
+        
+        primaryStage.show();
     }
     
     public static void aplicarTema(Scene scene) {
+        if (scene == null) return;
+        
         scene.getStylesheets().clear();
-        String css;
-        if (Configuracion.isTemaOscuro()) {
-            css = Main.class.getResource("/estilos_oscuro.css").toExternalForm();
-        } else {
-            css = Main.class.getResource("/estilos_claro.css").toExternalForm();
+        
+        try {
+            String rutaCss;
+            if (Configuracion.isTemaOscuro()) {
+                rutaCss = Main.class.getResource("/estilos_oscuro.css").toExternalForm();
+            } else {
+                rutaCss = Main.class.getResource("/estilos_claro.css").toExternalForm();
+            }
+            
+            if (rutaCss != null) {
+                scene.getStylesheets().add(rutaCss);
+            }
+        } catch (Exception e) {
+            System.out.println("Error al cargar CSS: " + e.getMessage());
         }
-        scene.getStylesheets().add(css);
     }
     
-    private void agregarIcono(Stage stage) {
-        try {
-            Image icon = new Image(getClass().getResourceAsStream("/muudle.png"));
-            stage.getIcons().add(icon);
-        } catch (Exception e) {
-            System.out.println("No se pudo cargar el icono: " + e.getMessage());
-        }
+    public static void main(String[] args) {
+        launch(args);
     }
 }

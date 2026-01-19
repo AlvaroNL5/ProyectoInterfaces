@@ -4,13 +4,11 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 public class icono {
-    
-    public static void setStageIcon(Stage stage) {
+    public static void setIcono(Stage stage) {
         try {
-            Image icon = new Image(icono.class.getResourceAsStream("/muudle.png"));
-            stage.getIcons().add(icon);
+            stage.getIcons().add(new Image(icono.class.getResourceAsStream("/muudle.png")));
         } catch (Exception e) {
-            System.out.println("No se pudo cargar el icono: " + e.getMessage());
+            System.out.println("No se pudo cargar el icono");
         }
     }
 }

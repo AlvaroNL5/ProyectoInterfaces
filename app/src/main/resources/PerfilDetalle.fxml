@@ -15,7 +15,7 @@
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
     
-    <Label text="👤 Perfil de Usuario">
+    <Label text="ðŸ‘¤ Perfil de Usuario">
         <font>
             <Font name="System Bold" size="24.0" />
         </font>
@@ -24,7 +24,7 @@
     <Separator />
     
     <VBox spacing="15.0">
-        <Label text="Información del Usuario">
+        <Label text="InformaciÃ³n del Usuario">
             <font>
                 <Font name="System Bold" size="14.0" />
             </font>

@@ -29,7 +29,7 @@
             
             <HBox HBox.hgrow="ALWAYS" />
             
-            <Button fx:id="btnVolverCursos" onAction="#handleVolverCursos" text="← Volver a Cursos">
+            <Button fx:id="btnVolverCursos" onAction="#handleVolverCursos" text="â† Volver a Cursos">
                 <HBox.margin>
                     <Insets right="10.0" />
                 </HBox.margin>
@@ -38,7 +38,7 @@
     </top>
     <center>
         <TabPane tabClosingPolicy="UNAVAILABLE">
-            <Tab text="👥 Usuarios">
+            <Tab text="ðŸ‘¥ Usuarios">
                 <VBox spacing="15.0">
                     <padding>
                         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
@@ -51,10 +51,10 @@
                     </Label>
                     
                     <HBox alignment="CENTER_LEFT" spacing="10.0">
-                        <ComboBox fx:id="comboAlumnosDisponibles" prefWidth="300.0" promptText="Selecciona un usuario para añadir" />
-                        <Button onAction="#handleAnadirAlumnoCurso" text="➕ Añadir Usuario" />
+                        <ComboBox fx:id="comboAlumnosDisponibles" prefWidth="300.0" promptText="Selecciona un usuario para aÃ±adir" />
+                        <Button onAction="#handleAnadirAlumnoCurso" text="âž• AÃ±adir Usuario" />
                         <HBox HBox.hgrow="ALWAYS" />
-                        <Button fx:id="btnEliminarUsuarioCurso" onAction="#handleEliminarUsuarioCurso" text="🗑 Eliminar Usuario" />
+                        <Button fx:id="btnEliminarUsuarioCurso" onAction="#handleEliminarUsuarioCurso" text="ðŸ—‘ Eliminar Usuario" />
                     </HBox>
                     
                     <TableView fx:id="tablaUsuarios" VBox.vgrow="ALWAYS">
@@ -68,13 +68,13 @@
                     </TableView>
                 </VBox>
             </Tab>
-            <Tab text="i Información">
+            <Tab text="i InformaciÃ³n">
                 <VBox spacing="20.0">
                     <padding>
                         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                     </padding>
                     
-                    <Label text="Información del Curso">
+                    <Label text="InformaciÃ³n del Curso">
                         <font>
                             <Font name="System Bold" size="24.0" />
                         </font>
@@ -90,7 +90,7 @@
                     </VBox>
                     
                     <VBox spacing="10.0">
-                        <Label text="Descripción:">
+                        <Label text="DescripciÃ³n:">
                             <font>
                                 <Font name="System Bold" size="12.0" />
                             </font>
@@ -108,7 +108,7 @@
                     </VBox>
                     
                     <VBox spacing="10.0">
-                        <Label text="Número de Alumnos:">
+                        <Label text="NÃºmero de Alumnos:">
                             <font>
                                 <Font name="System Bold" size="12.0" />
                             </font>

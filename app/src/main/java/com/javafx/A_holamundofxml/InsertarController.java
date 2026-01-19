@@ -10,6 +10,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import java.sql.Connection;
@@ -27,8 +29,6 @@ public class InsertarController {
     
     private CursosController cursosController;
     private int idUsuario;
-    private String nombreAlumno;
-    private String apellidosAlumno;
     private int idCursoActual;
     private ObservableList<CursoItem> cursos = FXCollections.observableArrayList();
     
@@ -52,15 +52,13 @@ public class InsertarController {
     
     public void setDatosAlumno(int idUsuario, String nombre, String apellidos, int idCurso, String nombreCurso, int faltas, double nota) {
         this.idUsuario = idUsuario;
-        this.nombreAlumno = nombre;
-        this.apellidosAlumno = apellidos;
         this.idCursoActual = idCurso;
         
         lblNombreAlumno.setText(nombre + " " + apellidos + " (ID: " + idUsuario + ")");
         txtFaltas.setText(String.valueOf(faltas));
         txtNota.setText(String.valueOf(nota));
         
-        cargarCursos(idCurso, nombreCurso);
+        cargarCursos(idCurso);
     }
     
     public void setCursosController(CursosController controller) {
@@ -70,10 +68,15 @@ public class InsertarController {
     @FXML
     void initialize() {
         comboCurso.setItems(cursos);
+        
+        comboCurso.setTooltip(new Tooltip("Seleccione el curso para el usuario"));
+        txtFaltas.setTooltip(new Tooltip("Numero de faltas (entero positivo)"));
+        txtNota.setTooltip(new Tooltip("Nota (0 - 10)"));
     }
     
-    private void cargarCursos(int idCursoActual, String nombreCursoActual) {
-        try (Connection conn = DatabaseConnection.getConnection()) {
+    private void cargarCursos(int idCursoActual) {
+        try {
+            Connection conn = DatabaseConnection.getConnection();
             String query = "SELECT id_curso, nombre_curso FROM CURSO ORDER BY nombre_curso";
             PreparedStatement stmt = conn.prepareStatement(query);
             ResultSet rs = stmt.executeQuery();
@@ -95,6 +98,9 @@ public class InsertarController {
             if (cursoSeleccionado != null) {
                 comboCurso.setValue(cursoSeleccionado);
             }
+            
+            rs.close();
+            stmt.close();
             
         } catch (SQLException e) {
             e.printStackTrace();
@@ -141,7 +147,7 @@ public class InsertarController {
                     shakeNode(txtFaltas);
                 }
             } catch (NumberFormatException e) {
-                errores.append("Las faltas deben ser un número entero\n");
+                errores.append("Las faltas deben ser un numero entero\n");
                 shakeNode(txtFaltas);
             }
         }
@@ -153,11 +159,11 @@ public class InsertarController {
             try {
                 double nota = Double.parseDouble(notaStr);
                 if (nota < 0 || nota > 10) {
-                    errores.append("La nota debe estar entre 0 y 10 (ambos incluidos)\n");
+                    errores.append("La nota debe estar entre 0 y 10\n");
                     shakeNode(txtNota);
                 }
             } catch (NumberFormatException e) {
-                errores.append("La nota debe ser un número\n");
+                errores.append("La nota debe ser un numero\n");
                 shakeNode(txtNota);
             }
         }
@@ -192,10 +198,14 @@ public class InsertarController {
                 ResultSet rs = checkStmt.executeQuery();
                 
                 if (rs.next() && rs.getInt(1) > 0) {
-                    mostrarError("Este usuario ya está inscrito en el curso: " + cursoSeleccionado.getNombre());
+                    mostrarError("Este usuario ya esta inscrito en el curso: " + cursoSeleccionado.getNombre());
                     conn.rollback();
+                    rs.close();
+                    checkStmt.close();
                     return;
                 }
+                rs.close();
+                checkStmt.close();
                 
                 String deleteQuery = "DELETE FROM ASISTENCIA WHERE id_usuario = ? AND id_curso = ?";
                 PreparedStatement deleteStmt = conn.prepareStatement(deleteQuery);
@@ -218,7 +228,7 @@ public class InsertarController {
                 actualizarContadoresCursos(conn, idCursoActual, nuevoIdCurso);
                 conn.commit();
                 
-                mostrarExito("Información actualizada correctamente. Alumno movido al curso: " + cursoSeleccionado.getNombre());
+                mostrarExito("Alumno movido al curso: " + cursoSeleccionado.getNombre());
                 
                 if (cursosController != null) {
                     cursosController.cargarAsistencias();
@@ -226,9 +236,7 @@ public class InsertarController {
                 }
                 
             } else {
-                String updateQuery = "UPDATE ASISTENCIA SET nFaltas = ?, nota = ? " +
-                                    "WHERE id_usuario = ? AND id_curso = ?";
-                
+                String updateQuery = "UPDATE ASISTENCIA SET nFaltas = ?, nota = ? WHERE id_usuario = ? AND id_curso = ?";
                 PreparedStatement updateStmt = conn.prepareStatement(updateQuery);
                 updateStmt.setInt(1, Integer.parseInt(txtFaltas.getText().trim()));
                 updateStmt.setDouble(2, Double.parseDouble(txtNota.getText().trim()));
@@ -239,14 +247,14 @@ public class InsertarController {
                 
                 if (filasAfectadas > 0) {
                     conn.commit();
-                    mostrarExito("Información actualizada correctamente");
+                    mostrarExito("Informacion actualizada correctamente");
                     
                     if (cursosController != null) {
                         cursosController.cargarAsistencias();
                     }
                 } else {
                     conn.rollback();
-                    mostrarError("No se pudo actualizar la información");
+                    mostrarError("No se pudo actualizar la informacion");
                 }
                 
                 updateStmt.close();
@@ -259,13 +267,10 @@ public class InsertarController {
                 ex.printStackTrace();
             }
             e.printStackTrace();
-            mostrarError("Error al actualizar la información: " + e.getMessage());
+            mostrarError("Error al actualizar la informacion: " + e.getMessage());
         } finally {
             try {
-                if (conn != null) {
-                    conn.setAutoCommit(true);
-                    conn.close();
-                }
+                if (conn != null) conn.setAutoCommit(true);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -273,23 +278,18 @@ public class InsertarController {
     }
     
     private void actualizarContadoresCursos(Connection conn, int idCursoViejo, int idCursoNuevo) throws SQLException {
-        String updateCursoViejo = "UPDATE CURSO SET cant_usuarios = " +
-                                 "(SELECT COUNT(DISTINCT id_usuario) FROM ASISTENCIA WHERE id_curso = ?) " +
-                                 "WHERE id_curso = ?";
-        PreparedStatement stmt1 = conn.prepareStatement(updateCursoViejo);
-        stmt1.setInt(1, idCursoViejo);
-        stmt1.setInt(2, idCursoViejo);
-        stmt1.executeUpdate();
-        stmt1.close();
+        String updateCurso = "UPDATE CURSO SET cant_usuarios = " +
+                             "(SELECT COUNT(DISTINCT id_usuario) FROM ASISTENCIA WHERE id_curso = ?) " +
+                             "WHERE id_curso = ?";
+        PreparedStatement stmt = conn.prepareStatement(updateCurso);
+        stmt.setInt(1, idCursoViejo);
+        stmt.setInt(2, idCursoViejo);
+        stmt.executeUpdate();
         
-        String updateCursoNuevo = "UPDATE CURSO SET cant_usuarios = " +
-                                 "(SELECT COUNT(DISTINCT id_usuario) FROM ASISTENCIA WHERE id_curso = ?) " +
-                                 "WHERE id_curso = ?";
-        PreparedStatement stmt2 = conn.prepareStatement(updateCursoNuevo);
-        stmt2.setInt(1, idCursoNuevo);
-        stmt2.setInt(2, idCursoNuevo);
-        stmt2.executeUpdate();
-        stmt2.close();
+        stmt.setInt(1, idCursoNuevo);
+        stmt.setInt(2, idCursoNuevo);
+        stmt.executeUpdate();
+        stmt.close();
     }
     
     private void mostrarError(String mensaje) {
@@ -297,14 +297,24 @@ public class InsertarController {
         alert.setTitle("Error");
         alert.setHeaderText(null);
         alert.setContentText(mensaje);
+        agregarIconoAlerta(alert);
         alert.showAndWait();
     }
     
     private void mostrarExito(String mensaje) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Éxito");
+        alert.setTitle("Exito");
         alert.setHeaderText(null);
         alert.setContentText(mensaje);
+        agregarIconoAlerta(alert);
         alert.showAndWait();
+    }
+    
+    private void agregarIconoAlerta(Alert alert) {
+        try {
+            Stage alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
+            alertStage.getIcons().add(new Image(getClass().getResourceAsStream("/muudle.png")));
+        } catch (Exception e) {
+        }
     }
 }

@@ -5,7 +5,11 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import java.sql.Connection;
@@ -23,12 +27,38 @@ public class CrearUsuarioController {
     @FXML private ComboBox<String> comboRol;
     @FXML private TextField txtEdad;
     @FXML private Button btnCrear;
+    @FXML private Button btnCancelar;
+    
+    private boolean modoRegistro = false;
+    private CursosController cursosController;
+    
+    public void setCursosController(CursosController controller) {
+        this.cursosController = controller;
+    }
+    
+    public void setModoRegistro(boolean modo) {
+        this.modoRegistro = modo;
+        if (modo) {
+            ObservableList<String> roles = FXCollections.observableArrayList("alumno");
+            comboRol.setItems(roles);
+            comboRol.setValue("alumno");
+            comboRol.setDisable(true);
+        }
+    }
     
     @FXML
     public void initialize() {
         ObservableList<String> roles = FXCollections.observableArrayList("profesor", "alumno");
         comboRol.setItems(roles);
         comboRol.setValue("alumno");
+        
+        txtNombre.setTooltip(new Tooltip("Introduzca el nombre del usuario"));
+        txtApellidos.setTooltip(new Tooltip("Introduzca los apellidos del usuario"));
+        txtEmail.setTooltip(new Tooltip("Introduzca un email valido"));
+        txtPassword.setTooltip(new Tooltip("Introduzca una contraseña (minimo 4 caracteres)"));
+        txtConfirmarPassword.setTooltip(new Tooltip("Repita la contraseña"));
+        comboRol.setTooltip(new Tooltip("Seleccione el rol del usuario"));
+        txtEdad.setTooltip(new Tooltip("Introduzca la edad (0-150)"));
     }
     
     private void shakeNode(javafx.scene.Node node) {
@@ -42,8 +72,27 @@ public class CrearUsuarioController {
     
     @FXML
     void handleCancelar(ActionEvent event) {
-        Stage stage = (Stage) txtNombre.getScene().getWindow();
-        stage.close();
+        if (modoRegistro) {
+            volverAlLogin();
+        } else {
+            Stage stage = (Stage) txtNombre.getScene().getWindow();
+            stage.close();
+        }
+    }
+    
+    private void volverAlLogin() {
+        try {
+            Stage stage = (Stage) txtNombre.getScene().getWindow();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Login.fxml"));
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
+            Main.aplicarTema(scene);
+            stage.setTitle("Login - Muudle");
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     
     @FXML
@@ -77,8 +126,8 @@ public class CrearUsuarioController {
         if (email.isEmpty()) {
             errores.append("El email es obligatorio\n");
             shakeNode(txtEmail);
-        } else if (!validarEmail(email)) {
-            errores.append("El email debe tener un formato válido (ejemplo: usuario@dominio.com)\n");
+        } else if (!email.contains("@") || !email.contains(".")) {
+            errores.append("El email debe tener un formato valido\n");
             shakeNode(txtEmail);
         }
         
@@ -107,11 +156,11 @@ public class CrearUsuarioController {
             try {
                 int edad = Integer.parseInt(edadStr);
                 if (edad < 0 || edad > 150) {
-                    errores.append("La edad debe estar entre 0 y 150 años\n");
+                    errores.append("La edad debe estar entre 0 y 150\n");
                     shakeNode(txtEdad);
                 }
             } catch (NumberFormatException e) {
-                errores.append("La edad debe ser un número válido\n");
+                errores.append("La edad debe ser un numero valido\n");
                 shakeNode(txtEdad);
             }
         }
@@ -124,16 +173,13 @@ public class CrearUsuarioController {
         return true;
     }
     
-    private boolean validarEmail(String email) {
-        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*\\.[A-Za-z]{2,}$";
-        return email.matches(emailRegex);
-    }
-    
     private void crearUsuario() {
         String email = txtEmail.getText().trim();
         String password = txtPassword.getText().trim();
         
-        try (Connection conn = DatabaseConnection.getConnection()) {
+        try {
+            Connection conn = DatabaseConnection.getConnection();
+            
             String checkQuery = "SELECT COUNT(*) FROM USUARIO WHERE email = ?";
             PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
             checkStmt.setString(1, email);
@@ -142,8 +188,12 @@ public class CrearUsuarioController {
             if (rs.next() && rs.getInt(1) > 0) {
                 mostrarError("Ya existe un usuario con este email");
                 shakeNode(txtEmail);
+                rs.close();
+                checkStmt.close();
                 return;
             }
+            rs.close();
+            checkStmt.close();
             
             String query = "INSERT INTO USUARIO (nombre, apellido, email, contraseña, tipo_usuario, edad) VALUES (?, ?, ?, ?, ?, ?)";
             PreparedStatement stmt = conn.prepareStatement(query);
@@ -155,11 +205,19 @@ public class CrearUsuarioController {
             stmt.setInt(6, Integer.parseInt(txtEdad.getText().trim()));
             
             stmt.executeUpdate();
+            stmt.close();
             
             mostrarExito("Usuario creado correctamente");
             
-            Stage stage = (Stage) txtNombre.getScene().getWindow();
-            stage.close();
+            if (modoRegistro) {
+                volverAlLogin();
+            } else {
+                if (cursosController != null) {
+                    cursosController.cargarUsuarios();
+                }
+                Stage stage = (Stage) txtNombre.getScene().getWindow();
+                stage.close();
+            }
             
         } catch (SQLException e) {
             e.printStackTrace();
@@ -172,14 +230,24 @@ public class CrearUsuarioController {
         alert.setTitle("Error");
         alert.setHeaderText(null);
         alert.setContentText(mensaje);
+        agregarIconoAlerta(alert);
         alert.showAndWait();
     }
     
     private void mostrarExito(String mensaje) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Éxito");
+        alert.setTitle("Exito");
         alert.setHeaderText(null);
         alert.setContentText(mensaje);
+        agregarIconoAlerta(alert);
         alert.showAndWait();
+    }
+    
+    private void agregarIconoAlerta(Alert alert) {
+        try {
+            Stage alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
+            alertStage.getIcons().add(new Image(getClass().getResourceAsStream("/muudle.png")));
+        } catch (Exception e) {
+        }
     }
 }

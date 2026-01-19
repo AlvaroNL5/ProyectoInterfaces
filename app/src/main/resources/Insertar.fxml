@@ -14,7 +14,7 @@
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
     
-    <Label text="Editar Información">
+    <Label text="Editar InformaciÃ³n">
         <font>
             <Font name="System Bold" size="24.0" />
         </font>
@@ -39,7 +39,7 @@
     </VBox>
     
     <VBox spacing="5.0">
-        <Label text="Número de faltas:">
+        <Label text="NÃºmero de faltas:">
             <font>
                 <Font name="System Bold" size="12.0" />
             </font>

@@ -7,6 +7,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import java.sql.Connection;
@@ -29,6 +30,8 @@ public class CursoDetalleController {
     @FXML private TextArea txtInfoDescripcion;
     @FXML private TextField txtInfoNombre;
     @FXML private Button btnEliminarUsuarioCurso;
+    @FXML private Button btnAnadirAlumno;
+    @FXML private Button btnGuardar;
     @FXML private ComboBox<AlumnoItem> comboAlumnosDisponibles;
 
     private int idCurso;
@@ -81,14 +84,41 @@ public class CursoDetalleController {
         }
 
         public int getId() { return id; }
-        public String getNombre() { return nombre; }
-        public String getApellidos() { return apellidos; }
-        public String getEmail() { return email; }
         public int getCursosAsignados() { return cursosAsignados; }
 
         @Override
         public String toString() {
             return nombre + " " + apellidos + " (" + email + ") - Cursos: " + cursosAsignados;
+        }
+    }
+    
+    @FXML
+    public void initialize() {
+        configurarColumnas();
+        configurarPermisos();
+    }
+    
+    private void configurarPermisos() {
+        boolean esProfesor = Configuracion.esProfesor();
+        
+        if (txtInfoNombre != null) txtInfoNombre.setEditable(esProfesor);
+        if (txtInfoDescripcion != null) txtInfoDescripcion.setEditable(esProfesor);
+        
+        if (btnEliminarUsuarioCurso != null) {
+            btnEliminarUsuarioCurso.setVisible(esProfesor);
+            btnEliminarUsuarioCurso.setManaged(esProfesor);
+        }
+        if (btnAnadirAlumno != null) {
+            btnAnadirAlumno.setVisible(esProfesor);
+            btnAnadirAlumno.setManaged(esProfesor);
+        }
+        if (btnGuardar != null) {
+            btnGuardar.setVisible(esProfesor);
+            btnGuardar.setManaged(esProfesor);
+        }
+        if (comboAlumnosDisponibles != null) {
+            comboAlumnosDisponibles.setVisible(esProfesor);
+            comboAlumnosDisponibles.setManaged(esProfesor);
         }
     }
 
@@ -97,11 +127,11 @@ public class CursoDetalleController {
         cargarInfoCurso();
         cargarUsuariosCurso();
         cargarAlumnosDisponibles();
-        configurarColumnas();
     }
 
     private void cargarInfoCurso() {
-        try (Connection conn = DatabaseConnection.getConnection()) {
+        try {
+            Connection conn = DatabaseConnection.getConnection();
             String query = "SELECT nombre_curso, descripcion, cant_usuarios FROM CURSO WHERE id_curso = ?";
             PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setInt(1, idCurso);
@@ -109,31 +139,25 @@ public class CursoDetalleController {
 
             if (rs.next()) {
                 String nombreCurso = rs.getString("nombre_curso");
-                if (lblNombreCurso != null) {
-                    lblNombreCurso.setText(nombreCurso);
-                }
-                if (txtInfoNombre != null) {
-                    txtInfoNombre.setText(nombreCurso);
-                }
-                if (txtInfoDescripcion != null) {
-                    txtInfoDescripcion.setText(rs.getString("descripcion"));
-                }
-                if (lblInfoAlumnos != null) {
-                    lblInfoAlumnos.setText(String.valueOf(rs.getInt("cant_usuarios")));
-                }
-                if (lblInfoCursoId != null) {
-                    lblInfoCursoId.setText(String.valueOf(idCurso));
-                }
+                if (lblNombreCurso != null) lblNombreCurso.setText(nombreCurso);
+                if (txtInfoNombre != null) txtInfoNombre.setText(nombreCurso);
+                if (txtInfoDescripcion != null) txtInfoDescripcion.setText(rs.getString("descripcion"));
+                if (lblInfoAlumnos != null) lblInfoAlumnos.setText(String.valueOf(rs.getInt("cant_usuarios")));
+                if (lblInfoCursoId != null) lblInfoCursoId.setText(String.valueOf(idCurso));
             }
+            
+            rs.close();
+            stmt.close();
 
         } catch (SQLException e) {
             e.printStackTrace();
-            mostrarError("Error al cargar información del curso: " + e.getMessage());
+            mostrarError("Error al cargar informacion del curso: " + e.getMessage());
         }
     }
 
     private void cargarUsuariosCurso() {
-        try (Connection conn = DatabaseConnection.getConnection()) {
+        try {
+            Connection conn = DatabaseConnection.getConnection();
             String query = "SELECT u.id_usuario, u.nombre, u.apellido, u.email, u.tipo_usuario, u.edad " +
                           "FROM USUARIO u " +
                           "JOIN ASISTENCIA a ON u.id_usuario = a.id_usuario " +
@@ -154,9 +178,10 @@ public class CursoDetalleController {
                 ));
             }
 
-            if (tablaUsuarios != null) {
-                tablaUsuarios.setItems(usuariosCurso);
-            }
+            if (tablaUsuarios != null) tablaUsuarios.setItems(usuariosCurso);
+            
+            rs.close();
+            stmt.close();
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -165,12 +190,13 @@ public class CursoDetalleController {
     }
 
     private void cargarAlumnosDisponibles() {
-        try (Connection conn = DatabaseConnection.getConnection()) {
+        try {
+            Connection conn = DatabaseConnection.getConnection();
             String query = "SELECT u.id_usuario, u.nombre, u.apellido, u.email, " +
                           "COUNT(a.id_curso) as cursos_actuales " +
                           "FROM USUARIO u " +
                           "LEFT JOIN ASISTENCIA a ON u.id_usuario = a.id_usuario " +
-                          "WHERE u.tipo_usuario IN ('alumno', 'profesor') " +
+                          "WHERE u.tipo_usuario = 'alumno' " +
                           "AND u.id_usuario NOT IN (SELECT a2.id_usuario FROM ASISTENCIA a2 WHERE a2.id_curso = ?) " +
                           "GROUP BY u.id_usuario, u.nombre, u.apellido, u.email " +
                           "HAVING cursos_actuales < 2 " +
@@ -190,9 +216,10 @@ public class CursoDetalleController {
                 ));
             }
 
-            if (comboAlumnosDisponibles != null) {
-                comboAlumnosDisponibles.setItems(alumnosDisponibles);
-            }
+            if (comboAlumnosDisponibles != null) comboAlumnosDisponibles.setItems(alumnosDisponibles);
+            
+            rs.close();
+            stmt.close();
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -201,21 +228,16 @@ public class CursoDetalleController {
     }
 
     private void configurarColumnas() {
-        if (colUsuarioNombre != null) {
+        if (colUsuarioNombre != null)
             colUsuarioNombre.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getNombre()));
-        }
-        if (colUsuarioApellidos != null) {
+        if (colUsuarioApellidos != null)
             colUsuarioApellidos.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getApellidos()));
-        }
-        if (colUsuarioEmail != null) {
+        if (colUsuarioEmail != null)
             colUsuarioEmail.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getEmail()));
-        }
-        if (colUsuarioTipo != null) {
+        if (colUsuarioTipo != null)
             colUsuarioTipo.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getTipo()));
-        }
-        if (colUsuarioEdad != null) {
+        if (colUsuarioEdad != null)
             colUsuarioEdad.setCellValueFactory(cellData -> new javafx.beans.property.SimpleIntegerProperty(cellData.getValue().getEdad()).asObject());
-        }
     }
 
     @FXML
@@ -226,6 +248,11 @@ public class CursoDetalleController {
 
     @FXML
     void handleEliminarUsuarioCurso(ActionEvent event) {
+        if (!Configuracion.esProfesor()) {
+            mostrarError("Solo los profesores pueden eliminar usuarios de cursos");
+            return;
+        }
+        
         if (tablaUsuarios == null) return;
         
         UsuarioCurso usuarioSeleccionado = tablaUsuarios.getSelectionModel().getSelectedItem();
@@ -234,7 +261,8 @@ public class CursoDetalleController {
             return;
         }
 
-        try (Connection conn = DatabaseConnection.getConnection()) {
+        try {
+            Connection conn = DatabaseConnection.getConnection();
             conn.setAutoCommit(false);
 
             String deleteQuery = "DELETE FROM ASISTENCIA WHERE id_usuario = ? AND id_curso = ?";
@@ -242,13 +270,16 @@ public class CursoDetalleController {
             deleteStmt.setInt(1, usuarioSeleccionado.getIdUsuario());
             deleteStmt.setInt(2, idCurso);
             deleteStmt.executeUpdate();
+            deleteStmt.close();
 
             String updateQuery = "UPDATE CURSO SET cant_usuarios = cant_usuarios - 1 WHERE id_curso = ?";
             PreparedStatement updateStmt = conn.prepareStatement(updateQuery);
             updateStmt.setInt(1, idCurso);
             updateStmt.executeUpdate();
+            updateStmt.close();
 
             conn.commit();
+            conn.setAutoCommit(true);
 
             usuariosCurso.remove(usuarioSeleccionado);
             tablaUsuarios.refresh();
@@ -275,22 +306,28 @@ public class CursoDetalleController {
 
     @FXML
     void handleAnadirAlumnoCurso(ActionEvent event) {
+        if (!Configuracion.esProfesor()) {
+            mostrarError("Solo los profesores pueden anadir usuarios a cursos");
+            return;
+        }
+        
         if (comboAlumnosDisponibles == null) return;
         
         AlumnoItem alumnoSeleccionado = comboAlumnosDisponibles.getValue();
         if (alumnoSeleccionado == null) {
-            mostrarError("Selecciona un usuario para añadir al curso");
+            mostrarError("Selecciona un usuario para anadir al curso");
             shakeNode(comboAlumnosDisponibles);
             return;
         }
 
         if (alumnoSeleccionado.getCursosAsignados() >= 2) {
-            mostrarError("Este usuario ya está en 2 cursos. No puede asignarse a más cursos.");
+            mostrarError("Este usuario ya esta en 2 cursos. No puede asignarse a mas cursos.");
             shakeNode(comboAlumnosDisponibles);
             return;
         }
 
-        try (Connection conn = DatabaseConnection.getConnection()) {
+        try {
+            Connection conn = DatabaseConnection.getConnection();
             conn.setAutoCommit(false);
 
             String insertQuery = "INSERT INTO ASISTENCIA (id_usuario, id_curso, apellidos, nFaltas, nota, fecha_registro) " +
@@ -300,32 +337,18 @@ public class CursoDetalleController {
             insertStmt.setInt(2, idCurso);
             insertStmt.setInt(3, alumnoSeleccionado.getId());
             insertStmt.executeUpdate();
+            insertStmt.close();
 
             String updateQuery = "UPDATE CURSO SET cant_usuarios = cant_usuarios + 1 WHERE id_curso = ?";
             PreparedStatement updateStmt = conn.prepareStatement(updateQuery);
             updateStmt.setInt(1, idCurso);
             updateStmt.executeUpdate();
+            updateStmt.close();
 
             conn.commit();
+            conn.setAutoCommit(true);
 
-            String usuarioQuery = "SELECT u.id_usuario, u.nombre, u.apellido, u.email, u.tipo_usuario, u.edad " +
-                                 "FROM USUARIO u WHERE u.id_usuario = ?";
-            PreparedStatement usuarioStmt = conn.prepareStatement(usuarioQuery);
-            usuarioStmt.setInt(1, alumnoSeleccionado.getId());
-            ResultSet rs = usuarioStmt.executeQuery();
-
-            if (rs.next()) {
-                usuariosCurso.add(new UsuarioCurso(
-                    rs.getInt("id_usuario"),
-                    rs.getString("nombre"),
-                    rs.getString("apellido"),
-                    rs.getString("email"),
-                    rs.getString("tipo_usuario"),
-                    rs.getInt("edad")
-                ));
-            }
-
-            tablaUsuarios.refresh();
+            cargarUsuariosCurso();
 
             if (lblInfoAlumnos != null) {
                 int nuevosUsuarios = Integer.parseInt(lblInfoAlumnos.getText()) + 1;
@@ -340,11 +363,11 @@ public class CursoDetalleController {
                 cursosController.cargarAsistencias();
             }
 
-            mostrarExito("Usuario añadido al curso correctamente");
+            mostrarExito("Usuario anadido al curso correctamente");
 
         } catch (SQLException e) {
             e.printStackTrace();
-            mostrarError("Error al añadir usuario al curso: " + e.getMessage());
+            mostrarError("Error al anadir usuario al curso: " + e.getMessage());
         }
         
         if (tablaUsuarios != null) {
@@ -356,12 +379,11 @@ public class CursoDetalleController {
     }
 
     @FXML
-    void handleAplicarCambios(ActionEvent event) {
-        actualizarCurso();
-    }
-
-    @FXML
     void handleGuardarCambios(ActionEvent event) {
+        if (!Configuracion.esProfesor()) {
+            mostrarError("Solo los profesores pueden modificar cursos");
+            return;
+        }
         if (actualizarCurso()) {
             mostrarExito("Cambios guardados correctamente");
         }
@@ -383,7 +405,7 @@ public class CursoDetalleController {
         StringBuilder errores = new StringBuilder();
 
         if (nuevoNombre.isEmpty()) {
-            errores.append("El nombre del curso no puede estar vacío\n");
+            errores.append("El nombre del curso no puede estar vacio\n");
             shakeNode(txtInfoNombre);
         } else if (nuevoNombre.length() > 255) {
             errores.append("El nombre del curso no puede exceder los 255 caracteres\n");
@@ -391,7 +413,7 @@ public class CursoDetalleController {
         }
         
         if (nuevaDescripcion.isEmpty()) {
-            errores.append("La descripción del curso no puede estar vacía\n");
+            errores.append("La descripcion del curso no puede estar vacia\n");
             shakeNode(txtInfoDescripcion);
         }
 
@@ -400,7 +422,9 @@ public class CursoDetalleController {
             return false;
         }
 
-        try (Connection conn = DatabaseConnection.getConnection()) {
+        try {
+            Connection conn = DatabaseConnection.getConnection();
+            
             String checkQuery = "SELECT COUNT(*) FROM CURSO WHERE nombre_curso = ? AND id_curso != ?";
             PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
             checkStmt.setString(1, nuevoNombre);
@@ -410,8 +434,12 @@ public class CursoDetalleController {
             if (rs.next() && rs.getInt(1) > 0) {
                 mostrarError("Ya existe un curso con este nombre");
                 shakeNode(txtInfoNombre);
+                rs.close();
+                checkStmt.close();
                 return false;
             }
+            rs.close();
+            checkStmt.close();
 
             String query = "UPDATE CURSO SET nombre_curso = ?, descripcion = ? WHERE id_curso = ?";
             PreparedStatement stmt = conn.prepareStatement(query);
@@ -420,10 +448,10 @@ public class CursoDetalleController {
             stmt.setInt(3, idCurso);
 
             int filasActualizadas = stmt.executeUpdate();
+            stmt.close();
+            
             if (filasActualizadas > 0) {
-                if (lblNombreCurso != null) {
-                    lblNombreCurso.setText(nuevoNombre);
-                }
+                if (lblNombreCurso != null) lblNombreCurso.setText(nuevoNombre);
                 if (cursosController != null) {
                     cursosController.cargarCursos();
                     cursosController.cargarAsistencias();
@@ -443,14 +471,24 @@ public class CursoDetalleController {
         alert.setTitle("Error");
         alert.setHeaderText(null);
         alert.setContentText(mensaje);
+        agregarIconoAlerta(alert);
         alert.showAndWait();
     }
 
     private void mostrarExito(String mensaje) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Éxito");
+        alert.setTitle("Exito");
         alert.setHeaderText(null);
         alert.setContentText(mensaje);
+        agregarIconoAlerta(alert);
         alert.showAndWait();
+    }
+    
+    private void agregarIconoAlerta(Alert alert) {
+        try {
+            Stage alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
+            alertStage.getIcons().add(new Image(getClass().getResourceAsStream("/muudle.png")));
+        } catch (Exception e) {
+        }
     }
 }

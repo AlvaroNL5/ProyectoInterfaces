@@ -6,6 +6,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import java.sql.Connection;
@@ -50,9 +51,6 @@ public class CrearCursoController {
         }
         
         public int getId() { return id; }
-        public String getNombre() { return nombre; }
-        public String getApellidos() { return apellidos; }
-        public String getEmail() { return email; }
         public int getCursosAsignados() { return cursosAsignados; }
         
         @Override
@@ -65,6 +63,10 @@ public class CrearCursoController {
     public void initialize() {
         listaAlumnosDisponibles.setItems(alumnosDisponibles);
         listaAlumnosSeleccionados.setItems(alumnosSeleccionados);
+        
+        txtNombreCurso.setTooltip(new Tooltip("Introduzca el nombre del curso"));
+        txtDescripcion.setTooltip(new Tooltip("Introduzca una descripcion del curso"));
+        txtBuscarAlumno.setTooltip(new Tooltip("Escriba para filtrar alumnos"));
         
         txtBuscarAlumno.textProperty().addListener((observable, oldValue, newValue) -> {
             buscarAlumnos(newValue);
@@ -91,7 +93,7 @@ public class CrearCursoController {
                 alumnosSeleccionados.add(seleccionado);
                 idsAlumnosSeleccionados.add(seleccionado.getId());
             } else {
-                mostrarError("Este alumno ya está en 2 cursos. No puede asignarse a más cursos.");
+                mostrarError("Este alumno ya esta en 2 cursos.");
                 shakeNode(listaAlumnosDisponibles);
             }
         }
@@ -104,11 +106,6 @@ public class CrearCursoController {
             alumnosSeleccionados.remove(seleccionado);
             idsAlumnosSeleccionados.remove(seleccionado.getId());
         }
-    }
-    
-    @FXML
-    void handleBuscarAlumno(ActionEvent event) {
-        buscarAlumnos(txtBuscarAlumno.getText());
     }
     
     @FXML
@@ -125,7 +122,8 @@ public class CrearCursoController {
     }
     
     private void cargarAlumnosDisponibles() {
-        try (Connection conn = DatabaseConnection.getConnection()) {
+        try {
+            Connection conn = DatabaseConnection.getConnection();
             String query = "SELECT u.id_usuario, u.nombre, u.apellido, u.email, " +
                           "COUNT(a.id_curso) as cursos_actuales " +
                           "FROM USUARIO u " +
@@ -147,6 +145,10 @@ public class CrearCursoController {
                     rs.getInt("cursos_actuales")
                 ));
             }
+            
+            rs.close();
+            stmt.close();
+            
         } catch (SQLException e) {
             e.printStackTrace();
             mostrarError("Error al cargar alumnos: " + e.getMessage());
@@ -160,7 +162,8 @@ public class CrearCursoController {
         }
         
         String filtroBusqueda = "%" + filtro.toLowerCase() + "%";
-        try (Connection conn = DatabaseConnection.getConnection()) {
+        try {
+            Connection conn = DatabaseConnection.getConnection();
             String query = "SELECT u.id_usuario, u.nombre, u.apellido, u.email, " +
                           "COUNT(a.id_curso) as cursos_actuales " +
                           "FROM USUARIO u " +
@@ -187,6 +190,10 @@ public class CrearCursoController {
                     rs.getInt("cursos_actuales")
                 ));
             }
+            
+            rs.close();
+            stmt.close();
+            
         } catch (SQLException e) {
             e.printStackTrace();
             mostrarError("Error al buscar alumnos: " + e.getMessage());
@@ -207,7 +214,7 @@ public class CrearCursoController {
         }
         
         if (descripcion.isEmpty()) {
-            errores.append("La descripción es obligatoria\n");
+            errores.append("La descripcion es obligatoria\n");
             shakeNode(txtDescripcion);
         }
         
@@ -221,9 +228,6 @@ public class CrearCursoController {
     
     private void crearCurso() {
         Connection conn = null;
-        PreparedStatement stmtCurso = null;
-        PreparedStatement insertStmt = null;
-        PreparedStatement checkStmt = null;
         
         try {
             conn = DatabaseConnection.getConnection();
@@ -232,18 +236,23 @@ public class CrearCursoController {
             String nombreCurso = txtNombreCurso.getText().trim();
             
             String checkQuery = "SELECT COUNT(*) FROM CURSO WHERE nombre_curso = ?";
-            checkStmt = conn.prepareStatement(checkQuery);
+            PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
             checkStmt.setString(1, nombreCurso);
             ResultSet checkRs = checkStmt.executeQuery();
             
             if (checkRs.next() && checkRs.getInt(1) > 0) {
                 mostrarError("Ya existe un curso con este nombre");
                 shakeNode(txtNombreCurso);
+                conn.rollback();
+                checkRs.close();
+                checkStmt.close();
                 return;
             }
+            checkRs.close();
+            checkStmt.close();
             
             String queryCurso = "INSERT INTO CURSO (nombre_curso, descripcion, cant_usuarios) VALUES (?, ?, ?)";
-            stmtCurso = conn.prepareStatement(queryCurso, PreparedStatement.RETURN_GENERATED_KEYS);
+            PreparedStatement stmtCurso = conn.prepareStatement(queryCurso, PreparedStatement.RETURN_GENERATED_KEYS);
             stmtCurso.setString(1, nombreCurso);
             stmtCurso.setString(2, txtDescripcion.getText().trim());
             stmtCurso.setInt(3, idsAlumnosSeleccionados.size());
@@ -254,25 +263,23 @@ public class CrearCursoController {
             if (rs.next()) {
                 idCurso = rs.getInt(1);
             }
+            rs.close();
+            stmtCurso.close();
             
             if (idCurso != -1 && !idsAlumnosSeleccionados.isEmpty()) {
                 String insertQuery = "INSERT INTO ASISTENCIA (id_usuario, id_curso, apellidos, nFaltas, nota, fecha_registro) " +
                                     "SELECT u.id_usuario, ?, u.apellido, 0, 0.0, CURDATE() " +
                                     "FROM USUARIO u WHERE u.id_usuario = ?";
-                insertStmt = conn.prepareStatement(insertQuery);
-                
-                int alumnosInsertados = 0;
+                PreparedStatement insertStmt = conn.prepareStatement(insertQuery);
                 
                 for (Integer idUsuario : idsAlumnosSeleccionados) {
                     insertStmt.setInt(1, idCurso);
                     insertStmt.setInt(2, idUsuario);
                     insertStmt.addBatch();
-                    alumnosInsertados++;
                 }
                 
-                if (alumnosInsertados > 0) {
-                    insertStmt.executeBatch();
-                }
+                insertStmt.executeBatch();
+                insertStmt.close();
             }
             
             conn.commit();
@@ -294,13 +301,7 @@ public class CrearCursoController {
             mostrarError("Error al crear el curso: " + e.getMessage());
         } finally {
             try {
-                if (insertStmt != null) insertStmt.close();
-                if (checkStmt != null) checkStmt.close();
-                if (stmtCurso != null) stmtCurso.close();
-                if (conn != null) {
-                    conn.setAutoCommit(true);
-                    conn.close();
-                }
+                if (conn != null) conn.setAutoCommit(true);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -312,14 +313,24 @@ public class CrearCursoController {
         alert.setTitle("Error");
         alert.setHeaderText(null);
         alert.setContentText(mensaje);
+        agregarIconoAlerta(alert);
         alert.showAndWait();
     }
     
     private void mostrarExito(String mensaje) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Éxito");
+        alert.setTitle("Exito");
         alert.setHeaderText(null);
         alert.setContentText(mensaje);
+        agregarIconoAlerta(alert);
         alert.showAndWait();
+    }
+    
+    private void agregarIconoAlerta(Alert alert) {
+        try {
+            Stage alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
+            alertStage.getIcons().add(new Image(getClass().getResourceAsStream("/muudle.png")));
+        } catch (Exception e) {
+        }
     }
 }

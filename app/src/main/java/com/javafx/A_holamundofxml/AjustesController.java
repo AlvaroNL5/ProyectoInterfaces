@@ -1,6 +1,9 @@
 package com.javafx.A_holamundofxml;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
 import javafx.animation.RotateTransition;
+import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -11,6 +14,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -26,36 +31,59 @@ public class AjustesController {
     @FXML private Label lblEmail;
     @FXML private Label lblTipo;
     @FXML private Label lblEdad;
+    @FXML private TextField txtNombre;
+    @FXML private TextField txtApellidos;
+    @FXML private TextField txtEmailEditar;
     @FXML private PasswordField txtNuevaPassword;
     @FXML private PasswordField txtConfirmarPassword;
     @FXML private TextField txtEdad;
-    @FXML private TextField txtEmail;
     @FXML private Button btnTema;
-    
-    private int idUsuarioActual;
     
     @FXML
     public void initialize() {
         cargarDatosUsuario();
         actualizarTextoBotonTema();
+        
+        if (txtNombre != null) txtNombre.setTooltip(new Tooltip("Introduzca su nombre"));
+        if (txtApellidos != null) txtApellidos.setTooltip(new Tooltip("Introduzca sus apellidos"));
+        if (txtEmailEditar != null) txtEmailEditar.setTooltip(new Tooltip("Introduzca su email"));
+        if (txtNuevaPassword != null) txtNuevaPassword.setTooltip(new Tooltip("Nueva contraseña (dejar vacio para no cambiar)"));
+        if (txtConfirmarPassword != null) txtConfirmarPassword.setTooltip(new Tooltip("Confirmar nueva contraseña"));
+        if (txtEdad != null) txtEdad.setTooltip(new Tooltip("Edad (0-150)"));
+        if (btnTema != null) btnTema.setTooltip(new Tooltip("Cambiar entre tema claro y oscuro"));
     }
     
     private void cargarDatosUsuario() {
-        try (Connection conn = DatabaseConnection.getConnection()) {
+        int idUsuario = Configuracion.getIdUsuarioActual();
+        
+        try {
+            Connection conn = DatabaseConnection.getConnection();
             String query = "SELECT nombre, apellido, email, tipo_usuario, edad FROM USUARIO WHERE id_usuario = ?";
             PreparedStatement stmt = conn.prepareStatement(query);
-            stmt.setInt(1, 1);
+            stmt.setInt(1, idUsuario);
             ResultSet rs = stmt.executeQuery();
             
             if (rs.next()) {
-                lblNombre.setText(rs.getString("nombre"));
-                lblApellidos.setText(rs.getString("apellido"));
-                lblEmail.setText(rs.getString("email"));
-                lblTipo.setText(rs.getString("tipo_usuario"));
-                lblEdad.setText(String.valueOf(rs.getInt("edad")));
-                txtEdad.setText(String.valueOf(rs.getInt("edad")));
-                txtEmail.setText(rs.getString("email"));
+                String nombre = rs.getString("nombre");
+                String apellidos = rs.getString("apellido");
+                String email = rs.getString("email");
+                String tipo = rs.getString("tipo_usuario");
+                int edad = rs.getInt("edad");
+                
+                if (lblNombre != null) lblNombre.setText(nombre);
+                if (lblApellidos != null) lblApellidos.setText(apellidos);
+                if (lblEmail != null) lblEmail.setText(email);
+                if (lblTipo != null) lblTipo.setText(tipo.substring(0, 1).toUpperCase() + tipo.substring(1));
+                if (lblEdad != null) lblEdad.setText(String.valueOf(edad));
+                
+                if (txtNombre != null) txtNombre.setText(nombre);
+                if (txtApellidos != null) txtApellidos.setText(apellidos);
+                if (txtEmailEditar != null) txtEmailEditar.setText(email);
+                if (txtEdad != null) txtEdad.setText(String.valueOf(edad));
             }
+            
+            rs.close();
+            stmt.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -64,14 +92,13 @@ public class AjustesController {
     @FXML
     public void handleTema(ActionEvent event) {
         RotateTransition rotate = new RotateTransition(Duration.millis(300), btnTema);
-        rotate.setFromAngle(0);
-        rotate.setToAngle(360);
+        rotate.setByAngle(360);
+        rotate.setOnFinished(e -> {
+            Configuracion.setTemaOscuro(!Configuracion.isTemaOscuro());
+            aplicarTemaAVentanaActual();
+            actualizarTextoBotonTema();
+        });
         rotate.play();
-        
-        Configuracion.setTemaOscuro(!Configuracion.isTemaOscuro());
-        aplicarTemaAVentanaActual();
-        actualizarTextoBotonTema();
-        mostrarExito("Tema cambiado a " + (Configuracion.isTemaOscuro() ? "oscuro" : "claro") + " en todas las ventanas.");
     }
     
     private void aplicarTemaAVentanaActual() {
@@ -82,103 +109,183 @@ public class AjustesController {
     }
     
     private void actualizarTextoBotonTema() {
-        btnTema.setText(Configuracion.isTemaOscuro() ? "Cambiar a Modo Claro" : "Cambiar a Modo Oscuro");
+        if (btnTema != null) {
+            if (Configuracion.isTemaOscuro()) {
+                btnTema.setText("Cambiar a Modo Claro");
+            } else {
+                btnTema.setText("Cambiar a Modo Oscuro");
+            }
+        }
     }
     
     @FXML
     public void handleGuardarCambios(ActionEvent event) {
-        if (aplicarCambiosDatos()) {
-            mostrarExito("Datos personales guardados correctamente.");
+        if (validarCampos()) {
+            if (guardarCambios()) {
+                mostrarExito("Datos guardados correctamente.");
+                cargarDatosUsuario();
+                
+                if (txtNombre != null && !txtNombre.getText().trim().isEmpty()) {
+                    Configuracion.setNombreUsuarioActual(txtNombre.getText().trim());
+                }
+            }
         }
     }
     
-    private boolean aplicarCambiosDatos() {
-        boolean cambiosRealizados = false;
+    private boolean validarCampos() {
+        StringBuilder errores = new StringBuilder();
         
-        String nuevaPassword = txtNuevaPassword.getText();
-        String confirmarPassword = txtConfirmarPassword.getText();
-        String nuevaEdadStr = txtEdad.getText();
-        String nuevoEmail = txtEmail.getText();
+        if (txtNombre != null && txtNombre.getText().trim().isEmpty()) {
+            errores.append("El nombre es obligatorio\n");
+        }
         
-        if (!nuevaPassword.isEmpty()) {
-            if (!nuevaPassword.equals(confirmarPassword)) {
-                mostrarError("Las contraseñas no coinciden");
-                return false;
+        if (txtApellidos != null && txtApellidos.getText().trim().isEmpty()) {
+            errores.append("Los apellidos son obligatorios\n");
+        }
+        
+        if (txtEmailEditar != null) {
+            String email = txtEmailEditar.getText().trim();
+            if (email.isEmpty()) {
+                errores.append("El email es obligatorio\n");
+            } else if (!email.contains("@") || !email.contains(".")) {
+                errores.append("El email debe tener un formato valido\n");
             }
+        }
+        
+        if (txtNuevaPassword != null && txtConfirmarPassword != null) {
+            String nuevaPassword = txtNuevaPassword.getText();
+            String confirmarPassword = txtConfirmarPassword.getText();
             
-            try (Connection conn = DatabaseConnection.getConnection()) {
-                String query = "UPDATE USUARIO SET contraseña = ? WHERE id_usuario = ?";
-                PreparedStatement stmt = conn.prepareStatement(query);
-                stmt.setString(1, nuevaPassword);
-                stmt.setInt(2, 1);
-                stmt.executeUpdate();
-                
-                txtNuevaPassword.clear();
-                txtConfirmarPassword.clear();
-                cambiosRealizados = true;
-            } catch (SQLException e) {
-                e.printStackTrace();
-                mostrarError("Error al actualizar la contraseña");
-                return false;
-            }
-        }
-        
-        if (!nuevaEdadStr.isEmpty()) {
-            try {
-                int nuevaEdad = Integer.parseInt(nuevaEdadStr);
-                if (nuevaEdad < 0 || nuevaEdad > 150) {
-                    mostrarError("La edad debe estar entre 0 y 150");
-                    return false;
+            if (!nuevaPassword.isEmpty()) {
+                if (nuevaPassword.length() < 4) {
+                    errores.append("La contraseña debe tener al menos 4 caracteres\n");
                 }
-                
-                try (Connection conn = DatabaseConnection.getConnection()) {
-                    String query = "UPDATE USUARIO SET edad = ? WHERE id_usuario = ?";
-                    PreparedStatement stmt = conn.prepareStatement(query);
-                    stmt.setInt(1, nuevaEdad);
-                    stmt.setInt(2, 1);
-                    stmt.executeUpdate();
-                    
-                    lblEdad.setText(String.valueOf(nuevaEdad));
-                    cambiosRealizados = true;
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                    mostrarError("Error al actualizar la edad");
-                    return false;
+                if (!nuevaPassword.equals(confirmarPassword)) {
+                    errores.append("Las contraseñas no coinciden\n");
                 }
-            } catch (NumberFormatException e) {
-                mostrarError("La edad debe ser un número válido");
-                return false;
             }
         }
         
-        if (!nuevoEmail.isEmpty()) {
-            if (!validarEmail(nuevoEmail)) {
-                mostrarError("El email debe ser válido (formato: usuario@dominio.com)");
-                return false;
-            }
-            
-            try (Connection conn = DatabaseConnection.getConnection()) {
-                String query = "UPDATE USUARIO SET email = ? WHERE id_usuario = ?";
-                PreparedStatement stmt = conn.prepareStatement(query);
-                stmt.setString(1, nuevoEmail);
-                stmt.setInt(2, 1);
-                stmt.executeUpdate();
-                
-                lblEmail.setText(nuevoEmail);
-                cambiosRealizados = true;
-            } catch (SQLException e) {
-                e.printStackTrace();
-                mostrarError("Error al actualizar el email");
-                return false;
+        if (txtEdad != null) {
+            String edadStr = txtEdad.getText().trim();
+            if (!edadStr.isEmpty()) {
+                try {
+                    int edad = Integer.parseInt(edadStr);
+                    if (edad < 0 || edad > 150) {
+                        errores.append("La edad debe estar entre 0 y 150\n");
+                    }
+                } catch (NumberFormatException e) {
+                    errores.append("La edad debe ser un numero valido\n");
+                }
             }
         }
         
-        return cambiosRealizados;
+        if (errores.length() > 0) {
+            mostrarError(errores.toString().trim());
+            return false;
+        }
+        
+        return true;
     }
     
-    private boolean validarEmail(String email) {
-        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*\\.[A-Za-z]{2,}$";
-        return email.matches(emailRegex);
+    private boolean guardarCambios() {
+        int idUsuario = Configuracion.getIdUsuarioActual();
+        
+        try {
+            Connection conn = DatabaseConnection.getConnection();
+            
+            if (txtEmailEditar != null) {
+                String nuevoEmail = txtEmailEditar.getText().trim();
+                String checkQuery = "SELECT COUNT(*) FROM USUARIO WHERE email = ? AND id_usuario != ?";
+                PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
+                checkStmt.setString(1, nuevoEmail);
+                checkStmt.setInt(2, idUsuario);
+                ResultSet rs = checkStmt.executeQuery();
+                
+                if (rs.next() && rs.getInt(1) > 0) {
+                    mostrarError("Ya existe otro usuario con este email");
+                    rs.close();
+                    checkStmt.close();
+                    return false;
+                }
+                rs.close();
+                checkStmt.close();
+            }
+            
+            StringBuilder queryBuilder = new StringBuilder("UPDATE USUARIO SET ");
+            boolean hayActualizaciones = false;
+            
+            if (txtNombre != null && !txtNombre.getText().trim().isEmpty()) {
+                queryBuilder.append("nombre = ?, ");
+                hayActualizaciones = true;
+            }
+            
+            if (txtApellidos != null && !txtApellidos.getText().trim().isEmpty()) {
+                queryBuilder.append("apellido = ?, ");
+                hayActualizaciones = true;
+            }
+            
+            if (txtEmailEditar != null && !txtEmailEditar.getText().trim().isEmpty()) {
+                queryBuilder.append("email = ?, ");
+                hayActualizaciones = true;
+            }
+            
+            if (txtNuevaPassword != null && !txtNuevaPassword.getText().isEmpty()) {
+                queryBuilder.append("contraseña = ?, ");
+                hayActualizaciones = true;
+            }
+            
+            if (txtEdad != null && !txtEdad.getText().trim().isEmpty()) {
+                queryBuilder.append("edad = ?, ");
+                hayActualizaciones = true;
+            }
+            
+            if (!hayActualizaciones) {
+                mostrarError("No hay cambios que guardar");
+                return false;
+            }
+            
+            String query = queryBuilder.substring(0, queryBuilder.length() - 2) + " WHERE id_usuario = ?";
+            
+            PreparedStatement stmt = conn.prepareStatement(query);
+            
+            int paramIndex = 1;
+            
+            if (txtNombre != null && !txtNombre.getText().trim().isEmpty()) {
+                stmt.setString(paramIndex++, txtNombre.getText().trim());
+            }
+            
+            if (txtApellidos != null && !txtApellidos.getText().trim().isEmpty()) {
+                stmt.setString(paramIndex++, txtApellidos.getText().trim());
+            }
+            
+            if (txtEmailEditar != null && !txtEmailEditar.getText().trim().isEmpty()) {
+                stmt.setString(paramIndex++, txtEmailEditar.getText().trim());
+            }
+            
+            if (txtNuevaPassword != null && !txtNuevaPassword.getText().isEmpty()) {
+                stmt.setString(paramIndex++, txtNuevaPassword.getText());
+            }
+            
+            if (txtEdad != null && !txtEdad.getText().trim().isEmpty()) {
+                stmt.setInt(paramIndex++, Integer.parseInt(txtEdad.getText().trim()));
+            }
+            
+            stmt.setInt(paramIndex, idUsuario);
+            
+            int filasActualizadas = stmt.executeUpdate();
+            stmt.close();
+            
+            if (txtNuevaPassword != null) txtNuevaPassword.clear();
+            if (txtConfirmarPassword != null) txtConfirmarPassword.clear();
+            
+            return filasActualizadas > 0;
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+            mostrarError("Error al guardar los cambios: " + e.getMessage());
+            return false;
+        }
     }
     
     @FXML
@@ -189,7 +296,6 @@ public class AjustesController {
             
             Stage stage = (Stage) btnTema.getScene().getWindow();
             Scene scene = new Scene(root);
-            
             Main.aplicarTema(scene);
             
             stage.setScene(scene);
@@ -204,14 +310,24 @@ public class AjustesController {
         alert.setTitle("Error");
         alert.setHeaderText(null);
         alert.setContentText(mensaje);
+        agregarIconoAlerta(alert);
         alert.showAndWait();
     }
     
     private void mostrarExito(String mensaje) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Éxito");
+        alert.setTitle("Exito");
         alert.setHeaderText(null);
         alert.setContentText(mensaje);
+        agregarIconoAlerta(alert);
         alert.showAndWait();
+    }
+    
+    private void agregarIconoAlerta(Alert alert) {
+        try {
+            Stage alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
+            alertStage.getIcons().add(new Image(getClass().getResourceAsStream("/muudle.png")));
+        } catch (Exception e) {
+        }
     }
 }
