@@ -66,7 +66,7 @@ public class CrearCursoController {
         
         txtNombreCurso.setTooltip(new Tooltip("Introduzca el nombre del curso"));
         txtDescripcion.setTooltip(new Tooltip("Introduzca una descripcion del curso"));
-        txtBuscarAlumno.setTooltip(new Tooltip("Escriba para filtrar alumnos"));
+        txtBuscarAlumno.setTooltip(new Tooltip("Escriba para filtrar alumnos por nombre"));
         
         txtBuscarAlumno.textProperty().addListener((observable, oldValue, newValue) -> {
             buscarAlumnos(newValue);

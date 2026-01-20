@@ -45,6 +45,8 @@ public class CursosController {
     @FXML private Button btnUsuarios;
     @FXML private Button btnVerCursoConcreto;
     @FXML private Button btnVerPerfil1;
+    @FXML private Button btnCrearMatricula;
+    @FXML private Button btnEliminarMatricula;
     @FXML private TableColumn<Usuario, String> colApellidos1;
     @FXML private TableColumn<Asistencia, String> colApellidos11;
     @FXML private TableColumn<Usuario, Integer> colEdad1;
@@ -162,10 +164,10 @@ public class CursosController {
         
         configurarPermisosPorRol();
         
-        btnCursos.setTooltip(new Tooltip("Ver listado de cursos (Alt+C)"));
-        btnUsuarios.setTooltip(new Tooltip("Ver listado de usuarios (Alt+U)"));
-        btnAsistencias.setTooltip(new Tooltip("Ver matriculas (Alt+M)"));
-        btnAjustes.setTooltip(new Tooltip("Configuracion y perfil (Alt+A)"));
+        btnCursos.setTooltip(new Tooltip("Ver listado de cursos"));
+        btnUsuarios.setTooltip(new Tooltip("Ver listado de usuarios"));
+        btnAsistencias.setTooltip(new Tooltip("Ver matriculaciones"));
+        btnAjustes.setTooltip(new Tooltip("Configuracion y perfil"));
         btnCerrarSesion.setTooltip(new Tooltip("Cerrar sesion"));
         
         txtBuscar.setPromptText("Buscar por ID, nombre o descripcion...");
@@ -201,12 +203,26 @@ public class CursosController {
         });
         btnInsertar.setOnAction(event -> {
             animarBoton(btnInsertar);
-            lanzarInsertar();
+            lanzarEditarMatricula();
         });
         btnCrearUsuario.setOnAction(event -> {
             animarBoton(btnCrearUsuario);
             lanzarCrearUsuario();
         });
+        
+        if (btnCrearMatricula != null) {
+            btnCrearMatricula.setOnAction(event -> {
+                animarBoton(btnCrearMatricula);
+                lanzarCrearMatricula();
+            });
+        }
+        
+        if (btnEliminarMatricula != null) {
+            btnEliminarMatricula.setOnAction(event -> {
+                animarBoton(btnEliminarMatricula);
+                eliminarMatriculaSeleccionada();
+            });
+        }
 
         cargarCursos();
         cargarUsuarios();
@@ -242,6 +258,22 @@ public class CursosController {
         btnInsertar.setVisible(esProfesor);
         btnInsertar.setManaged(esProfesor);
         
+        if (btnCrearMatricula != null) {
+            btnCrearMatricula.setVisible(esProfesor);
+            btnCrearMatricula.setManaged(esProfesor);
+        }
+        
+        if (btnEliminarMatricula != null) {
+            btnEliminarMatricula.setVisible(esProfesor);
+            btnEliminarMatricula.setManaged(esProfesor);
+        }
+        
+        // Ocultar columnas de notas y faltas para alumnos
+        if (!esProfesor) {
+            colFaltas11.setVisible(false);
+            colNota11.setVisible(false);
+        }
+        
         btnVerPerfil1.setVisible(true);
         btnVerCursoConcreto.setVisible(true);
     }
@@ -267,13 +299,6 @@ public class CursosController {
             } else {
                 mostrarAlerta("Error", "Por favor selecciona un usuario");
             }
-        } else if (vboxAsistencias.isVisible()) {
-            Asistencia asistenciaSeleccionada = tablaUsuarios11.getSelectionModel().getSelectedItem();
-            if (asistenciaSeleccionada != null) {
-                borrarAsistencia(asistenciaSeleccionada);
-            } else {
-                mostrarAlerta("Error", "Por favor selecciona una asistencia");
-            }
         }
     }
 
@@ -294,6 +319,21 @@ public class CursosController {
                 mostrarAlerta("Error", "Por favor selecciona un usuario");
             }
         }
+    }
+    
+    private void eliminarMatriculaSeleccionada() {
+        if (!Configuracion.esProfesor()) {
+            mostrarAlerta("Acceso denegado", "Solo los profesores pueden eliminar matriculaciones");
+            return;
+        }
+        
+        Asistencia asistenciaSeleccionada = tablaUsuarios11.getSelectionModel().getSelectedItem();
+        if (asistenciaSeleccionada == null) {
+            mostrarAlerta("Error", "Por favor selecciona una matriculacion para eliminar");
+            return;
+        }
+        
+        borrarAsistencia(asistenciaSeleccionada);
     }
     
     private void animarCambioVista(VBox vistaAnterior, VBox vistaNueva) {
@@ -389,23 +429,52 @@ public class CursosController {
             e.printStackTrace();
         }
     }
-
-    public void lanzarInsertar() {
+    
+    public void lanzarCrearMatricula() {
         if (!Configuracion.esProfesor()) {
-            mostrarAlerta("Acceso denegado", "Solo los profesores pueden editar matriculas");
+            mostrarAlerta("Acceso denegado", "Solo los profesores pueden crear matriculaciones");
+            return;
+        }
+        
+        try {
+            Stage modal = new Stage();
+            modal.setTitle("Nueva Matriculacion");
+            modal.initModality(Modality.APPLICATION_MODAL);
+            modal.initOwner(btnCrearMatricula.getScene().getWindow());
+            agregarIconoVentana(modal);
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/CrearMatricula.fxml"));
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
+            Main.aplicarTema(scene);
+            modal.setScene(scene);
+
+            CrearMatriculaController controller = loader.getController();
+            controller.setCursosController(this);
+
+            modal.showAndWait();
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void lanzarEditarMatricula() {
+        if (!Configuracion.esProfesor()) {
+            mostrarAlerta("Acceso denegado", "Solo los profesores pueden editar matriculaciones");
             return;
         }
         
         Asistencia asistenciaSeleccionada = tablaUsuarios11.getSelectionModel().getSelectedItem();
         
         if (asistenciaSeleccionada == null) {
-            mostrarAlerta("Error", "Debe seleccionar un alumno de la tabla para actualizar");
+            mostrarAlerta("Error", "Debe seleccionar una matriculacion de la tabla para editar");
             return;
         }
         
         try {
             Stage modal = new Stage();
-            modal.setTitle("Actualizar Informacion");
+            modal.setTitle("Editar Matriculacion");
             modal.initModality(Modality.APPLICATION_MODAL);
             modal.initOwner(btnInsertar.getScene().getWindow());
             agregarIconoVentana(modal);
@@ -532,8 +601,23 @@ public class CursosController {
     public void cargarCursos() {
         try {
             Connection conn = DatabaseConnection.getConnection();
-            String query = "SELECT id_curso, nombre_curso, descripcion, cant_usuarios FROM CURSO";
-            PreparedStatement stmt = conn.prepareStatement(query);
+            String query;
+            PreparedStatement stmt;
+            
+            if (Configuracion.esProfesor()) {
+                // Profesor ve todos los cursos
+                query = "SELECT id_curso, nombre_curso, descripcion, cant_usuarios FROM CURSO";
+                stmt = conn.prepareStatement(query);
+            } else {
+                // Alumno solo ve los cursos en los que esta matriculado
+                query = "SELECT DISTINCT c.id_curso, c.nombre_curso, c.descripcion, c.cant_usuarios " +
+                        "FROM CURSO c " +
+                        "INNER JOIN ASISTENCIA a ON c.id_curso = a.id_curso " +
+                        "WHERE a.id_usuario = ?";
+                stmt = conn.prepareStatement(query);
+                stmt.setInt(1, Configuracion.getIdUsuarioActual());
+            }
+            
             ResultSet rs = stmt.executeQuery();
 
             todosLosCursos.clear();
@@ -559,8 +643,20 @@ public class CursosController {
     public void cargarUsuarios() {
         try {
             Connection conn = DatabaseConnection.getConnection();
-            String query = "SELECT id_usuario, nombre, apellido, email, tipo_usuario, edad FROM USUARIO";
-            PreparedStatement stmt = conn.prepareStatement(query);
+            String query;
+            PreparedStatement stmt;
+            
+            if (Configuracion.esProfesor()) {
+                // Profesor ve todos los usuarios
+                query = "SELECT id_usuario, nombre, apellido, email, tipo_usuario, edad FROM USUARIO";
+                stmt = conn.prepareStatement(query);
+            } else {
+                // Alumno solo ve su propio perfil
+                query = "SELECT id_usuario, nombre, apellido, email, tipo_usuario, edad FROM USUARIO WHERE id_usuario = ?";
+                stmt = conn.prepareStatement(query);
+                stmt.setInt(1, Configuracion.getIdUsuarioActual());
+            }
+            
             ResultSet rs = stmt.executeQuery();
 
             todosLosUsuarios.clear();
@@ -588,11 +684,27 @@ public class CursosController {
     public void cargarAsistencias() {
         try {
             Connection conn = DatabaseConnection.getConnection();
-            String query = "SELECT u.id_usuario, u.nombre, u.apellido, a.nFaltas, a.nota, a.id_curso, c.nombre_curso " +
+            String query;
+            PreparedStatement stmt;
+            
+            if (Configuracion.esProfesor()) {
+                // Profesor ve todas las matriculaciones
+                query = "SELECT u.id_usuario, u.nombre, u.apellido, a.nFaltas, a.nota, a.id_curso, c.nombre_curso " +
                         "FROM ASISTENCIA a " +
                         "JOIN USUARIO u ON a.id_usuario = u.id_usuario " +
                         "JOIN CURSO c ON a.id_curso = c.id_curso";
-            PreparedStatement stmt = conn.prepareStatement(query);
+                stmt = conn.prepareStatement(query);
+            } else {
+                // Alumno solo ve sus propias matriculaciones
+                query = "SELECT u.id_usuario, u.nombre, u.apellido, a.nFaltas, a.nota, a.id_curso, c.nombre_curso " +
+                        "FROM ASISTENCIA a " +
+                        "JOIN USUARIO u ON a.id_usuario = u.id_usuario " +
+                        "JOIN CURSO c ON a.id_curso = c.id_curso " +
+                        "WHERE a.id_usuario = ?";
+                stmt = conn.prepareStatement(query);
+                stmt.setInt(1, Configuracion.getIdUsuarioActual());
+            }
+            
             ResultSet rs = stmt.executeQuery();
 
             todasLasAsistencias.clear();
@@ -614,7 +726,7 @@ public class CursosController {
 
         } catch (SQLException e) {
             e.printStackTrace();
-            mostrarAlerta("Error", "No se pudieron cargar las asistencias: " + e.getMessage());
+            mostrarAlerta("Error", "No se pudieron cargar las matriculaciones: " + e.getMessage());
         }
     }
 
@@ -746,11 +858,11 @@ public class CursosController {
                 
                 cargarAsistencias();
                 cargarCursos();
-                mostrarAlerta("Exito", "Alumno eliminado del curso.");
+                mostrarAlerta("Exito", "Matriculacion eliminada correctamente.");
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            mostrarAlerta("Error", "No se pudo eliminar la asistencia: " + e.getMessage());
+            mostrarAlerta("Error", "No se pudo eliminar la matriculacion: " + e.getMessage());
         }
     }
 

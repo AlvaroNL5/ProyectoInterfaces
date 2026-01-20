@@ -369,13 +369,6 @@ public class CursoDetalleController {
             e.printStackTrace();
             mostrarError("Error al anadir usuario al curso: " + e.getMessage());
         }
-        
-        if (tablaUsuarios != null) {
-            FadeTransition fade = new FadeTransition(Duration.millis(300), tablaUsuarios);
-            fade.setFromValue(0.5);
-            fade.setToValue(1.0);
-            fade.play();
-        }
     }
 
     @FXML

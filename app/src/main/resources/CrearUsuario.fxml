@@ -6,86 +6,102 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefHeight="400.0" prefWidth="400.0" spacing="20.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.javafx.A_holamundofxml.CrearUsuarioController">
+<VBox alignment="CENTER" prefHeight="500.0" prefWidth="450.0" spacing="12.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.javafx.A_holamundofxml.CrearUsuarioController">
     <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+        <Insets bottom="25.0" left="30.0" right="30.0" top="25.0" />
     </padding>
     
-    <Label text="Crear Nuevo Usuario">
+    <Label text="Crear Usuario">
         <font>
-            <Font name="System Bold" size="24.0" />
+            <Font name="System Bold" size="20.0" />
         </font>
     </Label>
     
     <VBox spacing="5.0">
-        <Label text="Nombre:">
-            <font>
-                <Font name="System Bold" size="12.0" />
-            </font>
-        </Label>
-        <TextField fx:id="txtNombre" prefWidth="460.0" promptText="Nombre del usuario" />
+        <Label mnemonicParsing="true" text="_Nombre:" />
+        <TextField fx:id="txtNombre" prefWidth="380.0" promptText="Nombre del usuario">
+            <tooltip>
+                <Tooltip text="Introduzca el nombre del usuario" />
+            </tooltip>
+        </TextField>
     </VBox>
     
     <VBox spacing="5.0">
-        <Label text="Apellidos:">
-            <font>
-                <Font name="System Bold" size="12.0" />
-            </font>
-        </Label>
-        <TextField fx:id="txtApellidos" prefWidth="460.0" promptText="Apellidos del usuario" />
+        <Label mnemonicParsing="true" text="A_pellidos:" />
+        <TextField fx:id="txtApellidos" prefWidth="380.0" promptText="Apellidos del usuario">
+            <tooltip>
+                <Tooltip text="Introduzca los apellidos del usuario" />
+            </tooltip>
+        </TextField>
     </VBox>
     
     <VBox spacing="5.0">
-        <Label text="Email:">
-            <font>
-                <Font name="System Bold" size="12.0" />
-            </font>
-        </Label>
-        <TextField fx:id="txtEmail" prefWidth="460.0" promptText="Email del usuario" />
+        <Label mnemonicParsing="true" text="_Email:" />
+        <TextField fx:id="txtEmail" prefWidth="380.0" promptText="email@ejemplo.com">
+            <tooltip>
+                <Tooltip text="Introduzca un email valido" />
+            </tooltip>
+        </TextField>
     </VBox>
     
-    <VBox spacing="5.0">
-        <Label text="ContraseÃ±a:">
-            <font>
-                <Font name="System Bold" size="12.0" />
-            </font>
-        </Label>
-        <PasswordField fx:id="txtPassword" prefWidth="460.0" promptText="ContraseÃ±a" />
-    </VBox>
+    <HBox spacing="15.0">
+        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+            <Label mnemonicParsing="true" text="Con_trasena:" />
+            <PasswordField fx:id="txtPassword" promptText="Minimo 4 caracteres">
+                <tooltip>
+                    <Tooltip text="Introduzca una contrasena (minimo 4 caracteres)" />
+                </tooltip>
+            </PasswordField>
+        </VBox>
+        
+        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+            <Label mnemonicParsing="true" text="C_onfirmar:" />
+            <PasswordField fx:id="txtConfirmarPassword" promptText="Repita la contrasena">
+                <tooltip>
+                    <Tooltip text="Repita la contrasena para confirmar" />
+                </tooltip>
+            </PasswordField>
+        </VBox>
+    </HBox>
     
-    <VBox spacing="5.0">
-        <Label text="Confirmar ContraseÃ±a:">
-            <font>
-                <Font name="System Bold" size="12.0" />
-            </font>
-        </Label>
-        <PasswordField fx:id="txtConfirmarPassword" prefWidth="460.0" promptText="Confirmar contraseÃ±a" />
-    </VBox>
+    <HBox spacing="15.0">
+        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+            <Label mnemonicParsing="true" text="_Rol:" />
+            <ComboBox fx:id="comboRol" prefWidth="180.0" promptText="Seleccione rol">
+                <tooltip>
+                    <Tooltip text="Seleccione el rol: Profesor (gestion) o Alumno (consulta)" />
+                </tooltip>
+            </ComboBox>
+        </VBox>
+        
+        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+            <Label mnemonicParsing="true" text="E_dad:" />
+            <TextField fx:id="txtEdad" promptText="Edad (0-150)">
+                <tooltip>
+                    <Tooltip text="Introduzca la edad del usuario (0-150)" />
+                </tooltip>
+            </TextField>
+        </VBox>
+    </HBox>
     
-    <VBox spacing="5.0">
-        <Label text="Rol:">
-            <font>
-                <Font name="System Bold" size="12.0" />
-            </font>
-        </Label>
-        <ComboBox fx:id="comboRol" prefWidth="460.0" />
-    </VBox>
-    
-    <VBox spacing="5.0">
-        <Label text="Edad:">
-            <font>
-                <Font name="System Bold" size="12.0" />
-            </font>
-        </Label>
-        <TextField fx:id="txtEdad" prefWidth="460.0" promptText="Edad del usuario" />
-    </VBox>
-    
-    <HBox alignment="CENTER_RIGHT" spacing="15.0">
-        <Button cancelButton="true" onAction="#handleCancelar" text="Cancelar" />
-        <Button fx:id="btnCrear" onAction="#handleCrear" text="Crear Usuario" />
+    <HBox alignment="CENTER_RIGHT" spacing="10.0">
+        <VBox.margin>
+            <Insets top="15.0" />
+        </VBox.margin>
+        <Button fx:id="btnCancelar" mnemonicParsing="true" onAction="#handleCancelar" text="C_ancelar">
+            <tooltip>
+                <Tooltip text="Cancelar y cerrar" />
+            </tooltip>
+        </Button>
+        <Button fx:id="btnCrear" mnemonicParsing="true" onAction="#handleCrear" text="_Crear Usuario">
+            <tooltip>
+                <Tooltip text="Crear el nuevo usuario" />
+            </tooltip>
+        </Button>
     </HBox>
 </VBox>

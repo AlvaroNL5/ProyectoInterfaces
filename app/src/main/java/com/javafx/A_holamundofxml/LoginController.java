@@ -56,7 +56,7 @@ public class LoginController {
         if (email.isEmpty() || password.isEmpty()) {
             shakeNode(txtEmail);
             shakeNode(txtPassword);
-            mostrarError("Por favor, introduzca su email y contraseña");
+            mostrarError("Por favor, introduzca su email y contrasena");
             return;
         }
         
@@ -84,14 +84,14 @@ public class LoginController {
             } else {
                 shakeNode(txtEmail);
                 shakeNode(txtPassword);
-                mostrarError("Email o contraseña incorrectos");
+                mostrarError("Email o contrasena incorrectos");
                 rs.close();
                 stmt.close();
             }
             
         } catch (SQLException e) {
             e.printStackTrace();
-            mostrarError("Error de conexión con la base de datos");
+            mostrarError("Error de conexion con la base de datos");
         }
     }
     

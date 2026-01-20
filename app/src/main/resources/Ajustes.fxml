@@ -11,162 +11,148 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefHeight="700.0" prefWidth="900.0" spacing="15.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.javafx.A_holamundofxml.AjustesController">
+<VBox prefHeight="650.0" prefWidth="500.0" spacing="15.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.javafx.A_holamundofxml.AjustesController">
     <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+        <Insets bottom="20.0" left="25.0" right="25.0" top="20.0" />
     </padding>
     
-    <Label text="Ajustes">
-      <font>
-         <Font name="System Bold" size="24.0" />
-      </font>
+    <Label text="Ajustes y Perfil">
+        <font>
+            <Font name="System Bold" size="24.0" />
+        </font>
     </Label>
     
     <Separator />
     
-    <VBox spacing="10.0">
-        <Label text="Tema de la Aplicacion">
-         <font>
-            <Font name="System Bold" size="14.0" />
-         </font>
-        </Label>
-        
-        <Button fx:id="btnTema" mnemonicParsing="true" onAction="#handleTema" prefWidth="250.0" text="_Cambiar a Modo Oscuro">
-            <tooltip>
-                <Tooltip text="Alternar entre tema claro y oscuro" />
-            </tooltip>
-        </Button>
+    <Label text="Mi Perfil Actual">
+        <font>
+            <Font name="System Bold" size="16.0" />
+        </font>
+    </Label>
+    
+    <HBox spacing="20.0">
+        <VBox spacing="3.0">
+            <Label style="-fx-text-fill: #666;" text="Nombre:" />
+            <Label fx:id="lblNombre" text="-" />
+        </VBox>
+        <VBox spacing="3.0">
+            <Label style="-fx-text-fill: #666;" text="Apellidos:" />
+            <Label fx:id="lblApellidos" text="-" />
+        </VBox>
+        <VBox spacing="3.0">
+            <Label style="-fx-text-fill: #666;" text="Rol:" />
+            <Label fx:id="lblTipo" text="-" />
+        </VBox>
+        <VBox spacing="3.0">
+            <Label style="-fx-text-fill: #666;" text="Edad:" />
+            <Label fx:id="lblEdad" text="-" />
+        </VBox>
+    </HBox>
+    
+    <VBox spacing="3.0">
+        <Label style="-fx-text-fill: #666;" text="Email:" />
+        <Label fx:id="lblEmail" text="-" />
     </VBox>
     
     <Separator />
     
-    <HBox spacing="40.0">
-        <VBox spacing="10.0" prefWidth="350.0">
-            <Label text="Mi Perfil Actual">
-                <font>
-                    <Font name="System Bold" size="14.0" />
-                </font>
-            </Label>
-            
-            <HBox alignment="CENTER_LEFT" spacing="10.0">
-                <Label prefWidth="100.0" text="Nombre:" style="-fx-font-weight: bold;" />
-                <Label fx:id="lblNombre" text="-" />
-            </HBox>
-            
-            <HBox alignment="CENTER_LEFT" spacing="10.0">
-                <Label prefWidth="100.0" text="Apellidos:" style="-fx-font-weight: bold;" />
-                <Label fx:id="lblApellidos" text="-" />
-            </HBox>
-            
-            <HBox alignment="CENTER_LEFT" spacing="10.0">
-                <Label prefWidth="100.0" text="Email:" style="-fx-font-weight: bold;" />
-                <Label fx:id="lblEmail" text="-" />
-            </HBox>
-            
-            <HBox alignment="CENTER_LEFT" spacing="10.0">
-                <Label prefWidth="100.0" text="Tipo:" style="-fx-font-weight: bold;" />
-                <Label fx:id="lblTipo" text="-" />
-            </HBox>
-            
-            <HBox alignment="CENTER_LEFT" spacing="10.0">
-                <Label prefWidth="100.0" text="Edad:" style="-fx-font-weight: bold;" />
-                <Label fx:id="lblEdad" text="-" />
-            </HBox>
+    <Label text="Editar Mis Datos">
+        <font>
+            <Font name="System Bold" size="16.0" />
+        </font>
+    </Label>
+    
+    <HBox spacing="15.0">
+        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+            <Label mnemonicParsing="true" text="_Nombre:" />
+            <TextField fx:id="txtNombre" promptText="Nuevo nombre">
+                <tooltip>
+                    <Tooltip text="Introduzca su nombre" />
+                </tooltip>
+            </TextField>
+        </VBox>
+        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+            <Label mnemonicParsing="true" text="A_pellidos:" />
+            <TextField fx:id="txtApellidos" promptText="Nuevos apellidos">
+                <tooltip>
+                    <Tooltip text="Introduzca sus apellidos" />
+                </tooltip>
+            </TextField>
+        </VBox>
+    </HBox>
+    
+    <HBox spacing="15.0">
+        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+            <Label mnemonicParsing="true" text="_Email:" />
+            <TextField fx:id="txtEmailEditar" promptText="Nuevo email">
+                <tooltip>
+                    <Tooltip text="Introduzca su email" />
+                </tooltip>
+            </TextField>
+        </VBox>
+        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+            <Label mnemonicParsing="true" text="E_dad:" />
+            <TextField fx:id="txtEdad" promptText="Nueva edad">
+                <tooltip>
+                    <Tooltip text="Introduzca su edad (0-150)" />
+                </tooltip>
+            </TextField>
         </VBox>
     </HBox>
     
     <Separator />
     
-    <VBox spacing="12.0">
-        <Label text="Editar Mis Datos">
-         <font>
+    <Label text="Cambiar Contrasena (opcional)">
+        <font>
             <Font name="System Bold" size="14.0" />
-         </font>
-        </Label>
-        
-        <HBox spacing="20.0">
-            <VBox spacing="5.0">
-                <Label mnemonicParsing="true" text="_Nombre:" />
-                <TextField fx:id="txtNombre" prefWidth="250.0" promptText="Tu nombre">
-                    <tooltip>
-                        <Tooltip text="Introduzca su nombre" />
-                    </tooltip>
-                </TextField>
-            </VBox>
-            
-            <VBox spacing="5.0">
-                <Label mnemonicParsing="true" text="_Apellidos:" />
-                <TextField fx:id="txtApellidos" prefWidth="250.0" promptText="Tus apellidos">
-                    <tooltip>
-                        <Tooltip text="Introduzca sus apellidos" />
-                    </tooltip>
-                </TextField>
-            </VBox>
-        </HBox>
-        
-        <HBox spacing="20.0">
-            <VBox spacing="5.0">
-                <Label mnemonicParsing="true" text="_Email:" />
-                <TextField fx:id="txtEmailEditar" prefWidth="250.0" promptText="tu@email.com">
-                    <tooltip>
-                        <Tooltip text="Introduzca su email" />
-                    </tooltip>
-                </TextField>
-            </VBox>
-            
-            <VBox spacing="5.0">
-                <Label mnemonicParsing="true" text="E_dad:" />
-                <TextField fx:id="txtEdad" prefWidth="250.0" promptText="Edad (0-150)">
-                    <tooltip>
-                        <Tooltip text="Introduzca su edad" />
-                    </tooltip>
-                </TextField>
-            </VBox>
-        </HBox>
-        
-        <Separator />
-        
-        <Label text="Cambiar Contrasena (opcional)">
-            <font>
-                <Font name="System Bold" size="12.0" />
-            </font>
-        </Label>
-        
-        <HBox spacing="20.0">
-            <VBox spacing="5.0">
-                <Label mnemonicParsing="true" text="Nueva Con_trasena:" />
-                <PasswordField fx:id="txtNuevaPassword" prefWidth="250.0" promptText="Dejar vacio para no cambiar">
-                    <tooltip>
-                        <Tooltip text="Introduzca una nueva contrasena (minimo 4 caracteres)" />
-                    </tooltip>
-                </PasswordField>
-            </VBox>
-            
-            <VBox spacing="5.0">
-                <Label mnemonicParsing="true" text="Con_firmar Contrasena:" />
-                <PasswordField fx:id="txtConfirmarPassword" prefWidth="250.0" promptText="Confirmar nueva contrasena">
-                    <tooltip>
-                        <Tooltip text="Repita la nueva contrasena para confirmar" />
-                    </tooltip>
-                </PasswordField>
-            </VBox>
-        </HBox>
-    </VBox>
+        </font>
+    </Label>
+    
+    <HBox spacing="15.0">
+        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+            <Label mnemonicParsing="true" text="Nueva _Contrasena:" />
+            <PasswordField fx:id="txtNuevaPassword" promptText="Dejar vacio para no cambiar">
+                <tooltip>
+                    <Tooltip text="Nueva contrasena (dejar vacio para mantener la actual)" />
+                </tooltip>
+            </PasswordField>
+        </VBox>
+        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+            <Label mnemonicParsing="true" text="Con_firmar:" />
+            <PasswordField fx:id="txtConfirmarPassword" promptText="Confirmar nueva contrasena">
+                <tooltip>
+                    <Tooltip text="Confirme la nueva contrasena" />
+                </tooltip>
+            </PasswordField>
+        </VBox>
+    </HBox>
     
     <Separator />
     
-    <HBox alignment="BOTTOM_RIGHT" spacing="10.0">
+    <Label text="Apariencia">
+        <font>
+            <Font name="System Bold" size="16.0" />
+        </font>
+    </Label>
+    
+    <Button fx:id="btnTema" mnemonicParsing="true" onAction="#handleTema" prefWidth="250.0" text="Cambiar a Modo _Oscuro">
+        <tooltip>
+            <Tooltip text="Cambiar entre tema claro y oscuro" />
+        </tooltip>
+    </Button>
+    
+    <HBox alignment="CENTER_RIGHT" spacing="10.0">
         <VBox.margin>
-            <Insets top="10.0" />
+            <Insets top="15.0" />
         </VBox.margin>
-        <Button mnemonicParsing="true" onAction="#handleGuardarCambios" prefWidth="150.0" text="_Guardar Cambios">
+        <Button mnemonicParsing="true" onAction="#handleGuardarCambios" text="_Guardar Cambios">
             <tooltip>
-                <Tooltip text="Guardar todos los cambios realizados" />
+                <Tooltip text="Guardar todos los cambios del perfil" />
             </tooltip>
         </Button>
-        <Button mnemonicParsing="true" onAction="#handleCerrar" prefWidth="100.0" text="Ce_rrar">
+        <Button mnemonicParsing="true" onAction="#handleCerrar" text="Ce_rrar">
             <tooltip>
-                <Tooltip text="Volver a la pantalla principal" />
+                <Tooltip text="Volver al panel principal" />
             </tooltip>
         </Button>
     </HBox>

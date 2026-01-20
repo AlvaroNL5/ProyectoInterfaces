@@ -38,12 +38,8 @@ public class CrearUsuarioController {
     
     public void setModoRegistro(boolean modo) {
         this.modoRegistro = modo;
-        if (modo) {
-            ObservableList<String> roles = FXCollections.observableArrayList("alumno");
-            comboRol.setItems(roles);
-            comboRol.setValue("alumno");
-            comboRol.setDisable(true);
-        }
+        // En modo registro, el usuario PUEDE elegir su rol (profesor o alumno)
+        // El comboRol permanece habilitado
     }
     
     @FXML
@@ -55,9 +51,9 @@ public class CrearUsuarioController {
         txtNombre.setTooltip(new Tooltip("Introduzca el nombre del usuario"));
         txtApellidos.setTooltip(new Tooltip("Introduzca los apellidos del usuario"));
         txtEmail.setTooltip(new Tooltip("Introduzca un email valido"));
-        txtPassword.setTooltip(new Tooltip("Introduzca una contraseña (minimo 4 caracteres)"));
-        txtConfirmarPassword.setTooltip(new Tooltip("Repita la contraseña"));
-        comboRol.setTooltip(new Tooltip("Seleccione el rol del usuario"));
+        txtPassword.setTooltip(new Tooltip("Introduzca una contrasena (minimo 4 caracteres)"));
+        txtConfirmarPassword.setTooltip(new Tooltip("Repita la contrasena"));
+        comboRol.setTooltip(new Tooltip("Seleccione el rol: Profesor (gestion completa) o Alumno (solo consulta)"));
         txtEdad.setTooltip(new Tooltip("Introduzca la edad (0-150)"));
     }
     
@@ -132,15 +128,15 @@ public class CrearUsuarioController {
         }
         
         if (password.isEmpty()) {
-            errores.append("La contraseña es obligatoria\n");
+            errores.append("La contrasena es obligatoria\n");
             shakeNode(txtPassword);
         } else if (password.length() < 4) {
-            errores.append("La contraseña debe tener al menos 4 caracteres\n");
+            errores.append("La contrasena debe tener al menos 4 caracteres\n");
             shakeNode(txtPassword);
         }
         
         if (!password.equals(confirmarPassword)) {
-            errores.append("Las contraseñas no coinciden\n");
+            errores.append("Las contrasenas no coinciden\n");
             shakeNode(txtConfirmarPassword);
         }
         

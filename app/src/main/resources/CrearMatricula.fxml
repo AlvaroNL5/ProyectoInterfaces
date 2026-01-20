@@ -10,50 +10,50 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="CENTER" prefHeight="320.0" prefWidth="400.0" spacing="15.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.javafx.A_holamundofxml.InsertarController">
+<VBox alignment="CENTER" prefHeight="350.0" prefWidth="450.0" spacing="15.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.javafx.A_holamundofxml.CrearMatriculaController">
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
     
-    <Label text="Editar Matriculacion">
+    <Label text="Nueva Matriculacion">
         <font>
             <Font name="System Bold" size="18.0" />
         </font>
     </Label>
     
     <VBox spacing="5.0">
-        <Label text="Alumno:" />
-        <Label fx:id="lblNombreAlumno" style="-fx-font-weight: bold;" text="-">
+        <Label mnemonicParsing="true" text="_Alumno:" />
+        <ComboBox fx:id="comboUsuario" prefWidth="400.0" promptText="Seleccione un alumno">
             <tooltip>
-                <Tooltip text="Nombre del alumno seleccionado" />
+                <Tooltip text="Seleccione el alumno a matricular" />
             </tooltip>
-        </Label>
+        </ComboBox>
     </VBox>
     
     <VBox spacing="5.0">
         <Label mnemonicParsing="true" text="_Curso:" />
-        <ComboBox fx:id="comboCurso" prefWidth="350.0" promptText="Seleccione un curso">
+        <ComboBox fx:id="comboCurso" prefWidth="400.0" promptText="Seleccione un curso">
             <tooltip>
-                <Tooltip text="Seleccione el curso para el alumno" />
+                <Tooltip text="Seleccione el curso en el que matricular" />
             </tooltip>
         </ComboBox>
     </VBox>
     
     <HBox spacing="20.0">
-        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+        <VBox spacing="5.0">
             <Label mnemonicParsing="true" text="_Faltas:" />
-            <TextField fx:id="txtFaltas" promptText="0">
+            <TextField fx:id="txtFaltas" prefWidth="180.0" promptText="0">
                 <tooltip>
-                    <Tooltip text="Numero de faltas (entero positivo)" />
+                    <Tooltip text="Numero de faltas inicial (entero positivo)" />
                 </tooltip>
             </TextField>
         </VBox>
         
-        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+        <VBox spacing="5.0">
             <Label mnemonicParsing="true" text="_Nota:" />
-            <TextField fx:id="txtNota" promptText="0.0">
+            <TextField fx:id="txtNota" prefWidth="180.0" promptText="0.0">
                 <tooltip>
-                    <Tooltip text="Nota del alumno (0-10)" />
+                    <Tooltip text="Nota inicial del alumno (0-10)" />
                 </tooltip>
             </TextField>
         </VBox>
@@ -68,9 +68,9 @@
                 <Tooltip text="Cancelar y cerrar" />
             </tooltip>
         </Button>
-        <Button fx:id="btnActualizar" mnemonicParsing="true" onAction="#handleActualizar" text="_Actualizar">
+        <Button fx:id="btnCrear" mnemonicParsing="true" onAction="#handleCrear" text="Crear _Matriculacion">
             <tooltip>
-                <Tooltip text="Actualizar la informacion de la matriculacion" />
+                <Tooltip text="Crear la matriculacion" />
             </tooltip>
         </Button>
     </HBox>

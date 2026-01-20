@@ -1,9 +1,6 @@
 package com.javafx.A_holamundofxml;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
 import javafx.animation.RotateTransition;
-import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -47,8 +44,8 @@ public class AjustesController {
         if (txtNombre != null) txtNombre.setTooltip(new Tooltip("Introduzca su nombre"));
         if (txtApellidos != null) txtApellidos.setTooltip(new Tooltip("Introduzca sus apellidos"));
         if (txtEmailEditar != null) txtEmailEditar.setTooltip(new Tooltip("Introduzca su email"));
-        if (txtNuevaPassword != null) txtNuevaPassword.setTooltip(new Tooltip("Nueva contraseña (dejar vacio para no cambiar)"));
-        if (txtConfirmarPassword != null) txtConfirmarPassword.setTooltip(new Tooltip("Confirmar nueva contraseña"));
+        if (txtNuevaPassword != null) txtNuevaPassword.setTooltip(new Tooltip("Nueva contrasena (dejar vacio para no cambiar)"));
+        if (txtConfirmarPassword != null) txtConfirmarPassword.setTooltip(new Tooltip("Confirmar nueva contrasena"));
         if (txtEdad != null) txtEdad.setTooltip(new Tooltip("Edad (0-150)"));
         if (btnTema != null) btnTema.setTooltip(new Tooltip("Cambiar entre tema claro y oscuro"));
     }
@@ -158,10 +155,10 @@ public class AjustesController {
             
             if (!nuevaPassword.isEmpty()) {
                 if (nuevaPassword.length() < 4) {
-                    errores.append("La contraseña debe tener al menos 4 caracteres\n");
+                    errores.append("La contrasena debe tener al menos 4 caracteres\n");
                 }
                 if (!nuevaPassword.equals(confirmarPassword)) {
-                    errores.append("Las contraseñas no coinciden\n");
+                    errores.append("Las contrasenas no coinciden\n");
                 }
             }
         }

@@ -71,7 +71,7 @@ public class InsertarController {
         
         comboCurso.setTooltip(new Tooltip("Seleccione el curso para el usuario"));
         txtFaltas.setTooltip(new Tooltip("Numero de faltas (entero positivo)"));
-        txtNota.setTooltip(new Tooltip("Nota (0 - 10)"));
+        txtNota.setTooltip(new Tooltip("Nota del alumno (0-10)"));
     }
     
     private void cargarCursos(int idCursoActual) {
@@ -163,7 +163,7 @@ public class InsertarController {
                     shakeNode(txtNota);
                 }
             } catch (NumberFormatException e) {
-                errores.append("La nota debe ser un numero\n");
+                errores.append("La nota debe ser un numero valido\n");
                 shakeNode(txtNota);
             }
         }
@@ -267,7 +267,7 @@ public class InsertarController {
                 ex.printStackTrace();
             }
             e.printStackTrace();
-            mostrarError("Error al actualizar la informacion: " + e.getMessage());
+            mostrarError("Error al actualizar: " + e.getMessage());
         } finally {
             try {
                 if (conn != null) conn.setAutoCommit(true);

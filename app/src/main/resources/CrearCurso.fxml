@@ -6,70 +6,92 @@
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefHeight="600.0" prefWidth="850.0" spacing="20.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.javafx.A_holamundofxml.CrearCursoController">
+<VBox alignment="CENTER" prefHeight="550.0" prefWidth="650.0" spacing="12.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.javafx.A_holamundofxml.CrearCursoController">
     <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+        <Insets bottom="20.0" left="25.0" right="25.0" top="20.0" />
     </padding>
     
-    <Label text="Crear Nuevo Curso">
+    <Label text="Crear Curso">
         <font>
-            <Font name="System Bold" size="24.0" />
+            <Font name="System Bold" size="20.0" />
         </font>
     </Label>
     
     <VBox spacing="5.0">
-        <Label text="Nombre del Curso:">
-            <font>
-                <Font name="System Bold" size="12.0" />
-            </font>
-        </Label>
-        <TextField fx:id="txtNombreCurso" prefWidth="760.0" promptText="Ej: 1Âº DAM" />
+        <Label mnemonicParsing="true" text="_Nombre del Curso:" />
+        <TextField fx:id="txtNombreCurso" prefWidth="600.0" promptText="Introduzca el nombre del curso">
+            <tooltip>
+                <Tooltip text="Nombre identificativo del curso" />
+            </tooltip>
+        </TextField>
     </VBox>
     
     <VBox spacing="5.0">
-        <Label text="DescripciÃ³n:">
-            <font>
-                <Font name="System Bold" size="12.0" />
-            </font>
-        </Label>
-        <TextArea fx:id="txtDescripcion" prefHeight="100.0" prefWidth="760.0" promptText="DescripciÃ³n del curso..." wrapText="true" />
+        <Label mnemonicParsing="true" text="_Descripcion:" />
+        <TextArea fx:id="txtDescripcion" prefHeight="80.0" prefWidth="600.0" promptText="Describa el contenido del curso" wrapText="true">
+            <tooltip>
+                <Tooltip text="Descripcion detallada del curso" />
+            </tooltip>
+        </TextArea>
     </VBox>
     
     <VBox spacing="5.0">
-        <Label text="AÃ±adir Alumnos al Curso:">
-            <font>
-                <Font name="System Bold" size="14.0" />
-            </font>
-        </Label>
-        
-        <HBox alignment="CENTER_LEFT" spacing="10.0">
-            <TextField fx:id="txtBuscarAlumno" prefWidth="200.0" promptText="Buscar alumno..." HBox.hgrow="ALWAYS" />
-        </HBox>
-        
-        <HBox prefHeight="250.0" spacing="20.0">
-            <VBox spacing="5.0" HBox.hgrow="ALWAYS">
-                <Label text="Alumnos Disponibles:" />
-                <ListView fx:id="listaAlumnosDisponibles" prefHeight="200.0" />
-            </VBox>
-            
-            <VBox alignment="CENTER" spacing="10.0">
-                <Button onAction="#handleAnadirAlumno" text="âž¡ AÃ±adir" />
-                <Button onAction="#handleQuitarAlumno" text="â¬… Quitar" />
-            </VBox>
-            
-            <VBox spacing="5.0" HBox.hgrow="ALWAYS">
-                <Label text="Alumnos Seleccionados:" />
-                <ListView fx:id="listaAlumnosSeleccionados" prefHeight="200.0" />
-            </VBox>
-        </HBox>
+        <Label mnemonicParsing="true" text="_Buscar Alumnos:" />
+        <TextField fx:id="txtBuscarAlumno" prefWidth="600.0" promptText="Escriba para filtrar alumnos por nombre...">
+            <tooltip>
+                <Tooltip text="Filtrar alumnos disponibles por nombre" />
+            </tooltip>
+        </TextField>
     </VBox>
     
-    <HBox alignment="CENTER_RIGHT" spacing="15.0">
-        <Button cancelButton="true" onAction="#handleCancelar" text="Cancelar" />
-        <Button fx:id="btnCrear" onAction="#handleCrear" text="Crear Curso" />
+    <HBox spacing="15.0" VBox.vgrow="ALWAYS">
+        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+            <Label text="Alumnos Disponibles:" />
+            <ListView fx:id="listaAlumnosDisponibles" prefHeight="150.0">
+                <tooltip>
+                    <Tooltip text="Lista de alumnos que pueden ser asignados al curso" />
+                </tooltip>
+            </ListView>
+            <Button mnemonicParsing="true" onAction="#handleAnadirAlumno" text="_Anadir al Curso">
+                <tooltip>
+                    <Tooltip text="Anadir el alumno seleccionado al curso" />
+                </tooltip>
+            </Button>
+        </VBox>
+        
+        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+            <Label text="Alumnos en el Curso:" />
+            <ListView fx:id="listaAlumnosSeleccionados" prefHeight="150.0">
+                <tooltip>
+                    <Tooltip text="Lista de alumnos asignados al nuevo curso" />
+                </tooltip>
+            </ListView>
+            <Button mnemonicParsing="true" onAction="#handleQuitarAlumno" text="_Quitar del Curso">
+                <tooltip>
+                    <Tooltip text="Quitar el alumno seleccionado del curso" />
+                </tooltip>
+            </Button>
+        </VBox>
+    </HBox>
+    
+    <HBox alignment="CENTER_RIGHT" spacing="10.0">
+        <VBox.margin>
+            <Insets top="10.0" />
+        </VBox.margin>
+        <Button mnemonicParsing="true" onAction="#handleCancelar" text="C_ancelar">
+            <tooltip>
+                <Tooltip text="Cancelar y cerrar" />
+            </tooltip>
+        </Button>
+        <Button fx:id="btnCrear" mnemonicParsing="true" onAction="#handleCrear" text="Cr_ear Curso">
+            <tooltip>
+                <Tooltip text="Crear el curso con los alumnos seleccionados" />
+            </tooltip>
+        </Button>
     </HBox>
 </VBox>
