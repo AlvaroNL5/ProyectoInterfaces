@@ -46,10 +46,10 @@
     </VBox>
     
     <VBox spacing="8.0">
-        <Label mnemonicParsing="true" text="_Contrasena:" />
-        <PasswordField fx:id="txtPassword" prefHeight="35.0" prefWidth="320.0" promptText="Ingrese su contrasena">
+        <Label mnemonicParsing="true" text="_Contraseña:" />
+        <PasswordField fx:id="txtPassword" prefHeight="35.0" prefWidth="320.0" promptText="Ingrese su contraseña">
             <tooltip>
-                <Tooltip text="Introduzca su contrasena de acceso" />
+                <Tooltip text="Introduzca su contraseña de acceso" />
             </tooltip>
         </PasswordField>
     </VBox>
@@ -69,7 +69,7 @@
         </Button>
         
         <HBox alignment="CENTER" spacing="10.0">
-            <Label style="-fx-text-fill: #888;" text="No tienes cuenta?" />
+            <Label style="-fx-text-fill: #888;" text="¿No tienes cuenta?" />
             <Button fx:id="btnRegistro" mnemonicParsing="true" style="-fx-background-color: transparent; -fx-text-fill: #0066cc; -fx-underline: true; -fx-cursor: hand;" text="_Registrarse">
                 <tooltip>
                     <Tooltip text="Crear una nueva cuenta" />

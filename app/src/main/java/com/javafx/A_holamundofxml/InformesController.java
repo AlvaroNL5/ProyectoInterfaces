@@ -1,19 +1,33 @@
 package com.javafx.A_holamundofxml;
 
 import javafx.collections.FXCollections;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.WebView;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
-import net.sf.jasperreports.engine.*;
+import javafx.scene.Scene;
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperExportManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.export.HtmlExporter;
 import net.sf.jasperreports.export.SimpleExporterInput;
 import net.sf.jasperreports.export.SimpleHtmlExporterOutput;
 
-import java.awt.Desktop;
 import java.io.File;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -25,201 +39,262 @@ public class InformesController {
     @FXML private ComboBox<String> comboTipoInforme;
     @FXML private TextField txtParametro;
     @FXML private Label lblParametro;
-    @FXML private Button btnGenerarIncrustado;
-    @FXML private Button btnGenerarVentana;
-    @FXML private VBox vboxVisor;
+    @FXML private Button btnGenerar;
     @FXML private WebView webViewInforme;
-    
-    private JasperPrint jasperPrintActual;
-    
+    @FXML private VBox vboxVisor;
+    @FXML private VBox vboxParametro;
+
+    private static final String CARPETA_INFORMES = "INFORMES";
+
     @FXML
     public void initialize() {
         comboTipoInforme.setItems(FXCollections.observableArrayList(
-            "Informe de Cursos (Simple con Grafica)",
+            "Informe de Cursos (Simple con Gráfica)",
             "Informe de Matriculaciones (SQL Compuesta)",
-            "Informe Condicional por Nota Minima"
+            "Informe Condicional por Nota Mínima"
         ));
-        comboTipoInforme.setValue("Informe de Cursos (Simple con Grafica)");
         
-        comboTipoInforme.setOnAction(event -> actualizarParametros());
-        actualizarParametros();
+        comboTipoInforme.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            actualizarParametros(newVal);
+        });
         
-        comboTipoInforme.setTooltip(new Tooltip("Seleccione el tipo de informe a generar"));
-        txtParametro.setTooltip(new Tooltip("Parametro para filtrar el informe"));
-        btnGenerarIncrustado.setTooltip(new Tooltip("Ver el informe en esta ventana (incrustado)"));
-        btnGenerarVentana.setTooltip(new Tooltip("Abrir el informe en el navegador (no incrustado)"));
+        comboTipoInforme.getSelectionModel().selectFirst();
+        vboxVisor.setVisible(false);
+        vboxVisor.setManaged(false);
+        
+        crearCarpetaInformes();
     }
     
-    private void actualizarParametros() {
-        String seleccion = comboTipoInforme.getValue();
-        
-        if (seleccion.contains("Condicional")) {
-            lblParametro.setText("Nota minima:");
-            txtParametro.setPromptText("Ej: 5.0");
-            txtParametro.setVisible(true);
-            lblParametro.setVisible(true);
-        } else if (seleccion.contains("Matriculaciones")) {
-            lblParametro.setText("ID Curso (vacio = todos):");
-            txtParametro.setPromptText("Ej: 1");
-            txtParametro.setVisible(true);
-            lblParametro.setVisible(true);
-        } else {
-            lblParametro.setVisible(false);
-            txtParametro.setVisible(false);
+    private void crearCarpetaInformes() {
+        File carpeta = new File(CARPETA_INFORMES);
+        if (!carpeta.exists()) {
+            carpeta.mkdirs();
         }
     }
     
-    @FXML
-    void handleGenerarIncrustado(ActionEvent event) {
-        generarInforme(true);
-    }
-    
-    @FXML
-    void handleGenerarVentana(ActionEvent event) {
-        generarInforme(false);
-    }
-    
-    @FXML
-    void handleCerrar(ActionEvent event) {
-        ((Stage) comboTipoInforme.getScene().getWindow()).close();
-    }
-    
-    private InputStream cargarRecurso(String nombreArchivo) {
-        InputStream is = null;
+    private void actualizarParametros(String tipoInforme) {
+        if (tipoInforme == null) return;
         
-        String[] rutas = {
-            "/informes/" + nombreArchivo,
-            "informes/" + nombreArchivo,
-            "/" + nombreArchivo,
-            nombreArchivo
-        };
-        
-        for (String ruta : rutas) {
-            is = getClass().getResourceAsStream(ruta);
-            if (is != null) {
-                System.out.println("Recurso encontrado en: " + ruta);
-                return is;
-            }
-            
-            is = getClass().getClassLoader().getResourceAsStream(ruta.startsWith("/") ? ruta.substring(1) : ruta);
-            if (is != null) {
-                System.out.println("Recurso encontrado con ClassLoader en: " + ruta);
-                return is;
-            }
+        switch (tipoInforme) {
+            case "Informe de Cursos (Simple con Gráfica)":
+                vboxParametro.setVisible(false);
+                vboxParametro.setManaged(false);
+                break;
+            case "Informe de Matriculaciones (SQL Compuesta)":
+                vboxParametro.setVisible(true);
+                vboxParametro.setManaged(true);
+                lblParametro.setText("ID Curso (vacío = todos):");
+                txtParametro.setPromptText("Ej: 1");
+                txtParametro.clear();
+                break;
+            case "Informe Condicional por Nota Mínima":
+                vboxParametro.setVisible(true);
+                vboxParametro.setManaged(true);
+                lblParametro.setText("Nota mínima:");
+                txtParametro.setPromptText("Ej: 5.0");
+                txtParametro.clear();
+                break;
         }
-        
-        return null;
     }
-    
-    private void generarInforme(boolean incrustado) {
-        String seleccion = comboTipoInforme.getValue();
+
+    @FXML
+    private void handleGenerarInforme() {
+        String tipoInforme = comboTipoInforme.getValue();
+        
+        if (tipoInforme == null) {
+            mostrarError("Debe seleccionar un tipo de informe");
+            return;
+        }
         
         try {
-            Connection conn = DatabaseConnection.getConnection();
-            Map<String, Object> parametros = new HashMap<>();
-            String nombreInforme;
-            
-            if (seleccion.contains("Cursos")) {
-                nombreInforme = "InformeCursos.jrxml";
-            } else if (seleccion.contains("Matriculaciones")) {
-                nombreInforme = "InformeMatriculas.jrxml";
-                String paramCurso = txtParametro.getText().trim();
-                if (!paramCurso.isEmpty()) {
-                    try {
-                        parametros.put("ID_CURSO", Integer.parseInt(paramCurso));
-                    } catch (NumberFormatException e) {
-                        mostrarError("El ID del curso debe ser un numero entero");
-                        return;
-                    }
-                } else {
-                    parametros.put("ID_CURSO", null);
-                }
-            } else {
-                nombreInforme = "InformeCondicional.jrxml";
-                String paramNota = txtParametro.getText().trim();
-                if (paramNota.isEmpty()) {
-                    paramNota = "0";
-                }
-                try {
-                    parametros.put("NOTA_MINIMA", Double.parseDouble(paramNota));
-                } catch (NumberFormatException e) {
-                    mostrarError("La nota debe ser un numero (use punto para decimales)");
-                    return;
-                }
+            switch (tipoInforme) {
+                case "Informe de Cursos (Simple con Gráfica)":
+                    generarInformeCursos();
+                    break;
+                case "Informe de Matriculaciones (SQL Compuesta)":
+                    generarInformeMatriculas();
+                    break;
+                case "Informe Condicional por Nota Mínima":
+                    generarInformeCondicional();
+                    break;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            mostrarError("Error al generar el informe: " + e.getMessage());
+        }
+    }
+    
+    @FXML
+    private void handleCerrar() {
+        Stage stage = (Stage) btnGenerar.getScene().getWindow();
+        stage.close();
+    }
+    
+    private void generarInformeCursos() throws Exception {
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            InputStream inputStream = getClass().getResourceAsStream("/informes/InformeCursos.jrxml");
+            if (inputStream == null) {
+                throw new Exception("No se encontró el archivo InformeCursos.jrxml");
             }
             
-            InputStream inputStream = cargarRecurso(nombreInforme);
+            JasperReport report = JasperCompileManager.compileReport(inputStream);
+            Map<String, Object> parametros = new HashMap<>();
+            JasperPrint print = JasperFillManager.fillReport(report, parametros, conn);
             
+            String nombreBase = CARPETA_INFORMES + "/InformeCursos";
+            guardarInformeEnArchivos(print, nombreBase);
+            
+            mostrarInformeIncrustado(nombreBase + ".html");
+        }
+    }
+    
+    private void generarInformeMatriculas() throws Exception {
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            InputStream inputStream = getClass().getResourceAsStream("/informes/InformeMatriculas.jrxml");
             if (inputStream == null) {
-                mostrarError("No se encuentra el archivo: " + nombreInforme + 
-                            "\n\nAsegurese de que los archivos .jrxml estan en:" +
-                            "\nsrc/main/resources/informes/" +
-                            "\n\nY ejecute: ./gradlew clean build");
+                throw new Exception("No se encontró el archivo InformeMatriculas.jrxml");
+            }
+            
+            JasperReport report = JasperCompileManager.compileReport(inputStream);
+            Map<String, Object> parametros = new HashMap<>();
+            
+            String paramTexto = txtParametro.getText().trim();
+            if (!paramTexto.isEmpty()) {
+                try {
+                    parametros.put("ID_CURSO", Integer.parseInt(paramTexto));
+                } catch (NumberFormatException e) {
+                    mostrarError("El ID del curso debe ser un número entero");
+                    return;
+                }
+            } else {
+                parametros.put("ID_CURSO", null);
+            }
+            
+            JasperPrint print = JasperFillManager.fillReport(report, parametros, conn);
+            
+            String nombreBase = CARPETA_INFORMES + "/InformeMatriculas";
+            guardarInformeEnArchivos(print, nombreBase);
+            
+            mostrarInformeModal("Informe de Matriculaciones", nombreBase + ".html");
+        }
+    }
+    
+    private void generarInformeCondicional() throws Exception {
+        String paramTexto = txtParametro.getText().trim();
+        if (paramTexto.isEmpty()) {
+            mostrarError("Debe introducir una nota mínima");
+            return;
+        }
+        
+        double notaMinima;
+        try {
+            notaMinima = Double.parseDouble(paramTexto.replace(",", "."));
+        } catch (NumberFormatException e) {
+            mostrarError("La nota mínima debe ser un número válido (ej: 5.0)");
+            return;
+        }
+        
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            InputStream inputStream = getClass().getResourceAsStream("/informes/InformeCondicional.jrxml");
+            if (inputStream == null) {
+                throw new Exception("No se encontró el archivo InformeCondicional.jrxml");
+            }
+            
+            JasperReport report = JasperCompileManager.compileReport(inputStream);
+            Map<String, Object> parametros = new HashMap<>();
+            parametros.put("NOTA_MINIMA", notaMinima);
+            
+            JasperPrint print = JasperFillManager.fillReport(report, parametros, conn);
+            
+            String nombreBase = CARPETA_INFORMES + "/InformeCondicional";
+            guardarInformeEnArchivos(print, nombreBase);
+            
+            mostrarInformeModal("Informe Condicional (Nota >= " + notaMinima + ")", nombreBase + ".html");
+        }
+    }
+    
+    private void guardarInformeEnArchivos(JasperPrint print, String nombreBase) throws Exception {
+        JasperExportManager.exportReportToPdfFile(print, nombreBase + ".pdf");
+        
+        HtmlExporter htmlExporter = new HtmlExporter();
+        htmlExporter.setExporterInput(new SimpleExporterInput(print));
+        htmlExporter.setExporterOutput(new SimpleHtmlExporterOutput(nombreBase + ".html"));
+        htmlExporter.exportReport();
+        
+        System.out.println("Informe guardado en: " + nombreBase + ".pdf");
+        System.out.println("Informe guardado en: " + nombreBase + ".html");
+    }
+    
+    private void mostrarInformeIncrustado(String rutaHtml) {
+        try {
+            File htmlFile = new File(rutaHtml);
+            if (htmlFile.exists()) {
+                vboxVisor.setVisible(true);
+                vboxVisor.setManaged(true);
+                webViewInforme.getEngine().load(htmlFile.toURI().toString());
+            } else {
+                mostrarError("No se pudo generar el archivo HTML del informe");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            mostrarError("Error al mostrar el informe: " + e.getMessage());
+        }
+    }
+    
+    private void mostrarInformeModal(String titulo, String rutaHtml) {
+        try {
+            File htmlFile = new File(rutaHtml);
+            if (!htmlFile.exists()) {
+                mostrarError("No se pudo generar el archivo HTML del informe");
                 return;
             }
             
-            // Compilar el .jrxml en tiempo de ejecucion
-            System.out.println("Compilando informe: " + nombreInforme);
-            JasperReport report = JasperCompileManager.compileReport(inputStream);
-            System.out.println("Informe compilado correctamente");
+            Stage modalStage = new Stage();
+            modalStage.setTitle(titulo);
+            modalStage.initModality(Modality.APPLICATION_MODAL);
+            modalStage.initOwner(btnGenerar.getScene().getWindow());
             
-            // Rellenar el informe con los datos de la BD
-            jasperPrintActual = JasperFillManager.fillReport(report, parametros, conn);
-            System.out.println("Informe rellenado con datos");
-            
-            if (incrustado) {
-                mostrarInformeIncrustado();
-            } else {
-                mostrarInformeVentana();
+            try {
+                modalStage.getIcons().add(new Image(getClass().getResourceAsStream("/muudle.png")));
+            } catch (Exception e) {
             }
             
-        } catch (JRException e) {
-            e.printStackTrace();
-            mostrarError("Error de JasperReports: " + e.getMessage());
-        } catch (Exception e) {
-            e.printStackTrace();
-            mostrarError("Error al generar informe: " + e.getMessage());
-        }
-    }
-    
-    private void mostrarInformeIncrustado() {
-        try {
-            String tempHtml = System.getProperty("java.io.tmpdir") + File.separator + "informe_temp.html";
+            VBox vboxPrincipal = new VBox(15);
+            vboxPrincipal.setPadding(new Insets(20));
             
-            HtmlExporter exporter = new HtmlExporter();
-            exporter.setExporterInput(new SimpleExporterInput(jasperPrintActual));
-            exporter.setExporterOutput(new SimpleHtmlExporterOutput(tempHtml));
-            exporter.exportReport();
+            Label lblTitulo = new Label(titulo);
+            lblTitulo.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
             
-            if (webViewInforme != null) {
-                webViewInforme.getEngine().load(new File(tempHtml).toURI().toString());
-                vboxVisor.setVisible(true);
-            }
+            Separator sep1 = new Separator();
             
-        } catch (Exception e) {
-            e.printStackTrace();
-            mostrarError("Error al mostrar informe incrustado: " + e.getMessage());
-        }
-    }
-    
-    private void mostrarInformeVentana() {
-        try {
-            String tempHtml = System.getProperty("java.io.tmpdir") + File.separator + "informe_muudle.html";
+            WebView webView = new WebView();
+            webView.getEngine().load(htmlFile.toURI().toString());
+            VBox.setVgrow(webView, Priority.ALWAYS);
             
-            HtmlExporter exporter = new HtmlExporter();
-            exporter.setExporterInput(new SimpleExporterInput(jasperPrintActual));
-            exporter.setExporterOutput(new SimpleHtmlExporterOutput(tempHtml));
-            exporter.exportReport();
+            Separator sep2 = new Separator();
             
-            if (Desktop.isDesktopSupported()) {
-                Desktop.getDesktop().browse(new File(tempHtml).toURI());
-            } else {
-                mostrarError("No se puede abrir el navegador en este sistema");
-            }
+            Button btnCerrarModal = new Button("Cerrar");
+            btnCerrarModal.setMnemonicParsing(true);
+            btnCerrarModal.setText("C_errar");
+            btnCerrarModal.setTooltip(new Tooltip("Cerrar ventana del informe"));
+            btnCerrarModal.setOnAction(e -> modalStage.close());
+            
+            HBox hboxBotones = new HBox();
+            hboxBotones.setAlignment(Pos.BOTTOM_RIGHT);
+            hboxBotones.getChildren().add(btnCerrarModal);
+            
+            vboxPrincipal.getChildren().addAll(lblTitulo, sep1, webView, sep2, hboxBotones);
+            
+            Scene scene = new Scene(vboxPrincipal);
+            modalStage.setScene(scene);
+            modalStage.setWidth(850);
+            modalStage.setHeight(650);
+            
+            modalStage.showAndWait();
             
         } catch (Exception e) {
             e.printStackTrace();
-            mostrarError("Error al abrir informe en navegador: " + e.getMessage());
+            mostrarError("Error al mostrar el informe: " + e.getMessage());
         }
     }
     

@@ -4,6 +4,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.HBox?>
@@ -11,58 +12,72 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.web.WebView?>
 
-<VBox prefHeight="600.0" prefWidth="800.0" spacing="15.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.javafx.A_holamundofxml.InformesController">
+<VBox prefHeight="600.0" prefWidth="900.0" spacing="15.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.javafx.A_holamundofxml.InformesController">
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
     
-    <Label text="Generador de Informes">
+    <Label text="Generación de Informes">
         <font>
-            <Font name="System Bold" size="20.0" />
+            <Font name="System Bold" size="24.0" />
         </font>
     </Label>
     
-    <HBox alignment="CENTER_LEFT" spacing="15.0">
-        <VBox spacing="5.0">
-            <Label mnemonicParsing="true" text="_Tipo de Informe:" />
-            <ComboBox fx:id="comboTipoInforme" prefWidth="350.0">
-                <tooltip>
-                    <Tooltip text="Seleccione el tipo de informe a generar" />
-                </tooltip>
-            </ComboBox>
-        </VBox>
-        
-        <VBox spacing="5.0">
-            <Label fx:id="lblParametro" mnemonicParsing="true" text="_Parametro:" />
-            <TextField fx:id="txtParametro" prefWidth="150.0">
-                <tooltip>
-                    <Tooltip text="Parametro para filtrar el informe" />
-                </tooltip>
-            </TextField>
-        </VBox>
-    </HBox>
+    <Separator />
+    
+    <VBox spacing="10.0">
+        <Label mnemonicParsing="true" text="_Tipo de Informe:">
+            <font>
+                <Font name="System Bold" size="12.0" />
+            </font>
+        </Label>
+        <ComboBox fx:id="comboTipoInforme" prefWidth="400.0">
+            <tooltip>
+                <Tooltip text="Seleccione el tipo de informe a generar" />
+            </tooltip>
+        </ComboBox>
+    </VBox>
+    
+    <VBox fx:id="vboxParametro" spacing="10.0" visible="false" managed="false">
+        <Label fx:id="lblParametro" mnemonicParsing="true" text="_Parámetro:">
+            <font>
+                <Font name="System Bold" size="12.0" />
+            </font>
+        </Label>
+        <TextField fx:id="txtParametro" prefWidth="200.0">
+            <tooltip>
+                <Tooltip text="Introduzca el valor del parámetro" />
+            </tooltip>
+        </TextField>
+    </VBox>
     
     <HBox spacing="10.0">
-        <Button fx:id="btnGenerarIncrustado" mnemonicParsing="true" onAction="#handleGenerarIncrustado" text="Ver _Incrustado">
+        <Button fx:id="btnGenerar" mnemonicParsing="true" onAction="#handleGenerarInforme" text="_Generar Informe">
+            <font>
+                <Font name="System Bold" size="12.0" />
+            </font>
             <tooltip>
-                <Tooltip text="Ver el informe en esta ventana (WebView)" />
-            </tooltip>
-        </Button>
-        <Button fx:id="btnGenerarVentana" mnemonicParsing="true" onAction="#handleGenerarVentana" text="Abrir en _Navegador">
-            <tooltip>
-                <Tooltip text="Abrir el informe en el navegador del sistema" />
-            </tooltip>
-        </Button>
-        <HBox HBox.hgrow="ALWAYS" />
-        <Button mnemonicParsing="true" onAction="#handleCerrar" text="_Cerrar">
-            <tooltip>
-                <Tooltip text="Cerrar esta ventana" />
+                <Tooltip text="Generar el informe seleccionado y guardarlo en la carpeta INFORMES" />
             </tooltip>
         </Button>
     </HBox>
     
-    <VBox fx:id="vboxVisor" spacing="5.0" VBox.vgrow="ALWAYS">
-        <Label text="Vista previa del informe:" />
+    <VBox fx:id="vboxVisor" spacing="10.0" visible="false" managed="false" VBox.vgrow="ALWAYS">
+        <Label text="Vista Previa del Informe:">
+            <font>
+                <Font name="System Bold" size="12.0" />
+            </font>
+        </Label>
         <WebView fx:id="webViewInforme" VBox.vgrow="ALWAYS" />
     </VBox>
+    
+    <Separator />
+    
+    <HBox alignment="BOTTOM_RIGHT" spacing="10.0" VBox.vgrow="ALWAYS">
+        <Button mnemonicParsing="true" onAction="#handleCerrar" text="C_errar">
+            <tooltip>
+                <Tooltip text="Cerrar ventana de informes" />
+            </tooltip>
+        </Button>
+    </HBox>
 </VBox>

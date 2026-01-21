@@ -1,11 +1,7 @@
 plugins {
-    id 'java'
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.1.0'
 }
-
-group = 'com.javafx'
-version = '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -26,9 +22,11 @@ javafx {
 dependencies {
     implementation 'mysql:mysql-connector-java:8.0.33'
     
-    // JasperReports 7.0.0 (compatible con Jaspersoft Studio 10.x)
+    // JasperReports 7.0.0 y sus módulos
     implementation 'net.sf.jasperreports:jasperreports:7.0.0'
     implementation 'net.sf.jasperreports:jasperreports-charts:7.0.0'
+    implementation 'net.sf.jasperreports:jasperreports-pdf:7.0.0'
+    implementation 'net.sf.jasperreports:jasperreports-jdt:7.0.0'
 }
 
 application {
@@ -36,31 +34,17 @@ application {
 }
 
 sourceSets {
-  main {
-    resources {
-        srcDirs = ["src/main/resources"]
-        includes = ["*/.fxml","*/.png","*/.properties", "*/.css", "*/.jasper", "*/.jrxml"]  //Importante para poder abrir una extensión no reconocida
-    }
-  }
-}
-
-processResources {
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
-    from('src/main/resources') {
-        include '**/*'
+    main {
+        resources {
+            srcDirs = ["src/main/resources"]
+            includes = ["**/*.fxml", "**/*.png", "**/*.properties", "**/*.css", "**/*.jasper", "**/*.jrxml"]
+        }
     }
 }
 
-tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
-}
-
-jar {
-    manifest {
-        attributes 'Main-Class': 'com.javafx.A_holamundofxml.Main'
-    }
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
+run {
+    jvmArgs = [
+        '--module-path', classpath.asPath,
+        '--add-modules', 'javafx.controls,javafx.fxml,javafx.web'
+    ]
 }
