@@ -1,26 +1,34 @@
 plugins {
-  id 'application'
-  id 'org.openjfx.javafxplugin' version '0.1.0'
+    id 'java'
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
 }
+
+group = 'com.javafx'
+version = '1.0-SNAPSHOT'
 
 repositories {
-	mavenCentral()
-}
-
-javafx {
-    version = "23"
-    modules = [ 'javafx.base', 'javafx.swing', 'javafx.graphics', 'javafx.controls', 'javafx.fxml', 'javafx.media']
-}
-
-dependencies {
-    implementation 'com.mysql:mysql-connector-j:8.2.0'
-    implementation 'io.fair-acc:chartfx:11.3.1'
+    mavenCentral()
+    maven { url 'https://jaspersoft.jfrog.io/jaspersoft/third-party-ce-artifacts/' }
 }
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(23)
+        languageVersion = JavaLanguageVersion.of(24)
     }
+}
+
+javafx {
+    version = '24'
+    modules = ['javafx.controls', 'javafx.fxml', 'javafx.web']
+}
+
+dependencies {
+    implementation 'mysql:mysql-connector-java:8.0.33'
+    
+    // JasperReports 7.0.0 (compatible con Jaspersoft Studio 10.x)
+    implementation 'net.sf.jasperreports:jasperreports:7.0.0'
+    implementation 'net.sf.jasperreports:jasperreports-charts:7.0.0'
 }
 
 application {
@@ -31,14 +39,28 @@ sourceSets {
   main {
     resources {
         srcDirs = ["src/main/resources"]
-        includes = ["**/*.fxml","**/*.png","**/*.properties","**/*.css"]
+        includes = ["*/.fxml","*/.png","*/.properties", "*/.css", "*/.jasper", "*/.jrxml"]  //Importante para poder abrir una extensión no reconocida
     }
   }
 }
 
-run {
-    jvmArgs = [
-        '--module-path', classpath.asPath,
-        '--add-modules', 'javafx.controls,javafx.fxml'
-    ]
+processResources {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    from('src/main/resources') {
+        include '**/*'
+    }
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'com.javafx.A_holamundofxml.Main'
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }

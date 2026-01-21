@@ -191,24 +191,6 @@ public class AjustesController {
         try {
             Connection conn = DatabaseConnection.getConnection();
             
-            if (txtEmailEditar != null) {
-                String nuevoEmail = txtEmailEditar.getText().trim();
-                String checkQuery = "SELECT COUNT(*) FROM USUARIO WHERE email = ? AND id_usuario != ?";
-                PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
-                checkStmt.setString(1, nuevoEmail);
-                checkStmt.setInt(2, idUsuario);
-                ResultSet rs = checkStmt.executeQuery();
-                
-                if (rs.next() && rs.getInt(1) > 0) {
-                    mostrarError("Ya existe otro usuario con este email");
-                    rs.close();
-                    checkStmt.close();
-                    return false;
-                }
-                rs.close();
-                checkStmt.close();
-            }
-            
             StringBuilder queryBuilder = new StringBuilder("UPDATE USUARIO SET ");
             boolean hayActualizaciones = false;
             

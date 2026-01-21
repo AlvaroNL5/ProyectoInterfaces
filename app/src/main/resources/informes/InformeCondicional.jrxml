@@ -1,0 +1,145 @@
+<!-- Created with Jaspersoft Studio version 7.0.3.final using JasperReports Library version 7.0.3-41034ca841d452f3305ba55b9042260aaa1ab5dd  -->
+<jasperReport name="InformeCondicional" language="java" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="1d9bf208-e7c4-49d9-8d95-11d0d8b10892">
+	<style name="Aprobado" forecolor="#2E7D32" bold="true"/>
+	<style name="Suspenso" forecolor="#C62828" bold="true"/>
+	<parameter name="NOTA_MINIMA" class="java.lang.Double">
+		<defaultValueExpression><![CDATA[0.0]]></defaultValueExpression>
+	</parameter>
+	<query language="sql"><![CDATA[SELECT 
+            u.id_usuario,
+            u.nombre,
+            u.apellido,
+            u.email,
+            c.nombre_curso,
+            a.nota,
+            a.nFaltas
+        FROM ASISTENCIA a
+        INNER JOIN USUARIO u ON a.id_usuario = u.id_usuario
+        INNER JOIN CURSO c ON a.id_curso = c.id_curso
+        WHERE a.nota >= $P{NOTA_MINIMA}
+        ORDER BY a.nota DESC, u.apellido, u.nombre]]></query>
+	<field name="id_usuario" class="java.lang.Integer"/>
+	<field name="nombre" class="java.lang.String"/>
+	<field name="apellido" class="java.lang.String"/>
+	<field name="email" class="java.lang.String"/>
+	<field name="nombre_curso" class="java.lang.String"/>
+	<field name="nota" class="java.math.BigDecimal"/>
+	<field name="nFaltas" class="java.lang.Integer"/>
+	<variable name="promedioNotas" calculation="Average" class="java.math.BigDecimal">
+		<expression><![CDATA[$F{nota}]]></expression>
+	</variable>
+	<variable name="notaMaxima" calculation="Highest" class="java.math.BigDecimal">
+		<expression><![CDATA[$F{nota}]]></expression>
+	</variable>
+	<variable name="notaMinima" calculation="Lowest" class="java.math.BigDecimal">
+		<expression><![CDATA[$F{nota}]]></expression>
+	</variable>
+	<variable name="totalAlumnos" calculation="Count" class="java.lang.Integer">
+		<expression><![CDATA[$F{id_usuario}]]></expression>
+	</variable>
+	<title height="100">
+		<element kind="staticText" uuid="22c76c37-b9c2-4210-ba63-b24977cfe8d0" x="0" y="10" width="555" height="35" fontSize="22.0" bold="true" hTextAlign="Center">
+			<text><![CDATA[MUUDLE - Informe Condicional]]></text>
+		</element>
+		<element kind="staticText" uuid="7ea937d3-0c45-46ce-962b-061e6eec7f6c" x="0" y="50" width="150" height="20">
+			<text><![CDATA[Alumnos con nota minima:]]></text>
+		</element>
+		<element kind="textField" uuid="fdd7fd42-abab-4082-870c-9fb3910b8f80" x="150" y="50" width="100" height="20" pattern="#0.00" bold="true">
+			<expression><![CDATA[$P{NOTA_MINIMA}]]></expression>
+		</element>
+		<element kind="textField" uuid="8812b2d5-e647-41f0-9e21-410151921c3c" x="400" y="50" width="150" height="20" pattern="dd/MM/yyyy HH:mm" hTextAlign="Right">
+			<expression><![CDATA[new java.util.Date()]]></expression>
+		</element>
+		<element kind="staticText" uuid="9f73c24f-b57b-48ff-ae60-dd2ff1797713" x="0" y="75" width="555" height="20" italic="true" hTextAlign="Center">
+			<text><![CDATA[Verde = Aprobado (>=5) | Rojo = Suspenso (<5)]]></text>
+		</element>
+	</title>
+	<columnHeader height="25">
+		<element kind="staticText" uuid="887a619e-bf68-4110-8b05-20291b910cdd" mode="Opaque" x="0" y="0" width="30" height="20" backcolor="#FF5722" bold="true" hTextAlign="Center" vTextAlign="Middle">
+			<text><![CDATA[ID]]></text>
+		</element>
+		<element kind="staticText" uuid="41f09e95-251f-40cb-a658-ff82b4a04e6e" mode="Opaque" x="30" y="0" width="120" height="20" backcolor="#FF5722" bold="true" hTextAlign="Center" vTextAlign="Middle">
+			<text><![CDATA[Alumno]]></text>
+		</element>
+		<element kind="staticText" uuid="abf9c02c-a8c7-4959-b402-116d3f273663" mode="Opaque" x="150" y="0" width="150" height="20" backcolor="#FF5722" bold="true" hTextAlign="Center" vTextAlign="Middle">
+			<text><![CDATA[Email]]></text>
+		</element>
+		<element kind="staticText" uuid="37ad5cf3-a60f-47c1-a0f4-891ee47c5131" mode="Opaque" x="300" y="0" width="120" height="20" backcolor="#FF5722" bold="true" hTextAlign="Center" vTextAlign="Middle">
+			<text><![CDATA[Curso]]></text>
+		</element>
+		<element kind="staticText" uuid="f2a713d1-1a73-4d6a-9c61-83b4e3246a17" mode="Opaque" x="420" y="0" width="70" height="20" backcolor="#FF5722" bold="true" hTextAlign="Center" vTextAlign="Middle">
+			<text><![CDATA[Nota]]></text>
+		</element>
+		<element kind="staticText" uuid="202b5423-c3fd-4ede-9780-242497c91e1d" mode="Opaque" x="490" y="0" width="65" height="20" backcolor="#FF5722" bold="true" hTextAlign="Center" vTextAlign="Middle">
+			<text><![CDATA[Faltas]]></text>
+		</element>
+	</columnHeader>
+	<detail>
+		<band height="20">
+			<element kind="textField" uuid="899023e3-1738-4c85-8823-90efeb40c9b5" x="0" y="0" width="30" height="18" hTextAlign="Center">
+				<expression><![CDATA[$F{id_usuario}]]></expression>
+			</element>
+			<element kind="textField" uuid="55b7d82d-bf25-417e-9585-7d961bb4cc8f" x="30" y="0" width="120" height="18" blankWhenNull="true">
+				<expression><![CDATA[$F{nombre} + " " + $F{apellido}]]></expression>
+			</element>
+			<element kind="textField" uuid="daf448aa-69e2-4704-9883-c6d8df282f1c" x="150" y="0" width="150" height="18" blankWhenNull="true">
+				<expression><![CDATA[$F{email}]]></expression>
+			</element>
+			<element kind="textField" uuid="8f248d79-2e3f-4bab-a0fe-97e14de93fa0" x="300" y="0" width="120" height="18" blankWhenNull="true">
+				<expression><![CDATA[$F{nombre_curso}]]></expression>
+			</element>
+			<element kind="textField" uuid="ed35062e-ba84-4155-87fe-229dcae6ece1" x="420" y="0" width="70" height="18" pattern="#0.00" blankWhenNull="true" hTextAlign="Center" style="Aprobado">
+				<printWhenExpression><![CDATA[$F{nota} != null && $F{nota}.doubleValue() >= 5.0]]></printWhenExpression>
+				<expression><![CDATA[$F{nota}]]></expression>
+			</element>
+			<element kind="textField" uuid="e26d67d7-3b12-420c-93e8-36675bf2a775" x="420" y="0" width="70" height="18" pattern="#0.00" blankWhenNull="true" hTextAlign="Center" style="Suspenso">
+				<printWhenExpression><![CDATA[$F{nota} != null && $F{nota}.doubleValue() < 5.0]]></printWhenExpression>
+				<expression><![CDATA[$F{nota}]]></expression>
+			</element>
+			<element kind="textField" uuid="7e1d6177-c57d-4248-9252-b46e7f091259" x="490" y="0" width="65" height="18" blankWhenNull="true" hTextAlign="Center">
+				<expression><![CDATA[$F{nFaltas}]]></expression>
+			</element>
+		</band>
+	</detail>
+	<columnFooter height="10"/>
+	<pageFooter height="25">
+		<element kind="textField" uuid="e9fe6027-e5c2-4a5e-acf9-9d4eef0b06a0" x="200" y="5" width="100" height="15" hTextAlign="Right">
+			<expression><![CDATA["Pagina " + $V{PAGE_NUMBER}]]></expression>
+		</element>
+		<element kind="textField" uuid="80e76708-efd7-4f53-a72a-f3e0d74f833e" x="300" y="5" width="100" height="15" evaluationTime="Report">
+			<expression><![CDATA[" de " + $V{PAGE_NUMBER}]]></expression>
+		</element>
+	</pageFooter>
+	<summary height="80">
+		<element kind="staticText" uuid="c909fb8d-254f-4132-a6a4-6b4f6f2ef253" mode="Opaque" x="0" y="10" width="555" height="25" backcolor="#FFCCBC" fontSize="14.0" bold="true" vTextAlign="Middle">
+			<text><![CDATA[ RESUMEN ESTADISTICO]]></text>
+		</element>
+		<element kind="staticText" uuid="77e6e039-5f24-4fda-ac83-4283c9ee4a8f" mode="Opaque" x="0" y="35" width="100" height="20" backcolor="#FFCCBC" bold="true">
+			<text><![CDATA[ Total Alumnos:]]></text>
+		</element>
+		<element kind="textField" uuid="35dc0144-1825-45d5-b0d9-f20e0ac3f59e" mode="Opaque" x="100" y="35" width="40" height="20" backcolor="#FFCCBC" blankWhenNull="true">
+			<expression><![CDATA[$V{totalAlumnos}]]></expression>
+		</element>
+		<element kind="staticText" uuid="28afd523-2123-433f-a169-0bde63c3968e" mode="Opaque" x="140" y="35" width="100" height="20" backcolor="#FFCCBC" bold="true">
+			<text><![CDATA[ Nota Promedio:]]></text>
+		</element>
+		<element kind="textField" uuid="4168903d-3826-41b9-ae7c-5de994e34766" mode="Opaque" x="240" y="35" width="50" height="20" backcolor="#FFCCBC" pattern="#0.00" blankWhenNull="true">
+			<expression><![CDATA[$V{promedioNotas}]]></expression>
+		</element>
+		<element kind="staticText" uuid="56e4d4c8-023a-4009-9a1c-0cd615aed37f" mode="Opaque" x="290" y="35" width="90" height="20" backcolor="#FFCCBC" bold="true">
+			<text><![CDATA[ Nota Maxima:]]></text>
+		</element>
+		<element kind="textField" uuid="c729cc43-0f21-4758-aca5-95db39870b1c" mode="Opaque" x="380" y="35" width="50" height="20" backcolor="#FFCCBC" pattern="#0.00" blankWhenNull="true">
+			<expression><![CDATA[$V{notaMaxima}]]></expression>
+		</element>
+		<element kind="staticText" uuid="b482e55e-bf4b-4de1-8d3a-b3d0bdef3d20" mode="Opaque" x="430" y="35" width="80" height="20" backcolor="#FFCCBC" bold="true">
+			<text><![CDATA[ Nota Minima:]]></text>
+		</element>
+		<element kind="textField" uuid="d538cf0c-ba0d-4eb5-90e8-1d3954120349" mode="Opaque" x="510" y="35" width="45" height="20" backcolor="#FFCCBC" pattern="#0.00" blankWhenNull="true">
+			<expression><![CDATA[$V{notaMinima}]]></expression>
+		</element>
+		<element kind="staticText" uuid="8ad69edd-4e3d-4e9d-85d2-6caf92c457e3" mode="Opaque" x="0" y="55" width="555" height="20" backcolor="#FFCCBC" italic="true" hTextAlign="Right">
+			<text><![CDATA[Hecho por Alvaro Algar Morales ]]></text>
+		</element>
+	</summary>
+</jasperReport>

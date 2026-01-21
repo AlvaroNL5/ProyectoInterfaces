@@ -38,8 +38,6 @@ public class CrearUsuarioController {
     
     public void setModoRegistro(boolean modo) {
         this.modoRegistro = modo;
-        // En modo registro, el usuario PUEDE elegir su rol (profesor o alumno)
-        // El comboRol permanece habilitado
     }
     
     @FXML

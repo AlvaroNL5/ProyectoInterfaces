@@ -36,6 +36,9 @@ public class LoginController {
     
     @FXML
     public void initialize() {
+        // Resetear tema a claro cuando se muestra el login
+        Configuracion.setTemaOscuro(false);
+        
         btnLogin.setOnAction(event -> handleLogin());
         btnRegistro.setOnAction(event -> handleRegistro());
     }
@@ -91,7 +94,7 @@ public class LoginController {
             
         } catch (SQLException e) {
             e.printStackTrace();
-            mostrarError("Error de conexion con la base de datos");
+            mostrarError("Error de conexion con la base de datos: " + e.getMessage());
         }
     }
     

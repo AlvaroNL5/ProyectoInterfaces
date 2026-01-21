@@ -80,7 +80,7 @@ public class CrearMatriculaController {
         comboUsuario.setTooltip(new Tooltip("Seleccione el alumno a matricular"));
         comboCurso.setTooltip(new Tooltip("Seleccione el curso"));
         txtFaltas.setTooltip(new Tooltip("Numero de faltas inicial (por defecto 0)"));
-        txtNota.setTooltip(new Tooltip("Nota inicial (por defecto 0.0)"));
+        txtNota.setTooltip(new Tooltip("Nota inicial del alumno (0-10)"));
         
         cargarUsuarios();
         cargarCursos();
@@ -216,7 +216,6 @@ public class CrearMatriculaController {
         try {
             Connection conn = DatabaseConnection.getConnection();
             
-            // Verificar si ya existe la matriculacion
             String checkQuery = "SELECT COUNT(*) FROM ASISTENCIA WHERE id_usuario = ? AND id_curso = ?";
             PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
             checkStmt.setInt(1, usuario.getId());
@@ -232,7 +231,6 @@ public class CrearMatriculaController {
             rs.close();
             checkStmt.close();
             
-            // Verificar que el alumno no tenga mas de 2 cursos
             String countQuery = "SELECT COUNT(*) FROM ASISTENCIA WHERE id_usuario = ?";
             PreparedStatement countStmt = conn.prepareStatement(countQuery);
             countStmt.setInt(1, usuario.getId());
@@ -249,7 +247,6 @@ public class CrearMatriculaController {
             
             conn.setAutoCommit(false);
             
-            // Insertar la matriculacion
             String insertQuery = "INSERT INTO ASISTENCIA (id_usuario, id_curso, apellidos, nFaltas, nota, fecha_registro) " +
                                 "VALUES (?, ?, ?, ?, ?, CURDATE())";
             PreparedStatement insertStmt = conn.prepareStatement(insertQuery);
@@ -261,7 +258,6 @@ public class CrearMatriculaController {
             insertStmt.executeUpdate();
             insertStmt.close();
             
-            // Actualizar contador del curso
             String updateQuery = "UPDATE CURSO SET cant_usuarios = cant_usuarios + 1 WHERE id_curso = ?";
             PreparedStatement updateStmt = conn.prepareStatement(updateQuery);
             updateStmt.setInt(1, curso.getId());

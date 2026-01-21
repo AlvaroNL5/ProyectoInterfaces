@@ -47,6 +47,7 @@ public class CursosController {
     @FXML private Button btnVerPerfil1;
     @FXML private Button btnCrearMatricula;
     @FXML private Button btnEliminarMatricula;
+    @FXML private Button btnInformes;
     @FXML private TableColumn<Usuario, String> colApellidos1;
     @FXML private TableColumn<Asistencia, String> colApellidos11;
     @FXML private TableColumn<Usuario, Integer> colEdad1;
@@ -223,6 +224,13 @@ public class CursosController {
                 eliminarMatriculaSeleccionada();
             });
         }
+        
+        if (btnInformes != null) {
+            btnInformes.setOnAction(event -> {
+                animarBoton(btnInformes);
+                abrirInformes();
+            });
+        }
 
         cargarCursos();
         cargarUsuarios();
@@ -268,7 +276,6 @@ public class CursosController {
             btnEliminarMatricula.setManaged(esProfesor);
         }
         
-        // Ocultar columnas de notas y faltas para alumnos
         if (!esProfesor) {
             colFaltas11.setVisible(false);
             colNota11.setVisible(false);
@@ -370,6 +377,28 @@ public class CursosController {
         scale.setAutoReverse(true);
         scale.setCycleCount(2);
         scale.play();
+    }
+    
+    private void abrirInformes() {
+        try {
+            Stage modal = new Stage();
+            modal.setTitle("Informes - Muudle");
+            modal.initModality(Modality.APPLICATION_MODAL);
+            modal.initOwner(btnInformes.getScene().getWindow());
+            agregarIconoVentana(modal);
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Informes.fxml"));
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
+            Main.aplicarTema(scene);
+            modal.setScene(scene);
+
+            modal.showAndWait();
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+            mostrarAlerta("Error", "No se pudo abrir la ventana de informes: " + e.getMessage());
+        }
     }
     
     public void lanzarCrearCurso() {
@@ -571,9 +600,8 @@ public class CursosController {
     
     private void cerrarSesion() {
         try {
-            Configuracion.setIdUsuarioActual(0);
-            Configuracion.setNombreUsuarioActual("");
-            Configuracion.setTipoUsuarioActual("alumno");
+            // Resetear configuracion completa incluyendo tema
+            Configuracion.resetear();
             
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Login.fxml"));
             Parent root = loader.load();
@@ -605,7 +633,6 @@ public class CursosController {
             PreparedStatement stmt;
             
             if (Configuracion.esProfesor()) {
-                // Profesor ve todos los cursos
                 query = "SELECT id_curso, nombre_curso, descripcion, cant_usuarios FROM CURSO";
                 stmt = conn.prepareStatement(query);
             } else {
@@ -651,8 +678,11 @@ public class CursosController {
                 query = "SELECT id_usuario, nombre, apellido, email, tipo_usuario, edad FROM USUARIO";
                 stmt = conn.prepareStatement(query);
             } else {
-                // Alumno solo ve su propio perfil
-                query = "SELECT id_usuario, nombre, apellido, email, tipo_usuario, edad FROM USUARIO WHERE id_usuario = ?";
+                // Alumno ve usuarios que estan en los mismos cursos que el
+                query = "SELECT DISTINCT u.id_usuario, u.nombre, u.apellido, u.email, u.tipo_usuario, u.edad " +
+                        "FROM USUARIO u " +
+                        "INNER JOIN ASISTENCIA a ON u.id_usuario = a.id_usuario " +
+                        "WHERE a.id_curso IN (SELECT id_curso FROM ASISTENCIA WHERE id_usuario = ?)";
                 stmt = conn.prepareStatement(query);
                 stmt.setInt(1, Configuracion.getIdUsuarioActual());
             }

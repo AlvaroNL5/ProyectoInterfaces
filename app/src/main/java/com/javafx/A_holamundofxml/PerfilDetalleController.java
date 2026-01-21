@@ -156,24 +156,6 @@ public class PerfilDetalleController {
         try {
             Connection conn = DatabaseConnection.getConnection();
             
-            if (!nuevoEmail.equals(usuario.getEmail())) {
-                String checkQuery = "SELECT COUNT(*) FROM USUARIO WHERE email = ? AND id_usuario != ?";
-                PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
-                checkStmt.setString(1, nuevoEmail);
-                checkStmt.setInt(2, usuario.getIdUsuario());
-                var rs = checkStmt.executeQuery();
-                
-                if (rs.next() && rs.getInt(1) > 0) {
-                    mostrarError("Ya existe otro usuario con este email");
-                    shakeNode(txtEmail);
-                    rs.close();
-                    checkStmt.close();
-                    return false;
-                }
-                rs.close();
-                checkStmt.close();
-            }
-            
             String query = "UPDATE USUARIO SET nombre = ?, apellido = ?, email = ?, tipo_usuario = ?, edad = ? WHERE id_usuario = ?";
             PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setString(1, nuevoNombre);
@@ -189,7 +171,6 @@ public class PerfilDetalleController {
             if (filasActualizadas > 0) {
                 if (cursosController != null) {
                     cursosController.cargarUsuarios();
-                    cursosController.cargarAsistencias();
                 }
                 return true;
             }

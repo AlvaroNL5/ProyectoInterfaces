@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="700.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.javafx.A_holamundofxml.CursosController">
+<BorderPane prefHeight="700.0" prefWidth="950.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.javafx.A_holamundofxml.CursosController">
     
     <top>
         <HBox alignment="CENTER">
@@ -88,7 +88,18 @@
                 </tooltip>
             </Button>
             
-            <Button fx:id="btnAjustes" mnemonicParsing="true" prefWidth="100.0" text="_Ajustes">
+            <Separator prefWidth="100.0" />
+            
+            <Button fx:id="btnInformes" mnemonicParsing="true" prefWidth="100.0" text="_Informes">
+                <font>
+                    <Font name="System" size="12.0" />
+                </font>
+                <tooltip>
+                    <Tooltip text="Generar informes PDF/HTML" />
+                </tooltip>
+            </Button>
+            
+            <Button fx:id="btnAjustes" mnemonicParsing="true" prefWidth="100.0" text="A_justes">
                 <font>
                     <Font name="System" size="12.0" />
                 </font>
@@ -150,7 +161,7 @@
                                     <columns>
                                         <TableColumn fx:id="colIdCurso" prefWidth="60.0" text="ID" />
                                         <TableColumn fx:id="colNombreCurso" prefWidth="200.0" text="Nombre del Curso" />
-                                        <TableColumn fx:id="colDescripcion" prefWidth="350.0" text="Descripcion" />
+                                        <TableColumn fx:id="colDescripcion" prefWidth="400.0" text="Descripcion" />
                                         <TableColumn fx:id="colCantUsuarios" prefWidth="100.0" text="Alumnos" />
                                     </columns>
                                 </TableView>
@@ -216,7 +227,7 @@
                                 <TableColumn fx:id="colIdUsuario1" prefWidth="60.0" text="ID" />
                                 <TableColumn fx:id="colNombre1" prefWidth="150.0" text="Nombre" />
                                 <TableColumn fx:id="colApellidos1" prefWidth="150.0" text="Apellidos" />
-                                <TableColumn fx:id="colEmail1" prefWidth="200.0" text="Email" />
+                                <TableColumn fx:id="colEmail1" prefWidth="220.0" text="Email" />
                                 <TableColumn fx:id="colTipo1" prefWidth="100.0" text="Rol" />
                                 <TableColumn fx:id="colEdad1" prefWidth="80.0" text="Edad" />
                             </columns>
@@ -284,7 +295,7 @@
                                 <TableColumn fx:id="colFaltas11" prefWidth="80.0" text="Faltas" />
                                 <TableColumn fx:id="colNota11" prefWidth="70.0" text="Nota" />
                                 <TableColumn fx:id="colIdCursoAsistencia" prefWidth="70.0" text="ID Curso" />
-                                <TableColumn fx:id="colNombreCursoAsistencia" prefWidth="150.0" text="Curso" />
+                                <TableColumn fx:id="colNombreCursoAsistencia" prefWidth="180.0" text="Curso" />
                             </columns>
                         </TableView>
                         
