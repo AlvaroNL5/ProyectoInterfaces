@@ -275,6 +275,11 @@ public class CursosController {
             btnEliminarMatricula.setVisible(esProfesor);
             btnEliminarMatricula.setManaged(esProfesor);
         }
+
+        if (btnInformes != null) {
+            btnInformes.setVisible(esProfesor);
+            btnInformes.setManaged(esProfesor);
+        }
         
         if (!esProfesor) {
             colFaltas11.setVisible(false);
