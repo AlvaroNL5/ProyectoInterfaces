@@ -4,82 +4,112 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="CENTER" prefHeight="400.0" prefWidth="450.0" spacing="12.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.javafx.A_holamundofxml.PerfilDetalleController">
+<VBox prefHeight="350.0" prefWidth="450.0" spacing="20.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.javafx.A_holamundofxml.PerfilDetalleController">
     <padding>
-        <Insets bottom="20.0" left="25.0" right="25.0" top="20.0" />
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
     
     <Label text="Perfil de Usuario">
         <font>
-            <Font name="System Bold" size="20.0" />
+            <Font name="System Bold" size="24.0" />
         </font>
     </Label>
     
-    <VBox spacing="5.0">
-        <Label mnemonicParsing="true" text="_Nombre:" />
-        <TextField fx:id="txtNombre" prefWidth="400.0" promptText="Nombre del usuario">
-            <tooltip>
-                <Tooltip text="Nombre del usuario" />
-            </tooltip>
-        </TextField>
-    </VBox>
+    <Separator />
     
-    <VBox spacing="5.0">
-        <Label mnemonicParsing="true" text="A_pellidos:" />
-        <TextField fx:id="txtApellidos" prefWidth="400.0" promptText="Apellidos del usuario">
-            <tooltip>
-                <Tooltip text="Apellidos del usuario" />
-            </tooltip>
-        </TextField>
-    </VBox>
-    
-    <VBox spacing="5.0">
-        <Label mnemonicParsing="true" text="_Email:" />
-        <TextField fx:id="txtEmail" prefWidth="400.0" promptText="email@ejemplo.com">
-            <tooltip>
-                <Tooltip text="Email del usuario" />
-            </tooltip>
-        </TextField>
-    </VBox>
-    
-    <HBox spacing="15.0">
-        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
-            <Label mnemonicParsing="true" text="_Rol:" />
-            <ComboBox fx:id="comboTipo" prefWidth="180.0">
-                <tooltip>
-                    <Tooltip text="Rol del usuario en el sistema" />
-                </tooltip>
-            </ComboBox>
-        </VBox>
+    <VBox spacing="15.0">
+        <Label text="Informacion del Usuario">
+            <font>
+                <Font name="System Bold" size="14.0" />
+            </font>
+        </Label>
         
-        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
-            <Label mnemonicParsing="true" text="E_dad:" />
-            <TextField fx:id="txtEdad" promptText="Edad">
-                <tooltip>
-                    <Tooltip text="Edad del usuario" />
-                </tooltip>
-            </TextField>
+        <VBox spacing="10.0">
+            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                <Label prefWidth="100.0" text="Nombre:">
+                    <font>
+                        <Font name="System Bold" size="12.0" />
+                    </font>
+                </Label>
+                <TextField fx:id="txtNombre" prefWidth="300.0">
+                    <tooltip>
+                        <Tooltip text="Nombre del usuario" />
+                    </tooltip>
+                </TextField>
+            </HBox>
+            
+            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                <Label prefWidth="100.0" text="Apellidos:">
+                    <font>
+                        <Font name="System Bold" size="12.0" />
+                    </font>
+                </Label>
+                <TextField fx:id="txtApellidos" prefWidth="300.0">
+                    <tooltip>
+                        <Tooltip text="Apellidos del usuario" />
+                    </tooltip>
+                </TextField>
+            </HBox>
+            
+            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                <Label prefWidth="100.0" text="Email:">
+                    <font>
+                        <Font name="System Bold" size="12.0" />
+                    </font>
+                </Label>
+                <TextField fx:id="txtEmail" prefWidth="300.0">
+                    <tooltip>
+                        <Tooltip text="Correo electronico del usuario" />
+                    </tooltip>
+                </TextField>
+            </HBox>
+            
+            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                <Label prefWidth="100.0" text="Tipo:">
+                    <font>
+                        <Font name="System Bold" size="12.0" />
+                    </font>
+                </Label>
+                <ComboBox fx:id="comboTipo" prefWidth="300.0">
+                    <tooltip>
+                        <Tooltip text="Tipo de usuario (profesor o alumno)" />
+                    </tooltip>
+                </ComboBox>
+            </HBox>
+            
+            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                <Label prefWidth="100.0" text="Edad:">
+                    <font>
+                        <Font name="System Bold" size="12.0" />
+                    </font>
+                </Label>
+                <TextField fx:id="txtEdad" prefWidth="300.0">
+                    <tooltip>
+                        <Tooltip text="Edad del usuario" />
+                    </tooltip>
+                </TextField>
+            </HBox>
         </VBox>
-    </HBox>
+    </VBox>
+    
+    <Separator />
     
     <HBox alignment="CENTER_RIGHT" spacing="10.0">
-        <VBox.margin>
-            <Insets top="15.0" />
-        </VBox.margin>
-        <Button fx:id="btnGuardar" mnemonicParsing="true" onAction="#handleGuardarCambios" text="_Guardar Cambios">
+        <Button mnemonicParsing="true" onAction="#handleGuardarCambios" text="_Guardar">
             <tooltip>
-                <Tooltip text="Guardar los cambios del perfil" />
+                <Tooltip text="Guardar los cambios" />
             </tooltip>
         </Button>
-        <Button mnemonicParsing="true" onAction="#handleCerrar" text="Ce_rrar">
+        <Button mnemonicParsing="true" onAction="#handleCerrar" text="C_errar">
             <tooltip>
-                <Tooltip text="Cerrar esta ventana" />
+                <Tooltip text="Cerrar ventana" />
             </tooltip>
         </Button>
     </HBox>

@@ -1,6 +1,8 @@
 package com.javafx.A_holamundofxml;
 
-import javafx.animation.RotateTransition;
+import javafx.animation.FadeTransition;
+import javafx.animation.ParallelTransition;
+import javafx.animation.ScaleTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -28,12 +30,10 @@ public class AjustesController {
     @FXML private Label lblEmail;
     @FXML private Label lblTipo;
     @FXML private Label lblEdad;
-    @FXML private TextField txtNombre;
-    @FXML private TextField txtApellidos;
-    @FXML private TextField txtEmailEditar;
     @FXML private PasswordField txtNuevaPassword;
     @FXML private PasswordField txtConfirmarPassword;
     @FXML private TextField txtEdad;
+    @FXML private TextField txtEmail;
     @FXML private Button btnTema;
     
     @FXML
@@ -41,42 +41,40 @@ public class AjustesController {
         cargarDatosUsuario();
         actualizarTextoBotonTema();
         
-        if (txtNombre != null) txtNombre.setTooltip(new Tooltip("Introduzca su nombre"));
-        if (txtApellidos != null) txtApellidos.setTooltip(new Tooltip("Introduzca sus apellidos"));
-        if (txtEmailEditar != null) txtEmailEditar.setTooltip(new Tooltip("Introduzca su email"));
-        if (txtNuevaPassword != null) txtNuevaPassword.setTooltip(new Tooltip("Nueva contrasena (dejar vacio para no cambiar)"));
-        if (txtConfirmarPassword != null) txtConfirmarPassword.setTooltip(new Tooltip("Confirmar nueva contrasena"));
-        if (txtEdad != null) txtEdad.setTooltip(new Tooltip("Edad (0-150)"));
-        if (btnTema != null) btnTema.setTooltip(new Tooltip("Cambiar entre tema claro y oscuro"));
+        // Tooltips
+        btnTema.setTooltip(new Tooltip("Cambiar entre tema claro y oscuro"));
+        txtNuevaPassword.setTooltip(new Tooltip("Introduce una nueva contraseña"));
+        txtConfirmarPassword.setTooltip(new Tooltip("Confirma la nueva contraseña"));
+        txtEdad.setTooltip(new Tooltip("Tu edad (0-150)"));
+        txtEmail.setTooltip(new Tooltip("Tu correo electronico"));
+        
+        // Animacion de entrada
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(300), lblNombre.getParent().getParent());
+        fadeIn.setFromValue(0.0);
+        fadeIn.setToValue(1.0);
+        fadeIn.play();
     }
     
     private void cargarDatosUsuario() {
         int idUsuario = Configuracion.getIdUsuarioActual();
+        if (idUsuario <= 0) {
+            return;
+        }
         
-        try {
-            Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getConnection()) {
             String query = "SELECT nombre, apellido, email, tipo_usuario, edad FROM USUARIO WHERE id_usuario = ?";
             PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setInt(1, idUsuario);
             ResultSet rs = stmt.executeQuery();
             
             if (rs.next()) {
-                String nombre = rs.getString("nombre");
-                String apellidos = rs.getString("apellido");
-                String email = rs.getString("email");
-                String tipo = rs.getString("tipo_usuario");
-                int edad = rs.getInt("edad");
-                
-                if (lblNombre != null) lblNombre.setText(nombre);
-                if (lblApellidos != null) lblApellidos.setText(apellidos);
-                if (lblEmail != null) lblEmail.setText(email);
-                if (lblTipo != null) lblTipo.setText(tipo.substring(0, 1).toUpperCase() + tipo.substring(1));
-                if (lblEdad != null) lblEdad.setText(String.valueOf(edad));
-                
-                if (txtNombre != null) txtNombre.setText(nombre);
-                if (txtApellidos != null) txtApellidos.setText(apellidos);
-                if (txtEmailEditar != null) txtEmailEditar.setText(email);
-                if (txtEdad != null) txtEdad.setText(String.valueOf(edad));
+                lblNombre.setText(rs.getString("nombre"));
+                lblApellidos.setText(rs.getString("apellido"));
+                lblEmail.setText(rs.getString("email"));
+                lblTipo.setText(rs.getString("tipo_usuario"));
+                lblEdad.setText(String.valueOf(rs.getInt("edad")));
+                txtEdad.setText(String.valueOf(rs.getInt("edad")));
+                txtEmail.setText(rs.getString("email"));
             }
             
             rs.close();
@@ -88,14 +86,28 @@ public class AjustesController {
     
     @FXML
     public void handleTema(ActionEvent event) {
-        RotateTransition rotate = new RotateTransition(Duration.millis(300), btnTema);
-        rotate.setByAngle(360);
-        rotate.setOnFinished(e -> {
+        // Animacion profesional: escala + fade
+        ScaleTransition scale = new ScaleTransition(Duration.millis(150), btnTema);
+        scale.setFromX(1.0);
+        scale.setFromY(1.0);
+        scale.setToX(0.9);
+        scale.setToY(0.9);
+        scale.setAutoReverse(true);
+        scale.setCycleCount(2);
+        
+        FadeTransition fade = new FadeTransition(Duration.millis(150), btnTema);
+        fade.setFromValue(1.0);
+        fade.setToValue(0.7);
+        fade.setAutoReverse(true);
+        fade.setCycleCount(2);
+        
+        ParallelTransition parallel = new ParallelTransition(scale, fade);
+        parallel.setOnFinished(e -> {
             Configuracion.setTemaOscuro(!Configuracion.isTemaOscuro());
             aplicarTemaAVentanaActual();
             actualizarTextoBotonTema();
         });
-        rotate.play();
+        parallel.play();
     }
     
     private void aplicarTemaAVentanaActual() {
@@ -106,165 +118,122 @@ public class AjustesController {
     }
     
     private void actualizarTextoBotonTema() {
-        if (btnTema != null) {
-            if (Configuracion.isTemaOscuro()) {
-                btnTema.setText("Cambiar a Modo Claro");
-            } else {
-                btnTema.setText("Cambiar a Modo Oscuro");
-            }
-        }
+        btnTema.setText(Configuracion.isTemaOscuro() ? "Cambiar a Modo Claro" : "Cambiar a Modo Oscuro");
     }
     
     @FXML
     public void handleGuardarCambios(ActionEvent event) {
-        if (validarCampos()) {
-            if (guardarCambios()) {
-                mostrarExito("Datos guardados correctamente.");
-                cargarDatosUsuario();
-                
-                if (txtNombre != null && !txtNombre.getText().trim().isEmpty()) {
-                    Configuracion.setNombreUsuarioActual(txtNombre.getText().trim());
-                }
-            }
+        boolean cambiosRealizados = aplicarCambiosDatos();
+        if (cambiosRealizados) {
+            mostrarExito("Datos personales guardados correctamente.");
         }
+        // Si no hay cambios, no se muestra ninguna alerta
     }
     
-    private boolean validarCampos() {
-        StringBuilder errores = new StringBuilder();
+    private boolean aplicarCambiosDatos() {
+        boolean cambiosRealizados = false;
+        int idUsuario = Configuracion.getIdUsuarioActual();
         
-        if (txtNombre != null && txtNombre.getText().trim().isEmpty()) {
-            errores.append("El nombre es obligatorio\n");
-        }
-        
-        if (txtApellidos != null && txtApellidos.getText().trim().isEmpty()) {
-            errores.append("Los apellidos son obligatorios\n");
-        }
-        
-        if (txtEmailEditar != null) {
-            String email = txtEmailEditar.getText().trim();
-            if (email.isEmpty()) {
-                errores.append("El email es obligatorio\n");
-            } else if (!email.contains("@") || !email.contains(".")) {
-                errores.append("El email debe tener un formato valido\n");
-            }
-        }
-        
-        if (txtNuevaPassword != null && txtConfirmarPassword != null) {
-            String nuevaPassword = txtNuevaPassword.getText();
-            String confirmarPassword = txtConfirmarPassword.getText();
-            
-            if (!nuevaPassword.isEmpty()) {
-                if (nuevaPassword.length() < 4) {
-                    errores.append("La contrasena debe tener al menos 4 caracteres\n");
-                }
-                if (!nuevaPassword.equals(confirmarPassword)) {
-                    errores.append("Las contrasenas no coinciden\n");
-                }
-            }
-        }
-        
-        if (txtEdad != null) {
-            String edadStr = txtEdad.getText().trim();
-            if (!edadStr.isEmpty()) {
-                try {
-                    int edad = Integer.parseInt(edadStr);
-                    if (edad < 0 || edad > 150) {
-                        errores.append("La edad debe estar entre 0 y 150\n");
-                    }
-                } catch (NumberFormatException e) {
-                    errores.append("La edad debe ser un numero valido\n");
-                }
-            }
-        }
-        
-        if (errores.length() > 0) {
-            mostrarError(errores.toString().trim());
+        if (idUsuario <= 0) {
             return false;
         }
         
-        return true;
-    }
-    
-    private boolean guardarCambios() {
-        int idUsuario = Configuracion.getIdUsuarioActual();
+        String nuevaPassword = txtNuevaPassword.getText();
+        String confirmarPassword = txtConfirmarPassword.getText();
+        String nuevaEdadStr = txtEdad.getText();
+        String nuevoEmail = txtEmail.getText();
         
-        try {
-            Connection conn = DatabaseConnection.getConnection();
-            
-            StringBuilder queryBuilder = new StringBuilder("UPDATE USUARIO SET ");
-            boolean hayActualizaciones = false;
-            
-            if (txtNombre != null && !txtNombre.getText().trim().isEmpty()) {
-                queryBuilder.append("nombre = ?, ");
-                hayActualizaciones = true;
-            }
-            
-            if (txtApellidos != null && !txtApellidos.getText().trim().isEmpty()) {
-                queryBuilder.append("apellido = ?, ");
-                hayActualizaciones = true;
-            }
-            
-            if (txtEmailEditar != null && !txtEmailEditar.getText().trim().isEmpty()) {
-                queryBuilder.append("email = ?, ");
-                hayActualizaciones = true;
-            }
-            
-            if (txtNuevaPassword != null && !txtNuevaPassword.getText().isEmpty()) {
-                queryBuilder.append("contraseña = ?, ");
-                hayActualizaciones = true;
-            }
-            
-            if (txtEdad != null && !txtEdad.getText().trim().isEmpty()) {
-                queryBuilder.append("edad = ?, ");
-                hayActualizaciones = true;
-            }
-            
-            if (!hayActualizaciones) {
-                mostrarError("No hay cambios que guardar");
+        // Verificar si hay cambios reales
+        boolean hayNuevaPassword = !nuevaPassword.isEmpty();
+        boolean hayNuevoEmail = !nuevoEmail.equals(lblEmail.getText());
+        boolean hayNuevaEdad = !nuevaEdadStr.equals(lblEdad.getText());
+        
+        if (!hayNuevaPassword && !hayNuevoEmail && !hayNuevaEdad) {
+            return false; // No hay cambios que guardar
+        }
+        
+        if (hayNuevaPassword) {
+            if (!nuevaPassword.equals(confirmarPassword)) {
+                mostrarError("Las contraseñas no coinciden");
                 return false;
             }
             
-            String query = queryBuilder.substring(0, queryBuilder.length() - 2) + " WHERE id_usuario = ?";
-            
-            PreparedStatement stmt = conn.prepareStatement(query);
-            
-            int paramIndex = 1;
-            
-            if (txtNombre != null && !txtNombre.getText().trim().isEmpty()) {
-                stmt.setString(paramIndex++, txtNombre.getText().trim());
+            try (Connection conn = DatabaseConnection.getConnection()) {
+                String query = "UPDATE USUARIO SET contraseña = ? WHERE id_usuario = ?";
+                PreparedStatement stmt = conn.prepareStatement(query);
+                stmt.setString(1, nuevaPassword);
+                stmt.setInt(2, idUsuario);
+                stmt.executeUpdate();
+                stmt.close();
+                
+                txtNuevaPassword.clear();
+                txtConfirmarPassword.clear();
+                cambiosRealizados = true;
+            } catch (SQLException e) {
+                e.printStackTrace();
+                mostrarError("Error al actualizar la contraseña");
+                return false;
             }
-            
-            if (txtApellidos != null && !txtApellidos.getText().trim().isEmpty()) {
-                stmt.setString(paramIndex++, txtApellidos.getText().trim());
-            }
-            
-            if (txtEmailEditar != null && !txtEmailEditar.getText().trim().isEmpty()) {
-                stmt.setString(paramIndex++, txtEmailEditar.getText().trim());
-            }
-            
-            if (txtNuevaPassword != null && !txtNuevaPassword.getText().isEmpty()) {
-                stmt.setString(paramIndex++, txtNuevaPassword.getText());
-            }
-            
-            if (txtEdad != null && !txtEdad.getText().trim().isEmpty()) {
-                stmt.setInt(paramIndex++, Integer.parseInt(txtEdad.getText().trim()));
-            }
-            
-            stmt.setInt(paramIndex, idUsuario);
-            
-            int filasActualizadas = stmt.executeUpdate();
-            stmt.close();
-            
-            if (txtNuevaPassword != null) txtNuevaPassword.clear();
-            if (txtConfirmarPassword != null) txtConfirmarPassword.clear();
-            
-            return filasActualizadas > 0;
-            
-        } catch (SQLException e) {
-            e.printStackTrace();
-            mostrarError("Error al guardar los cambios: " + e.getMessage());
-            return false;
         }
+        
+        if (hayNuevaEdad) {
+            try {
+                int nuevaEdad = Integer.parseInt(nuevaEdadStr);
+                if (nuevaEdad < 0 || nuevaEdad > 150) {
+                    mostrarError("La edad debe estar entre 0 y 150");
+                    return false;
+                }
+                
+                try (Connection conn = DatabaseConnection.getConnection()) {
+                    String query = "UPDATE USUARIO SET edad = ? WHERE id_usuario = ?";
+                    PreparedStatement stmt = conn.prepareStatement(query);
+                    stmt.setInt(1, nuevaEdad);
+                    stmt.setInt(2, idUsuario);
+                    stmt.executeUpdate();
+                    stmt.close();
+                    
+                    lblEdad.setText(String.valueOf(nuevaEdad));
+                    cambiosRealizados = true;
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    mostrarError("Error al actualizar la edad");
+                    return false;
+                }
+            } catch (NumberFormatException e) {
+                mostrarError("La edad debe ser un numero valido");
+                return false;
+            }
+        }
+        
+        if (hayNuevoEmail) {
+            if (!validarEmail(nuevoEmail)) {
+                mostrarError("El email debe ser valido (formato: usuario@dominio.com)");
+                return false;
+            }
+            
+            try (Connection conn = DatabaseConnection.getConnection()) {
+                String query = "UPDATE USUARIO SET email = ? WHERE id_usuario = ?";
+                PreparedStatement stmt = conn.prepareStatement(query);
+                stmt.setString(1, nuevoEmail);
+                stmt.setInt(2, idUsuario);
+                stmt.executeUpdate();
+                stmt.close();
+                
+                lblEmail.setText(nuevoEmail);
+                cambiosRealizados = true;
+            } catch (SQLException e) {
+                e.printStackTrace();
+                mostrarError("Error al actualizar el email");
+                return false;
+            }
+        }
+        
+        return cambiosRealizados;
+    }
+    
+    private boolean validarEmail(String email) {
+        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*\\.[A-Za-z]{2,}$";
+        return email.matches(emailRegex);
     }
     
     @FXML
@@ -277,8 +246,19 @@ public class AjustesController {
             Scene scene = new Scene(root);
             Main.aplicarTema(scene);
             
-            stage.setScene(scene);
-            stage.show();
+            // Animacion de transicion
+            FadeTransition fadeOut = new FadeTransition(Duration.millis(200), btnTema.getScene().getRoot());
+            fadeOut.setFromValue(1.0);
+            fadeOut.setToValue(0.0);
+            fadeOut.setOnFinished(e -> {
+                stage.setScene(scene);
+                FadeTransition fadeIn = new FadeTransition(Duration.millis(200), root);
+                fadeIn.setFromValue(0.0);
+                fadeIn.setToValue(1.0);
+                fadeIn.play();
+            });
+            fadeOut.play();
+            
         } catch (Exception e) {
             e.printStackTrace();
         }

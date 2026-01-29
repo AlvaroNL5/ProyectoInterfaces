@@ -1,5 +1,6 @@
 package com.javafx.A_holamundofxml;
 
+import javafx.animation.FadeTransition;
 import javafx.animation.TranslateTransition;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -11,6 +12,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class PerfilDetalleController {
@@ -20,7 +22,6 @@ public class PerfilDetalleController {
     @FXML private TextField txtEmail;
     @FXML private ComboBox<String> comboTipo;
     @FXML private TextField txtEdad;
-    @FXML private Button btnGuardar;
     
     private CursosController cursosController;
     private CursosController.Usuario usuario;
@@ -34,28 +35,11 @@ public class PerfilDetalleController {
         ObservableList<String> tipos = FXCollections.observableArrayList("profesor", "alumno");
         comboTipo.setItems(tipos);
         
-        configurarPermisos();
-        
-        txtNombre.setTooltip(new Tooltip("Nombre del usuario"));
-        txtApellidos.setTooltip(new Tooltip("Apellidos del usuario"));
-        txtEmail.setTooltip(new Tooltip("Email del usuario"));
-        comboTipo.setTooltip(new Tooltip("Rol del usuario"));
-        txtEdad.setTooltip(new Tooltip("Edad del usuario"));
-    }
-    
-    private void configurarPermisos() {
-        boolean esProfesor = Configuracion.esProfesor();
-        
-        txtNombre.setEditable(esProfesor);
-        txtApellidos.setEditable(esProfesor);
-        txtEmail.setEditable(esProfesor);
-        comboTipo.setDisable(!esProfesor);
-        txtEdad.setEditable(esProfesor);
-        
-        if (btnGuardar != null) {
-            btnGuardar.setVisible(esProfesor);
-            btnGuardar.setManaged(esProfesor);
-        }
+        // Animacion de entrada
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(300), txtNombre.getParent());
+        fadeIn.setFromValue(0.0);
+        fadeIn.setToValue(1.0);
+        fadeIn.play();
     }
     
     public void cargarDatosUsuario(CursosController.Usuario usuario) {
@@ -66,13 +50,33 @@ public class PerfilDetalleController {
             txtEmail.setText(usuario.getEmail());
             comboTipo.setValue(usuario.getTipo());
             txtEdad.setText(String.valueOf(usuario.getEdad()));
+        } else {
+            txtNombre.setText("No disponible");
+            txtApellidos.setText("No disponible");
+            txtEmail.setText("No disponible");
+            comboTipo.setValue("alumno");
+            txtEdad.setText("0");
         }
+        
+        // Configurar permisos segun rol
+        boolean esProfesor = Configuracion.esProfesor();
+        txtNombre.setEditable(esProfesor);
+        txtApellidos.setEditable(esProfesor);
+        txtEmail.setEditable(esProfesor);
+        comboTipo.setDisable(!esProfesor);
+        txtEdad.setEditable(esProfesor);
     }
     
     @FXML
     void handleCerrar(ActionEvent event) {
         Stage stage = (Stage) txtNombre.getScene().getWindow();
-        stage.close();
+        
+        // Animacion de cierre
+        FadeTransition fadeOut = new FadeTransition(Duration.millis(200), txtNombre.getScene().getRoot());
+        fadeOut.setFromValue(1.0);
+        fadeOut.setToValue(0.0);
+        fadeOut.setOnFinished(e -> stage.close());
+        fadeOut.play();
     }
     
     @FXML
@@ -81,6 +85,7 @@ public class PerfilDetalleController {
             mostrarError("Solo los profesores pueden modificar usuarios");
             return;
         }
+        
         if (actualizarUsuario()) {
             mostrarExito("Cambios guardados correctamente");
         }
@@ -123,7 +128,7 @@ public class PerfilDetalleController {
             errores.append("El email es obligatorio\n");
             shakeNode(txtEmail);
         } else if (!nuevoEmail.contains("@") || !nuevoEmail.contains(".")) {
-            errores.append("El email debe tener un formato valido\n");
+            errores.append("El email debe tener un formato valido (ejemplo: usuario@dominio.com)\n");
             shakeNode(txtEmail);
         }
         
@@ -139,7 +144,7 @@ public class PerfilDetalleController {
             try {
                 int nuevaEdad = Integer.parseInt(nuevaEdadStr);
                 if (nuevaEdad < 0 || nuevaEdad > 150) {
-                    errores.append("La edad debe estar entre 0 y 150\n");
+                    errores.append("La edad debe estar entre 0 y 150 años\n");
                     shakeNode(txtEdad);
                 }
             } catch (NumberFormatException e) {
@@ -153,8 +158,24 @@ public class PerfilDetalleController {
             return false;
         }
         
-        try {
-            Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            if (!nuevoEmail.equals(usuario.getEmail())) {
+                String checkQuery = "SELECT COUNT(*) FROM USUARIO WHERE email = ? AND id_usuario != ?";
+                PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
+                checkStmt.setString(1, nuevoEmail);
+                checkStmt.setInt(2, usuario.getIdUsuario());
+                ResultSet rs = checkStmt.executeQuery();
+                
+                if (rs.next() && rs.getInt(1) > 0) {
+                    mostrarError("Ya existe otro usuario con este email");
+                    shakeNode(txtEmail);
+                    rs.close();
+                    checkStmt.close();
+                    return false;
+                }
+                rs.close();
+                checkStmt.close();
+            }
             
             String query = "UPDATE USUARIO SET nombre = ?, apellido = ?, email = ?, tipo_usuario = ?, edad = ? WHERE id_usuario = ?";
             PreparedStatement stmt = conn.prepareStatement(query);
@@ -171,6 +192,7 @@ public class PerfilDetalleController {
             if (filasActualizadas > 0) {
                 if (cursosController != null) {
                     cursosController.cargarUsuarios();
+                    cursosController.cargarAsistencias();
                 }
                 return true;
             }

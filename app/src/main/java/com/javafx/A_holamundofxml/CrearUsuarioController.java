@@ -1,5 +1,6 @@
 package com.javafx.A_holamundofxml;
 
+import javafx.animation.FadeTransition;
 import javafx.animation.TranslateTransition;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -27,17 +28,13 @@ public class CrearUsuarioController {
     @FXML private ComboBox<String> comboRol;
     @FXML private TextField txtEdad;
     @FXML private Button btnCrear;
-    @FXML private Button btnCancelar;
     
-    private boolean modoRegistro = false;
     private CursosController cursosController;
+    private boolean esVentanaModal = false;
     
     public void setCursosController(CursosController controller) {
         this.cursosController = controller;
-    }
-    
-    public void setModoRegistro(boolean modo) {
-        this.modoRegistro = modo;
+        this.esVentanaModal = true;
     }
     
     @FXML
@@ -46,13 +43,11 @@ public class CrearUsuarioController {
         comboRol.setItems(roles);
         comboRol.setValue("alumno");
         
-        txtNombre.setTooltip(new Tooltip("Introduzca el nombre del usuario"));
-        txtApellidos.setTooltip(new Tooltip("Introduzca los apellidos del usuario"));
-        txtEmail.setTooltip(new Tooltip("Introduzca un email valido"));
-        txtPassword.setTooltip(new Tooltip("Introduzca una contrasena (minimo 4 caracteres)"));
-        txtConfirmarPassword.setTooltip(new Tooltip("Repita la contrasena"));
-        comboRol.setTooltip(new Tooltip("Seleccione el rol: Profesor (gestion completa) o Alumno (solo consulta)"));
-        txtEdad.setTooltip(new Tooltip("Introduzca la edad (0-150)"));
+        // Animacion de entrada
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(300), txtNombre.getParent());
+        fadeIn.setFromValue(0.0);
+        fadeIn.setToValue(1.0);
+        fadeIn.play();
     }
     
     private void shakeNode(javafx.scene.Node node) {
@@ -66,24 +61,39 @@ public class CrearUsuarioController {
     
     @FXML
     void handleCancelar(ActionEvent event) {
-        if (modoRegistro) {
-            volverAlLogin();
-        } else {
+        if (esVentanaModal) {
+            // Si es ventana modal (abierta desde Cursos), simplemente cerrar
             Stage stage = (Stage) txtNombre.getScene().getWindow();
             stage.close();
+        } else {
+            // Si viene del Login, volver al Login
+            volverAlLogin();
         }
     }
     
     private void volverAlLogin() {
         try {
-            Stage stage = (Stage) txtNombre.getScene().getWindow();
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Login.fxml"));
             Parent root = loader.load();
+            
+            Stage stage = (Stage) txtNombre.getScene().getWindow();
             Scene scene = new Scene(root);
             Main.aplicarTema(scene);
-            stage.setTitle("Login - Muudle");
-            stage.setScene(scene);
-            stage.show();
+            
+            // Animacion de transicion
+            FadeTransition fadeOut = new FadeTransition(Duration.millis(200), txtNombre.getScene().getRoot());
+            fadeOut.setFromValue(1.0);
+            fadeOut.setToValue(0.0);
+            fadeOut.setOnFinished(e -> {
+                stage.setScene(scene);
+                stage.setTitle("Login - Muudle");
+                FadeTransition fadeIn = new FadeTransition(Duration.millis(200), root);
+                fadeIn.setFromValue(0.0);
+                fadeIn.setToValue(1.0);
+                fadeIn.play();
+            });
+            fadeOut.play();
+            
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -120,21 +130,21 @@ public class CrearUsuarioController {
         if (email.isEmpty()) {
             errores.append("El email es obligatorio\n");
             shakeNode(txtEmail);
-        } else if (!email.contains("@") || !email.contains(".")) {
-            errores.append("El email debe tener un formato valido\n");
+        } else if (!validarEmail(email)) {
+            errores.append("El email debe tener un formato valido (ejemplo: usuario@dominio.com)\n");
             shakeNode(txtEmail);
         }
         
         if (password.isEmpty()) {
-            errores.append("La contrasena es obligatoria\n");
+            errores.append("La contraseña es obligatoria\n");
             shakeNode(txtPassword);
         } else if (password.length() < 4) {
-            errores.append("La contrasena debe tener al menos 4 caracteres\n");
+            errores.append("La contraseña debe tener al menos 4 caracteres\n");
             shakeNode(txtPassword);
         }
         
         if (!password.equals(confirmarPassword)) {
-            errores.append("Las contrasenas no coinciden\n");
+            errores.append("Las contraseñas no coinciden\n");
             shakeNode(txtConfirmarPassword);
         }
         
@@ -150,7 +160,7 @@ public class CrearUsuarioController {
             try {
                 int edad = Integer.parseInt(edadStr);
                 if (edad < 0 || edad > 150) {
-                    errores.append("La edad debe estar entre 0 y 150\n");
+                    errores.append("La edad debe estar entre 0 y 150 años\n");
                     shakeNode(txtEdad);
                 }
             } catch (NumberFormatException e) {
@@ -167,13 +177,16 @@ public class CrearUsuarioController {
         return true;
     }
     
+    private boolean validarEmail(String email) {
+        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*\\.[A-Za-z]{2,}$";
+        return email.matches(emailRegex);
+    }
+    
     private void crearUsuario() {
         String email = txtEmail.getText().trim();
         String password = txtPassword.getText().trim();
         
-        try {
-            Connection conn = DatabaseConnection.getConnection();
-            
+        try (Connection conn = DatabaseConnection.getConnection()) {
             String checkQuery = "SELECT COUNT(*) FROM USUARIO WHERE email = ?";
             PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
             checkStmt.setString(1, email);
@@ -203,14 +216,16 @@ public class CrearUsuarioController {
             
             mostrarExito("Usuario creado correctamente");
             
-            if (modoRegistro) {
-                volverAlLogin();
-            } else {
+            if (esVentanaModal) {
+                // Si es ventana modal, actualizar la lista y cerrar
                 if (cursosController != null) {
                     cursosController.cargarUsuarios();
                 }
                 Stage stage = (Stage) txtNombre.getScene().getWindow();
                 stage.close();
+            } else {
+                // Si viene del Login, volver al Login
+                volverAlLogin();
             }
             
         } catch (SQLException e) {

@@ -42,12 +42,12 @@
                 <Label fx:id="lblTipoUsuario" />
             </VBox>
             
-            <Button fx:id="btnCerrarSesion" mnemonicParsing="true" text="Cerrar _Sesión">
+            <Button fx:id="btnCerrarSesion" mnemonicParsing="true" text="_Cerrar Sesion">
                 <HBox.margin>
                     <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                 </HBox.margin>
                 <tooltip>
-                    <Tooltip text="Cerrar sesión y volver al login" />
+                    <Tooltip text="Cerrar sesion y volver al login" />
                 </tooltip>
             </Button>
         </HBox>
@@ -55,7 +55,7 @@
    
     <left>
         <VBox alignment="CENTER" prefHeight="652.0" prefWidth="142.0" spacing="10.0">
-            <Label text="Menú">
+            <Label text="Menu">
                 <VBox.margin>
                     <Insets />
                 </VBox.margin>
@@ -82,7 +82,7 @@
                 </tooltip>
             </Button>
             
-            <Button fx:id="btnAsistencias" mnemonicParsing="true" prefWidth="100.0" text="_Matriculación">
+            <Button fx:id="btnAsistencias" mnemonicParsing="true" prefWidth="100.0" text="_Matriculacion">
                 <tooltip>
                     <Tooltip text="Gestionar matriculaciones" />
                 </tooltip>
@@ -102,7 +102,7 @@
                     <Font name="System" size="12.0" />
                 </font>
                 <tooltip>
-                    <Tooltip text="Configuración de la aplicación" />
+                    <Tooltip text="Configuracion de la aplicacion" />
                 </tooltip>
             </Button>
         </VBox>
@@ -132,7 +132,7 @@
                                         </Label>
                                         <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
                                             <children>
-                                                <Button fx:id="btnCrearCurso" mnemonicParsing="true" alignment="CENTER_RIGHT" contentDisplay="CENTER" text="Crear C_urso">
+                                                <Button fx:id="btnCrearCurso" alignment="CENTER_RIGHT" contentDisplay="CENTER" mnemonicParsing="true" text="_Crear Curso">
                                                     <font>
                                                         <Font name="System" size="12.0" />
                                                     </font>
@@ -147,9 +147,9 @@
                                 
                                 <HBox alignment="CENTER_LEFT" spacing="10.0">
                                     <children>
-                                        <TextField fx:id="txtBuscar" promptText="Buscar por nombre de curso..." HBox.hgrow="ALWAYS">
+                                        <TextField fx:id="txtBuscar" promptText="Buscar por ID, nombre o descripcion..." HBox.hgrow="ALWAYS">
                                             <tooltip>
-                                                <Tooltip text="Escriba para buscar cursos por nombre" />
+                                                <Tooltip text="Buscar cursos por ID, nombre o descripcion" />
                                             </tooltip>
                                         </TextField>
                                     </children>
@@ -159,7 +159,7 @@
                                     <columns>
                                         <TableColumn fx:id="colIdCurso" prefWidth="60.0" text="ID" />
                                         <TableColumn fx:id="colNombreCurso" prefWidth="200.0" text="Nombre del Curso" />
-                                        <TableColumn fx:id="colDescripcion" prefWidth="350.0" text="Descripción" />
+                                        <TableColumn fx:id="colDescripcion" prefWidth="350.0" text="Descripcion" />
                                         <TableColumn fx:id="colCantUsuarios" prefWidth="100.0" text="Cant. Usuarios" />
                                     </columns>
                                 </TableView>
@@ -197,7 +197,7 @@
                                 </Label>
                                 <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
                                     <children>
-                                        <Button fx:id="btnCrearUsuario" mnemonicParsing="true" alignment="CENTER_RIGHT" contentDisplay="CENTER" text="Crear Us_uario">
+                                        <Button fx:id="btnCrearUsuario" alignment="CENTER_RIGHT" contentDisplay="CENTER" mnemonicParsing="true" text="C_rear Usuario">
                                             <font>
                                                 <Font name="System" size="12.0" />
                                             </font>
@@ -212,9 +212,9 @@
                         
                         <HBox alignment="CENTER_LEFT" spacing="10.0">
                             <children>
-                                <TextField fx:id="txtBuscar1" promptText="Buscar por nombre de usuario..." HBox.hgrow="ALWAYS">
+                                <TextField fx:id="txtBuscar1" promptText="Buscar por ID, nombre, apellidos o email..." HBox.hgrow="ALWAYS">
                                     <tooltip>
-                                        <Tooltip text="Escriba para buscar usuarios por nombre" />
+                                        <Tooltip text="Buscar usuarios por ID, nombre, apellidos o email" />
                                     </tooltip>
                                 </TextField>
                             </children>
@@ -240,7 +240,7 @@
                                 </Button>
                                 <Button fx:id="btnExpulsar1" mnemonicParsing="true" onAction="#handleExpulsar" text="E_xpulsar">
                                     <tooltip>
-                                        <Tooltip text="Expulsar al usuario seleccionado" />
+                                        <Tooltip text="Eliminar el usuario seleccionado" />
                                     </tooltip>
                                 </Button>
                             </children>
@@ -255,22 +255,31 @@
                     <children>
                         <HBox alignment="CENTER_LEFT" spacing="20.0">
                             <children>
-                                <Label text="Matriculación">
+                                <Label text="Matriculacion">
                                     <font>
                                         <Font name="System Bold" size="24.0" />
                                     </font>
                                 </Label>
+                                <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Button fx:id="btnCrearMatricula" mnemonicParsing="true" text="Crear _Matricula">
+                                            <tooltip>
+                                                <Tooltip text="Crear una nueva matriculacion" />
+                                            </tooltip>
+                                        </Button>
+                                    </children>
+                                </HBox>
                             </children>
                         </HBox>
                         
                         <HBox>
                             <children>
-                                <TextField fx:id="txtBuscar11" prefHeight="26.0" prefWidth="745.0" promptText="Buscar por nombre de usuario...">
+                                <TextField fx:id="txtBuscar11" prefHeight="26.0" prefWidth="745.0" promptText="Buscar por ID usuario, nombre, apellidos, ID curso o nombre curso...">
                                     <HBox.margin>
                                         <Insets />
                                     </HBox.margin>
                                     <tooltip>
-                                        <Tooltip text="Escriba para buscar matriculaciones por nombre" />
+                                        <Tooltip text="Buscar matriculaciones" />
                                     </tooltip>
                                 </TextField>
                             </children>
@@ -288,11 +297,16 @@
                             </columns>
                         </TableView>
                         
-                        <HBox alignment="CENTER_RIGHT">
+                        <HBox alignment="CENTER_RIGHT" spacing="10.0">
                             <children>
                                 <Button fx:id="btnInsertar" mnemonicParsing="true" text="_Editar">
                                     <tooltip>
-                                        <Tooltip text="Editar la matriculación seleccionada" />
+                                        <Tooltip text="Editar la matriculacion seleccionada" />
+                                    </tooltip>
+                                </Button>
+                                <Button fx:id="btnEliminarMatricula" mnemonicParsing="true" text="E_liminar">
+                                    <tooltip>
+                                        <Tooltip text="Eliminar la matriculacion seleccionada" />
                                     </tooltip>
                                 </Button>
                             </children>

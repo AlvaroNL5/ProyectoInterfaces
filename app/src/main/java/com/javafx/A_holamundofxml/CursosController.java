@@ -1,7 +1,9 @@
 package com.javafx.A_holamundofxml;
 
 import javafx.animation.FadeTransition;
+import javafx.animation.ParallelTransition;
 import javafx.animation.ScaleTransition;
+import javafx.animation.SequentialTransition;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -159,22 +161,14 @@ public class CursosController {
 
     @FXML
     public void initialize() {
+        // Configurar datos del usuario desde Configuracion
         lblNombreUsuario.setText("Usuario: " + Configuracion.getNombreUsuarioActual());
-        String tipo = Configuracion.getTipoUsuarioActual();
-        lblTipoUsuario.setText("Rol: " + (tipo.substring(0, 1).toUpperCase() + tipo.substring(1)));
+        lblTipoUsuario.setText("Tipo: " + Configuracion.getTipoUsuarioActual());
         
+        // Configurar permisos segun el rol
         configurarPermisosPorRol();
         
-        btnCursos.setTooltip(new Tooltip("Ver listado de cursos"));
-        btnUsuarios.setTooltip(new Tooltip("Ver listado de usuarios"));
-        btnAsistencias.setTooltip(new Tooltip("Ver matriculaciones"));
-        btnAjustes.setTooltip(new Tooltip("Configuracion y perfil"));
-        btnCerrarSesion.setTooltip(new Tooltip("Cerrar sesion"));
-        
-        txtBuscar.setPromptText("Buscar por ID, nombre o descripcion...");
-        txtBuscar1.setPromptText("Buscar por ID, nombre, apellidos o email...");
-        txtBuscar11.setPromptText("Buscar por ID, nombre o curso...");
-        
+        // Configurar navegacion del menu
         btnCursos.setOnAction(event -> {
             if (!vboxCursos.isVisible()) {
                 animarCambioVista(vboxUsuarios.isVisible() ? vboxUsuarios : vboxAsistencias, vboxCursos);
@@ -196,28 +190,34 @@ public class CursosController {
                 vboxUsuarios.setVisible(false);
             }
         });
-        btnAjustes.setOnAction(event -> abrirAjustes());
-        btnCerrarSesion.setOnAction(event -> cerrarSesion());
+        btnAjustes.setOnAction(event -> abrirVentana("/Ajustes.fxml"));
+        btnCerrarSesion.setOnAction(event -> {
+            FadeTransition fadeOut = new FadeTransition(Duration.millis(300), btnCerrarSesion.getScene().getRoot());
+            fadeOut.setFromValue(1.0);
+            fadeOut.setToValue(0.0);
+            fadeOut.setOnFinished(e -> cerrarSesion());
+            fadeOut.play();
+        });
         btnCrearCurso.setOnAction(event -> {
             animarBoton(btnCrearCurso);
             lanzarCrearCurso();
         });
         btnInsertar.setOnAction(event -> {
             animarBoton(btnInsertar);
-            lanzarEditarMatricula();
+            lanzarInsertar();
         });
         btnCrearUsuario.setOnAction(event -> {
             animarBoton(btnCrearUsuario);
             lanzarCrearUsuario();
         });
         
+        // Configurar botones de matriculacion
         if (btnCrearMatricula != null) {
             btnCrearMatricula.setOnAction(event -> {
                 animarBoton(btnCrearMatricula);
                 lanzarCrearMatricula();
             });
         }
-        
         if (btnEliminarMatricula != null) {
             btnEliminarMatricula.setOnAction(event -> {
                 animarBoton(btnEliminarMatricula);
@@ -225,10 +225,11 @@ public class CursosController {
             });
         }
         
+        // Configurar boton de informes
         if (btnInformes != null) {
             btnInformes.setOnAction(event -> {
                 animarBoton(btnInformes);
-                abrirInformes();
+                lanzarInformes();
             });
         }
 
@@ -237,6 +238,7 @@ public class CursosController {
         cargarAsistencias();
         configurarColumnas();
         
+        // Listeners para busqueda en tiempo real
         txtBuscar.textProperty().addListener((observable, oldValue, newValue) -> {
             filtrarCursos(newValue.toLowerCase());
         });
@@ -253,47 +255,66 @@ public class CursosController {
     private void configurarPermisosPorRol() {
         boolean esProfesor = Configuracion.esProfesor();
         
-        btnCrearCurso.setVisible(esProfesor);
-        btnCrearCurso.setManaged(esProfesor);
-        btnCrearUsuario.setVisible(esProfesor);
-        btnCrearUsuario.setManaged(esProfesor);
+        // Botones de cursos
+        if (btnCrearCurso != null) {
+            btnCrearCurso.setVisible(esProfesor);
+            btnCrearCurso.setManaged(esProfesor);
+        }
+        if (btnExpulsar != null) {
+            btnExpulsar.setVisible(esProfesor);
+            btnExpulsar.setManaged(esProfesor);
+        }
         
-        btnExpulsar.setVisible(esProfesor);
-        btnExpulsar.setManaged(esProfesor);
-        btnExpulsar1.setVisible(esProfesor);
-        btnExpulsar1.setManaged(esProfesor);
+        // Botones de usuarios
+        if (btnCrearUsuario != null) {
+            btnCrearUsuario.setVisible(esProfesor);
+            btnCrearUsuario.setManaged(esProfesor);
+        }
+        if (btnExpulsar1 != null) {
+            btnExpulsar1.setVisible(esProfesor);
+            btnExpulsar1.setManaged(esProfesor);
+        }
+        if (btnVerPerfil1 != null) {
+            btnVerPerfil1.setVisible(esProfesor);
+            btnVerPerfil1.setManaged(esProfesor);
+        }
         
-        btnInsertar.setVisible(esProfesor);
-        btnInsertar.setManaged(esProfesor);
-        
+        // Botones de matriculacion
         if (btnCrearMatricula != null) {
             btnCrearMatricula.setVisible(esProfesor);
             btnCrearMatricula.setManaged(esProfesor);
         }
-        
         if (btnEliminarMatricula != null) {
             btnEliminarMatricula.setVisible(esProfesor);
             btnEliminarMatricula.setManaged(esProfesor);
         }
-
+        if (btnInsertar != null) {
+            btnInsertar.setVisible(esProfesor);
+            btnInsertar.setManaged(esProfesor);
+        }
+        
+        // Boton de informes
         if (btnInformes != null) {
             btnInformes.setVisible(esProfesor);
             btnInformes.setManaged(esProfesor);
         }
-        
-        if (!esProfesor) {
-            colFaltas11.setVisible(false);
-            colNota11.setVisible(false);
+    }
+
+    @FXML
+    void handleBuscar(ActionEvent event) {
+        if (vboxCursos.isVisible()) {
+            filtrarCursos(txtBuscar.getText().toLowerCase());
+        } else if (vboxUsuarios.isVisible()) {
+            filtrarUsuarios(txtBuscar1.getText().toLowerCase());
+        } else if (vboxAsistencias.isVisible()) {
+            filtrarAsistencias(txtBuscar11.getText().toLowerCase());
         }
-        
-        btnVerPerfil1.setVisible(true);
-        btnVerCursoConcreto.setVisible(true);
     }
 
     @FXML
     void handleExpulsar(ActionEvent event) {
         if (!Configuracion.esProfesor()) {
-            mostrarAlerta("Acceso denegado", "Solo los profesores pueden realizar esta accion");
+            mostrarAlerta("Error", "No tienes permisos para realizar esta accion");
             return;
         }
         
@@ -321,7 +342,7 @@ public class CursosController {
             if (cursoSeleccionado != null) {
                 abrirDetalleCurso(cursoSeleccionado);
             } else {
-                mostrarAlerta("Error", "Debes seleccionar un curso para ver sus detalles");
+                mostrarAlerta("Error", "Debes seleccionar un curso para poder ver sus detalles");
             }
         } else if (vboxUsuarios.isVisible()) {
             Usuario usuarioSeleccionado = tablaUsuarios1.getSelectionModel().getSelectedItem();
@@ -333,31 +354,18 @@ public class CursosController {
         }
     }
     
-    private void eliminarMatriculaSeleccionada() {
-        if (!Configuracion.esProfesor()) {
-            mostrarAlerta("Acceso denegado", "Solo los profesores pueden eliminar matriculaciones");
-            return;
-        }
-        
-        Asistencia asistenciaSeleccionada = tablaUsuarios11.getSelectionModel().getSelectedItem();
-        if (asistenciaSeleccionada == null) {
-            mostrarAlerta("Error", "Por favor selecciona una matriculacion para eliminar");
-            return;
-        }
-        
-        borrarAsistencia(asistenciaSeleccionada);
-    }
-    
     private void animarCambioVista(VBox vistaAnterior, VBox vistaNueva) {
         if (vistaAnterior != null && vistaAnterior.isVisible()) {
-            FadeTransition fadeOut = new FadeTransition(Duration.millis(150), vistaAnterior);
+            FadeTransition fadeOut = new FadeTransition(Duration.millis(200), vistaAnterior);
             fadeOut.setFromValue(1.0);
             fadeOut.setToValue(0.0);
             fadeOut.setOnFinished(e -> {
                 vistaAnterior.setVisible(false);
+                
                 vistaNueva.setVisible(true);
                 vistaNueva.setOpacity(0.0);
-                FadeTransition fadeIn = new FadeTransition(Duration.millis(150), vistaNueva);
+                
+                FadeTransition fadeIn = new FadeTransition(Duration.millis(200), vistaNueva);
                 fadeIn.setFromValue(0.0);
                 fadeIn.setToValue(1.0);
                 fadeIn.play();
@@ -366,7 +374,8 @@ public class CursosController {
         } else {
             vistaNueva.setVisible(true);
             vistaNueva.setOpacity(0.0);
-            FadeTransition fadeIn = new FadeTransition(Duration.millis(150), vistaNueva);
+            
+            FadeTransition fadeIn = new FadeTransition(Duration.millis(200), vistaNueva);
             fadeIn.setFromValue(0.0);
             fadeIn.setToValue(1.0);
             fadeIn.play();
@@ -384,31 +393,9 @@ public class CursosController {
         scale.play();
     }
     
-    private void abrirInformes() {
-        try {
-            Stage modal = new Stage();
-            modal.setTitle("Informes - Muudle");
-            modal.initModality(Modality.APPLICATION_MODAL);
-            modal.initOwner(btnInformes.getScene().getWindow());
-            agregarIconoVentana(modal);
-
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Informes.fxml"));
-            Parent root = loader.load();
-            Scene scene = new Scene(root);
-            Main.aplicarTema(scene);
-            modal.setScene(scene);
-
-            modal.showAndWait();
-            
-        } catch (IOException e) {
-            e.printStackTrace();
-            mostrarAlerta("Error", "No se pudo abrir la ventana de informes: " + e.getMessage());
-        }
-    }
-    
     public void lanzarCrearCurso() {
         if (!Configuracion.esProfesor()) {
-            mostrarAlerta("Acceso denegado", "Solo los profesores pueden crear cursos");
+            mostrarAlerta("Error", "No tienes permisos para crear cursos");
             return;
         }
         
@@ -417,7 +404,9 @@ public class CursosController {
             modal.setTitle("Crear Curso");
             modal.initModality(Modality.APPLICATION_MODAL);
             modal.initOwner(btnCrearCurso.getScene().getWindow());
-            agregarIconoVentana(modal);
+            
+            Image icon = new Image(getClass().getResourceAsStream("/muudle.png"));
+            modal.getIcons().add(icon);
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/CrearCurso.fxml"));
             Parent root = loader.load();
@@ -425,11 +414,17 @@ public class CursosController {
             Main.aplicarTema(scene);
             modal.setScene(scene);
 
+            root.setOpacity(0);
+            FadeTransition fadeIn = new FadeTransition(Duration.millis(300), root);
+            fadeIn.setFromValue(0.0);
+            fadeIn.setToValue(1.0);
+            
+            modal.show();
+            fadeIn.play();
+
             CrearCursoController controller = loader.getController();
             controller.setCursosController(this);
 
-            modal.showAndWait();
-            
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -437,7 +432,7 @@ public class CursosController {
 
     public void lanzarCrearUsuario() {
         if (!Configuracion.esProfesor()) {
-            mostrarAlerta("Acceso denegado", "Solo los profesores pueden crear usuarios");
+            mostrarAlerta("Error", "No tienes permisos para crear usuarios");
             return;
         }
         
@@ -446,7 +441,9 @@ public class CursosController {
             modal.setTitle("Crear Usuario");
             modal.initModality(Modality.APPLICATION_MODAL);
             modal.initOwner(btnCrearUsuario.getScene().getWindow());
-            agregarIconoVentana(modal);
+            
+            Image icon = new Image(getClass().getResourceAsStream("/muudle.png"));
+            modal.getIcons().add(icon);
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/CrearUsuario.fxml"));
             Parent root = loader.load();
@@ -466,16 +463,18 @@ public class CursosController {
     
     public void lanzarCrearMatricula() {
         if (!Configuracion.esProfesor()) {
-            mostrarAlerta("Acceso denegado", "Solo los profesores pueden crear matriculaciones");
+            mostrarAlerta("Error", "No tienes permisos para crear matriculaciones");
             return;
         }
         
         try {
             Stage modal = new Stage();
-            modal.setTitle("Nueva Matriculacion");
+            modal.setTitle("Crear Matriculacion");
             modal.initModality(Modality.APPLICATION_MODAL);
             modal.initOwner(btnCrearMatricula.getScene().getWindow());
-            agregarIconoVentana(modal);
+            
+            Image icon = new Image(getClass().getResourceAsStream("/muudle.png"));
+            modal.getIcons().add(icon);
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/CrearMatricula.fxml"));
             Parent root = loader.load();
@@ -483,35 +482,88 @@ public class CursosController {
             Main.aplicarTema(scene);
             modal.setScene(scene);
 
+            root.setOpacity(0);
+            FadeTransition fadeIn = new FadeTransition(Duration.millis(300), root);
+            fadeIn.setFromValue(0.0);
+            fadeIn.setToValue(1.0);
+            
+            modal.show();
+            fadeIn.play();
+
             CrearMatriculaController controller = loader.getController();
             controller.setCursosController(this);
 
-            modal.showAndWait();
-            
         } catch (IOException e) {
             e.printStackTrace();
+            mostrarAlerta("Error", "No se pudo abrir la ventana de crear matriculacion: " + e.getMessage());
+        }
+    }
+    
+    private void eliminarMatriculaSeleccionada() {
+        if (!Configuracion.esProfesor()) {
+            mostrarAlerta("Error", "No tienes permisos para eliminar matriculaciones");
+            return;
+        }
+        
+        Asistencia asistenciaSeleccionada = tablaUsuarios11.getSelectionModel().getSelectedItem();
+        if (asistenciaSeleccionada == null) {
+            mostrarAlerta("Error", "Por favor selecciona una matriculacion para eliminar");
+            return;
+        }
+        
+        borrarAsistencia(asistenciaSeleccionada);
+    }
+    
+    public void lanzarInformes() {
+        if (!Configuracion.esProfesor()) {
+            mostrarAlerta("Error", "No tienes permisos para acceder a informes");
+            return;
+        }
+        
+        try {
+            Stage modal = new Stage();
+            modal.setTitle("Generador de Informes");
+            modal.initModality(Modality.APPLICATION_MODAL);
+            modal.initOwner(btnInformes.getScene().getWindow());
+            
+            Image icon = new Image(getClass().getResourceAsStream("/muudle.png"));
+            modal.getIcons().add(icon);
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Informes.fxml"));
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
+            Main.aplicarTema(scene);
+            modal.setScene(scene);
+
+            modal.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            mostrarAlerta("Error", "No se pudo abrir la ventana de informes: " + e.getMessage());
         }
     }
 
-    public void lanzarEditarMatricula() {
+    public void lanzarInsertar() {
         if (!Configuracion.esProfesor()) {
-            mostrarAlerta("Acceso denegado", "Solo los profesores pueden editar matriculaciones");
+            mostrarAlerta("Error", "No tienes permisos para editar matriculaciones");
             return;
         }
         
         Asistencia asistenciaSeleccionada = tablaUsuarios11.getSelectionModel().getSelectedItem();
         
         if (asistenciaSeleccionada == null) {
-            mostrarAlerta("Error", "Debe seleccionar una matriculacion de la tabla para editar");
+            mostrarAlerta("Error", "Debe seleccionar un alumno de la tabla para actualizar");
             return;
         }
         
         try {
             Stage modal = new Stage();
-            modal.setTitle("Editar Matriculacion");
+            modal.setTitle("Actualizar Informacion");
             modal.initModality(Modality.APPLICATION_MODAL);
             modal.initOwner(btnInsertar.getScene().getWindow());
-            agregarIconoVentana(modal);
+            
+            Image icon = new Image(getClass().getResourceAsStream("/muudle.png"));
+            modal.getIcons().add(icon);
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Insertar.fxml"));
             Scene scene = new Scene(loader.load());
@@ -542,17 +594,18 @@ public class CursosController {
         try {
             Stage stage = new Stage();
             stage.setTitle("Detalle del Curso: " + curso.getNombreCurso());
-            agregarIconoVentana(stage);
+            
+            Image icon = new Image(getClass().getResourceAsStream("/muudle.png"));
+            stage.getIcons().add(icon);
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/CursoDetalle.fxml"));
-            Parent root = loader.load();
-            Scene scene = new Scene(root);
+            Scene scene = new Scene(loader.load());
             Main.aplicarTema(scene);
             stage.setScene(scene);
 
             CursoDetalleController controller = loader.getController();
-            controller.setCursosController(this);
             controller.cargarDatosCurso(curso.getIdCurso());
+            controller.setCursosController(this);
 
             stage.show();
             
@@ -568,7 +621,9 @@ public class CursosController {
             modal.setTitle("Perfil de Usuario");
             modal.initModality(Modality.APPLICATION_MODAL);
             modal.initOwner(tablaUsuarios1.getScene().getWindow());
-            agregarIconoVentana(modal);
+            
+            Image icon = new Image(getClass().getResourceAsStream("/muudle.png"));
+            modal.getIcons().add(icon);
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/PerfilDetalle.fxml"));
             Parent root = loader.load();
@@ -576,8 +631,8 @@ public class CursosController {
             Main.aplicarTema(scene);
             
             PerfilDetalleController controller = loader.getController();
-            controller.setCursosController(this);
             controller.cargarDatosUsuario(usuario);
+            controller.setCursosController(this);
             
             modal.setScene(scene);
             modal.show();
@@ -587,9 +642,9 @@ public class CursosController {
         }
     }
 
-    private void abrirAjustes() {
+    private void abrirVentana(String fxmlPath) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Ajustes.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
             
             Stage stage = (Stage) btnCursos.getScene().getWindow();
@@ -605,7 +660,6 @@ public class CursosController {
     
     private void cerrarSesion() {
         try {
-            // Resetear configuracion completa incluyendo tema
             Configuracion.resetear();
             
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Login.fxml"));
@@ -614,42 +668,19 @@ public class CursosController {
             Stage stage = (Stage) btnCerrarSesion.getScene().getWindow();
             Scene scene = new Scene(root);
             Main.aplicarTema(scene);
-            
             stage.setTitle("Login - Muudle");
+            
             stage.setScene(scene);
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    
-    private void agregarIconoVentana(Stage stage) {
-        try {
-            Image icon = new Image(getClass().getResourceAsStream("/muudle.png"));
-            stage.getIcons().add(icon);
-        } catch (Exception e) {
-        }
-    }
 
     public void cargarCursos() {
-        try {
-            Connection conn = DatabaseConnection.getConnection();
-            String query;
-            PreparedStatement stmt;
-            
-            if (Configuracion.esProfesor()) {
-                query = "SELECT id_curso, nombre_curso, descripcion, cant_usuarios FROM CURSO";
-                stmt = conn.prepareStatement(query);
-            } else {
-                // Alumno solo ve los cursos en los que esta matriculado
-                query = "SELECT DISTINCT c.id_curso, c.nombre_curso, c.descripcion, c.cant_usuarios " +
-                        "FROM CURSO c " +
-                        "INNER JOIN ASISTENCIA a ON c.id_curso = a.id_curso " +
-                        "WHERE a.id_usuario = ?";
-                stmt = conn.prepareStatement(query);
-                stmt.setInt(1, Configuracion.getIdUsuarioActual());
-            }
-            
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            String query = "SELECT id_curso, nombre_curso, descripcion, cant_usuarios FROM CURSO";
+            PreparedStatement stmt = conn.prepareStatement(query);
             ResultSet rs = stmt.executeQuery();
 
             todosLosCursos.clear();
@@ -663,6 +694,7 @@ public class CursosController {
             }
 
             tablaCursos.setItems(todosLosCursos);
+            
             rs.close();
             stmt.close();
 
@@ -673,25 +705,9 @@ public class CursosController {
     }
 
     public void cargarUsuarios() {
-        try {
-            Connection conn = DatabaseConnection.getConnection();
-            String query;
-            PreparedStatement stmt;
-            
-            if (Configuracion.esProfesor()) {
-                // Profesor ve todos los usuarios
-                query = "SELECT id_usuario, nombre, apellido, email, tipo_usuario, edad FROM USUARIO";
-                stmt = conn.prepareStatement(query);
-            } else {
-                // Alumno ve usuarios que estan en los mismos cursos que el
-                query = "SELECT DISTINCT u.id_usuario, u.nombre, u.apellido, u.email, u.tipo_usuario, u.edad " +
-                        "FROM USUARIO u " +
-                        "INNER JOIN ASISTENCIA a ON u.id_usuario = a.id_usuario " +
-                        "WHERE a.id_curso IN (SELECT id_curso FROM ASISTENCIA WHERE id_usuario = ?)";
-                stmt = conn.prepareStatement(query);
-                stmt.setInt(1, Configuracion.getIdUsuarioActual());
-            }
-            
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            String query = "SELECT id_usuario, nombre, apellido, email, tipo_usuario, edad FROM USUARIO";
+            PreparedStatement stmt = conn.prepareStatement(query);
             ResultSet rs = stmt.executeQuery();
 
             todosLosUsuarios.clear();
@@ -707,6 +723,7 @@ public class CursosController {
             }
 
             tablaUsuarios1.setItems(todosLosUsuarios);
+            
             rs.close();
             stmt.close();
 
@@ -717,29 +734,12 @@ public class CursosController {
     }
 
     public void cargarAsistencias() {
-        try {
-            Connection conn = DatabaseConnection.getConnection();
-            String query;
-            PreparedStatement stmt;
-            
-            if (Configuracion.esProfesor()) {
-                // Profesor ve todas las matriculaciones
-                query = "SELECT u.id_usuario, u.nombre, u.apellido, a.nFaltas, a.nota, a.id_curso, c.nombre_curso " +
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            String query = "SELECT u.id_usuario, u.nombre, u.apellido, a.nFaltas, a.nota, a.id_curso, c.nombre_curso " +
                         "FROM ASISTENCIA a " +
                         "JOIN USUARIO u ON a.id_usuario = u.id_usuario " +
                         "JOIN CURSO c ON a.id_curso = c.id_curso";
-                stmt = conn.prepareStatement(query);
-            } else {
-                // Alumno solo ve sus propias matriculaciones
-                query = "SELECT u.id_usuario, u.nombre, u.apellido, a.nFaltas, a.nota, a.id_curso, c.nombre_curso " +
-                        "FROM ASISTENCIA a " +
-                        "JOIN USUARIO u ON a.id_usuario = u.id_usuario " +
-                        "JOIN CURSO c ON a.id_curso = c.id_curso " +
-                        "WHERE a.id_usuario = ?";
-                stmt = conn.prepareStatement(query);
-                stmt.setInt(1, Configuracion.getIdUsuarioActual());
-            }
-            
+            PreparedStatement stmt = conn.prepareStatement(query);
             ResultSet rs = stmt.executeQuery();
 
             todasLasAsistencias.clear();
@@ -756,12 +756,13 @@ public class CursosController {
             }
 
             tablaUsuarios11.setItems(todasLasAsistencias);
+            
             rs.close();
             stmt.close();
 
         } catch (SQLException e) {
             e.printStackTrace();
-            mostrarAlerta("Error", "No se pudieron cargar las matriculaciones: " + e.getMessage());
+            mostrarAlerta("Error", "No se pudieron cargar las asistencias: " + e.getMessage());
         }
     }
 
@@ -798,7 +799,7 @@ public class CursosController {
         for (Curso curso : todosLosCursos) {
             if (curso.getNombreCurso().toLowerCase().contains(filtro) ||
                 String.valueOf(curso.getIdCurso()).contains(filtro) ||
-                (curso.getDescripcion() != null && curso.getDescripcion().toLowerCase().contains(filtro))) {
+                curso.getDescripcion().toLowerCase().contains(filtro)) {
                 cursosFiltrados.add(curso);
             }
         }
@@ -845,9 +846,7 @@ public class CursosController {
     }
 
     private void borrarCurso(Curso curso) {
-        try {
-            Connection conn = DatabaseConnection.getConnection();
-            
+        try (Connection conn = DatabaseConnection.getConnection()) {
             String deleteAsistencias = "DELETE FROM ASISTENCIA WHERE id_curso = ?";
             PreparedStatement stmt1 = conn.prepareStatement(deleteAsistencias);
             stmt1.setInt(1, curso.getIdCurso());
@@ -870,8 +869,7 @@ public class CursosController {
     }
 
     private void borrarAsistencia(Asistencia asistencia) {
-        try {
-            Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getConnection()) {
             int idCurso = asistencia.getIdCurso();
             
             String query = "DELETE FROM ASISTENCIA WHERE id_usuario = ? AND id_curso = ?";
@@ -893,7 +891,7 @@ public class CursosController {
                 
                 cargarAsistencias();
                 cargarCursos();
-                mostrarAlerta("Exito", "Matriculacion eliminada correctamente.");
+                mostrarAlerta("Exito", "Matriculacion eliminada correctamente");
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -902,8 +900,7 @@ public class CursosController {
     }
 
     private void borrarUsuario(Usuario usuario) {
-        try {
-            Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getConnection()) {
             conn.setAutoCommit(false);
             
             String selectCursos = "SELECT id_curso FROM ASISTENCIA WHERE id_usuario = ?";
@@ -945,8 +942,6 @@ public class CursosController {
             
             rs.close();
             selectStmt.close();
-            conn.setAutoCommit(true);
-            
         } catch (SQLException e) {
             e.printStackTrace();
             mostrarAlerta("Error", "No se pudo eliminar al usuario: " + e.getMessage());
@@ -958,11 +953,15 @@ public class CursosController {
         alert.setTitle(titulo);
         alert.setHeaderText(null);
         alert.setContentText(mensaje);
+        agregarIconoAlerta(alert);
+        alert.showAndWait();
+    }
+    
+    private void agregarIconoAlerta(Alert alert) {
         try {
             Stage alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
             alertStage.getIcons().add(new Image(getClass().getResourceAsStream("/muudle.png")));
         } catch (Exception e) {
         }
-        alert.showAndWait();
     }
 }

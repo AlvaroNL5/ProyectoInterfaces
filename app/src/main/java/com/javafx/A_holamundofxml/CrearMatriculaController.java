@@ -1,5 +1,6 @@
 package com.javafx.A_holamundofxml;
 
+import javafx.animation.FadeTransition;
 import javafx.animation.TranslateTransition;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -18,119 +19,90 @@ public class CrearMatriculaController {
 
     @FXML private ComboBox<UsuarioItem> comboUsuario;
     @FXML private ComboBox<CursoItem> comboCurso;
-    @FXML private TextField txtFaltas;
-    @FXML private TextField txtNota;
+    @FXML private Spinner<Integer> spinnerFaltas;
+    @FXML private Spinner<Double> spinnerNota;
     @FXML private Button btnCrear;
     
+    private ObservableList<UsuarioItem> usuariosDisponibles = FXCollections.observableArrayList();
+    private ObservableList<CursoItem> cursosDisponibles = FXCollections.observableArrayList();
+    
     private CursosController cursosController;
-    private ObservableList<UsuarioItem> usuarios = FXCollections.observableArrayList();
-    private ObservableList<CursoItem> cursos = FXCollections.observableArrayList();
+    
+    public void setCursosController(CursosController controller) {
+        this.cursosController = controller;
+    }
     
     public static class UsuarioItem {
         private final int id;
         private final String nombre;
         private final String apellidos;
+        private final String email;
+        private final int cursosAsignados;
         
-        public UsuarioItem(int id, String nombre, String apellidos) {
+        public UsuarioItem(int id, String nombre, String apellidos, String email, int cursosAsignados) {
             this.id = id;
             this.nombre = nombre;
             this.apellidos = apellidos;
+            this.email = email;
+            this.cursosAsignados = cursosAsignados;
         }
         
         public int getId() { return id; }
         public String getNombre() { return nombre; }
         public String getApellidos() { return apellidos; }
+        public String getEmail() { return email; }
+        public int getCursosAsignados() { return cursosAsignados; }
         
         @Override
         public String toString() {
-            return nombre + " " + apellidos + " (ID: " + id + ")";
+            return nombre + " " + apellidos + " (" + email + ") - Cursos: " + cursosAsignados + "/2";
         }
     }
     
     public static class CursoItem {
         private final int id;
         private final String nombre;
+        private final int cantUsuarios;
         
-        public CursoItem(int id, String nombre) {
+        public CursoItem(int id, String nombre, int cantUsuarios) {
             this.id = id;
             this.nombre = nombre;
+            this.cantUsuarios = cantUsuarios;
         }
         
         public int getId() { return id; }
         public String getNombre() { return nombre; }
+        public int getCantUsuarios() { return cantUsuarios; }
         
         @Override
         public String toString() {
-            return nombre + " (ID: " + id + ")";
+            return nombre + " (ID: " + id + ") - " + cantUsuarios + " alumnos";
         }
-    }
-    
-    public void setCursosController(CursosController controller) {
-        this.cursosController = controller;
     }
     
     @FXML
     public void initialize() {
-        comboUsuario.setItems(usuarios);
-        comboCurso.setItems(cursos);
+        // Configurar spinners
+        SpinnerValueFactory<Integer> faltasFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 100, 0);
+        spinnerFaltas.setValueFactory(faltasFactory);
         
-        txtFaltas.setText("0");
-        txtNota.setText("0.0");
+        SpinnerValueFactory<Double> notaFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(0.0, 10.0, 0.0, 0.5);
+        spinnerNota.setValueFactory(notaFactory);
         
-        comboUsuario.setTooltip(new Tooltip("Seleccione el alumno a matricular"));
-        comboCurso.setTooltip(new Tooltip("Seleccione el curso"));
-        txtFaltas.setTooltip(new Tooltip("Numero de faltas inicial (por defecto 0)"));
-        txtNota.setTooltip(new Tooltip("Nota inicial del alumno (0-10)"));
+        comboUsuario.setItems(usuariosDisponibles);
+        comboCurso.setItems(cursosDisponibles);
         
-        cargarUsuarios();
-        cargarCursos();
-    }
-    
-    private void cargarUsuarios() {
-        try {
-            Connection conn = DatabaseConnection.getConnection();
-            String query = "SELECT id_usuario, nombre, apellido FROM USUARIO WHERE tipo_usuario = 'alumno' ORDER BY nombre, apellido";
-            PreparedStatement stmt = conn.prepareStatement(query);
-            ResultSet rs = stmt.executeQuery();
-            
-            usuarios.clear();
-            while (rs.next()) {
-                usuarios.add(new UsuarioItem(
-                    rs.getInt("id_usuario"),
-                    rs.getString("nombre"),
-                    rs.getString("apellido")
-                ));
-            }
-            
-            rs.close();
-            stmt.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            mostrarError("Error al cargar usuarios: " + e.getMessage());
-        }
-    }
-    
-    private void cargarCursos() {
-        try {
-            Connection conn = DatabaseConnection.getConnection();
-            String query = "SELECT id_curso, nombre_curso FROM CURSO ORDER BY nombre_curso";
-            PreparedStatement stmt = conn.prepareStatement(query);
-            ResultSet rs = stmt.executeQuery();
-            
-            cursos.clear();
-            while (rs.next()) {
-                cursos.add(new CursoItem(
-                    rs.getInt("id_curso"),
-                    rs.getString("nombre_curso")
-                ));
-            }
-            
-            rs.close();
-            stmt.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            mostrarError("Error al cargar cursos: " + e.getMessage());
-        }
+        cargarUsuariosDisponibles();
+        cargarCursosDisponibles();
+        
+        // Listener para actualizar cursos disponibles cuando se selecciona un usuario
+        comboUsuario.setOnAction(event -> actualizarCursosParaUsuario());
+        
+        // Animacion de entrada
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(300), comboUsuario.getParent());
+        fadeIn.setFromValue(0.0);
+        fadeIn.setToValue(1.0);
+        fadeIn.play();
     }
     
     private void shakeNode(javafx.scene.Node node) {
@@ -142,6 +114,104 @@ public class CrearMatriculaController {
         shake.playFromStart();
     }
     
+    private void cargarUsuariosDisponibles() {
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            String query = "SELECT u.id_usuario, u.nombre, u.apellido, u.email, " +
+                          "COUNT(a.id_curso) as cursos_actuales " +
+                          "FROM USUARIO u " +
+                          "LEFT JOIN ASISTENCIA a ON u.id_usuario = a.id_usuario " +
+                          "WHERE u.tipo_usuario IN ('alumno', 'profesor') " +
+                          "GROUP BY u.id_usuario, u.nombre, u.apellido, u.email " +
+                          "HAVING cursos_actuales < 2 " +
+                          "ORDER BY u.nombre, u.apellido";
+            PreparedStatement stmt = conn.prepareStatement(query);
+            ResultSet rs = stmt.executeQuery();
+            
+            usuariosDisponibles.clear();
+            while (rs.next()) {
+                usuariosDisponibles.add(new UsuarioItem(
+                    rs.getInt("id_usuario"),
+                    rs.getString("nombre"),
+                    rs.getString("apellido"),
+                    rs.getString("email"),
+                    rs.getInt("cursos_actuales")
+                ));
+            }
+            
+            rs.close();
+            stmt.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            mostrarError("Error al cargar usuarios: " + e.getMessage());
+        }
+    }
+    
+    private void cargarCursosDisponibles() {
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            String query = "SELECT id_curso, nombre_curso, cant_usuarios FROM CURSO ORDER BY nombre_curso";
+            PreparedStatement stmt = conn.prepareStatement(query);
+            ResultSet rs = stmt.executeQuery();
+            
+            cursosDisponibles.clear();
+            while (rs.next()) {
+                cursosDisponibles.add(new CursoItem(
+                    rs.getInt("id_curso"),
+                    rs.getString("nombre_curso"),
+                    rs.getInt("cant_usuarios")
+                ));
+            }
+            
+            rs.close();
+            stmt.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            mostrarError("Error al cargar cursos: " + e.getMessage());
+        }
+    }
+    
+    private void actualizarCursosParaUsuario() {
+        UsuarioItem usuarioSeleccionado = comboUsuario.getValue();
+        if (usuarioSeleccionado == null) {
+            cargarCursosDisponibles();
+            return;
+        }
+        
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            // Cargar cursos en los que el usuario NO esta matriculado
+            String query = "SELECT c.id_curso, c.nombre_curso, c.cant_usuarios " +
+                          "FROM CURSO c " +
+                          "WHERE c.id_curso NOT IN (SELECT a.id_curso FROM ASISTENCIA a WHERE a.id_usuario = ?) " +
+                          "ORDER BY c.nombre_curso";
+            PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setInt(1, usuarioSeleccionado.getId());
+            ResultSet rs = stmt.executeQuery();
+            
+            cursosDisponibles.clear();
+            while (rs.next()) {
+                cursosDisponibles.add(new CursoItem(
+                    rs.getInt("id_curso"),
+                    rs.getString("nombre_curso"),
+                    rs.getInt("cant_usuarios")
+                ));
+            }
+            
+            rs.close();
+            stmt.close();
+            
+            comboCurso.setValue(null);
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+            mostrarError("Error al actualizar cursos: " + e.getMessage());
+        }
+    }
+    
+    @FXML
+    void handleCancelar(ActionEvent event) {
+        Stage stage = (Stage) comboUsuario.getScene().getWindow();
+        stage.close();
+    }
+    
     @FXML
     void handleCrear(ActionEvent event) {
         if (validarCampos()) {
@@ -149,56 +219,17 @@ public class CrearMatriculaController {
         }
     }
     
-    @FXML
-    void handleCancelar(ActionEvent event) {
-        ((Stage) btnCrear.getScene().getWindow()).close();
-    }
-    
     private boolean validarCampos() {
         StringBuilder errores = new StringBuilder();
         
         if (comboUsuario.getValue() == null) {
-            errores.append("Debe seleccionar un alumno\n");
+            errores.append("Debes seleccionar un usuario\n");
             shakeNode(comboUsuario);
         }
         
         if (comboCurso.getValue() == null) {
-            errores.append("Debe seleccionar un curso\n");
+            errores.append("Debes seleccionar un curso\n");
             shakeNode(comboCurso);
-        }
-        
-        String faltasStr = txtFaltas.getText().trim();
-        if (faltasStr.isEmpty()) {
-            errores.append("Las faltas son obligatorias\n");
-            shakeNode(txtFaltas);
-        } else {
-            try {
-                int faltas = Integer.parseInt(faltasStr);
-                if (faltas < 0) {
-                    errores.append("Las faltas no pueden ser negativas\n");
-                    shakeNode(txtFaltas);
-                }
-            } catch (NumberFormatException e) {
-                errores.append("Las faltas deben ser un numero entero\n");
-                shakeNode(txtFaltas);
-            }
-        }
-        
-        String notaStr = txtNota.getText().trim();
-        if (notaStr.isEmpty()) {
-            errores.append("La nota es obligatoria\n");
-            shakeNode(txtNota);
-        } else {
-            try {
-                double nota = Double.parseDouble(notaStr);
-                if (nota < 0 || nota > 10) {
-                    errores.append("La nota debe estar entre 0 y 10\n");
-                    shakeNode(txtNota);
-                }
-            } catch (NumberFormatException e) {
-                errores.append("La nota debe ser un numero valido\n");
-                shakeNode(txtNota);
-            }
         }
         
         if (errores.length() > 0) {
@@ -212,32 +243,36 @@ public class CrearMatriculaController {
     private void crearMatricula() {
         UsuarioItem usuario = comboUsuario.getValue();
         CursoItem curso = comboCurso.getValue();
+        int faltas = spinnerFaltas.getValue();
+        double nota = spinnerNota.getValue();
         
-        try {
-            Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            conn.setAutoCommit(false);
             
+            // Verificar que el usuario no este ya en este curso
             String checkQuery = "SELECT COUNT(*) FROM ASISTENCIA WHERE id_usuario = ? AND id_curso = ?";
             PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
             checkStmt.setInt(1, usuario.getId());
             checkStmt.setInt(2, curso.getId());
-            ResultSet rs = checkStmt.executeQuery();
+            ResultSet checkRs = checkStmt.executeQuery();
             
-            if (rs.next() && rs.getInt(1) > 0) {
-                mostrarError("Este alumno ya esta matriculado en este curso");
-                rs.close();
+            if (checkRs.next() && checkRs.getInt(1) > 0) {
+                mostrarError("Este usuario ya esta matriculado en este curso");
+                checkRs.close();
                 checkStmt.close();
                 return;
             }
-            rs.close();
+            checkRs.close();
             checkStmt.close();
             
+            // Verificar que el usuario no tenga ya 2 cursos
             String countQuery = "SELECT COUNT(*) FROM ASISTENCIA WHERE id_usuario = ?";
             PreparedStatement countStmt = conn.prepareStatement(countQuery);
             countStmt.setInt(1, usuario.getId());
             ResultSet countRs = countStmt.executeQuery();
             
             if (countRs.next() && countRs.getInt(1) >= 2) {
-                mostrarError("Este alumno ya esta en 2 cursos. No puede matricularse en mas.");
+                mostrarError("Este usuario ya esta matriculado en 2 cursos (maximo permitido)");
                 countRs.close();
                 countStmt.close();
                 return;
@@ -245,19 +280,32 @@ public class CrearMatriculaController {
             countRs.close();
             countStmt.close();
             
-            conn.setAutoCommit(false);
+            // Obtener apellidos del usuario
+            String apellidosQuery = "SELECT apellido FROM USUARIO WHERE id_usuario = ?";
+            PreparedStatement apellidosStmt = conn.prepareStatement(apellidosQuery);
+            apellidosStmt.setInt(1, usuario.getId());
+            ResultSet apellidosRs = apellidosStmt.executeQuery();
             
+            String apellidos = "";
+            if (apellidosRs.next()) {
+                apellidos = apellidosRs.getString("apellido");
+            }
+            apellidosRs.close();
+            apellidosStmt.close();
+            
+            // Insertar matricula
             String insertQuery = "INSERT INTO ASISTENCIA (id_usuario, id_curso, apellidos, nFaltas, nota, fecha_registro) " +
                                 "VALUES (?, ?, ?, ?, ?, CURDATE())";
             PreparedStatement insertStmt = conn.prepareStatement(insertQuery);
             insertStmt.setInt(1, usuario.getId());
             insertStmt.setInt(2, curso.getId());
-            insertStmt.setString(3, usuario.getApellidos());
-            insertStmt.setInt(4, Integer.parseInt(txtFaltas.getText().trim()));
-            insertStmt.setDouble(5, Double.parseDouble(txtNota.getText().trim()));
+            insertStmt.setString(3, apellidos);
+            insertStmt.setInt(4, faltas);
+            insertStmt.setDouble(5, nota);
             insertStmt.executeUpdate();
             insertStmt.close();
             
+            // Actualizar contador del curso
             String updateQuery = "UPDATE CURSO SET cant_usuarios = cant_usuarios + 1 WHERE id_curso = ?";
             PreparedStatement updateStmt = conn.prepareStatement(updateQuery);
             updateStmt.setInt(1, curso.getId());
@@ -265,16 +313,16 @@ public class CrearMatriculaController {
             updateStmt.close();
             
             conn.commit();
-            conn.setAutoCommit(true);
-            
-            mostrarExito("Matriculacion creada correctamente");
             
             if (cursosController != null) {
                 cursosController.cargarAsistencias();
                 cursosController.cargarCursos();
             }
             
-            ((Stage) btnCrear.getScene().getWindow()).close();
+            mostrarExito("Matriculacion creada correctamente");
+            
+            Stage stage = (Stage) comboUsuario.getScene().getWindow();
+            stage.close();
             
         } catch (SQLException e) {
             e.printStackTrace();
