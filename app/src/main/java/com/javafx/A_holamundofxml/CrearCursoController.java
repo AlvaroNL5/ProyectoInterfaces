@@ -274,8 +274,8 @@ public class CrearCursoController {
             }
             
             if (idCurso != -1 && !idsAlumnosSeleccionados.isEmpty()) {
-                String insertQuery = "INSERT INTO ASISTENCIA (id_usuario, id_curso, apellidos, nFaltas, nota, fecha_registro) " +
-                                    "SELECT u.id_usuario, ?, u.apellido, 0, 0.0, CURDATE() " +
+                String insertQuery = "INSERT INTO ASISTENCIA (id_usuario, id_curso, apellidos, nFaltas, nota, fecha_registro, matriculado) " +
+                                    "SELECT u.id_usuario, ?, u.apellido, 0, 0.0, CURDATE(), 0 " +
                                     "FROM USUARIO u WHERE u.id_usuario = ?";
                 insertStmt = conn.prepareStatement(insertQuery);
                 

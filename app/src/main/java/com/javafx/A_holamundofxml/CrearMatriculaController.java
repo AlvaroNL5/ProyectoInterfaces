@@ -91,7 +91,7 @@ public class CrearMatriculaController {
         comboUsuario.setItems(usuariosDisponibles);
         comboCurso.setItems(cursosDisponibles);
         
-        cargarUsuariosDisponibles();
+        cargarUsuariosEnCursos();
         cargarTodosLosCursos();
         
         comboUsuario.setOnAction(event -> actualizarCursosParaUsuario());
@@ -111,14 +111,14 @@ public class CrearMatriculaController {
         shake.playFromStart();
     }
     
-    private void cargarUsuariosDisponibles() {
+    private void cargarUsuariosEnCursos() {
         try (Connection conn = DatabaseConnection.getConnection()) {
-            String query = "SELECT u.id_usuario, u.nombre, u.apellido, u.email, " +
+            String query = "SELECT DISTINCT u.id_usuario, u.nombre, u.apellido, u.email, " +
                           "COUNT(a.id_curso) as cursos_actuales " +
                           "FROM USUARIO u " +
-                          "LEFT JOIN ASISTENCIA a ON u.id_usuario = a.id_usuario " +
+                          "INNER JOIN ASISTENCIA a ON u.id_usuario = a.id_usuario " +
+                          "WHERE a.matriculado = 0 " +
                           "GROUP BY u.id_usuario, u.nombre, u.apellido, u.email " +
-                          "HAVING cursos_actuales < 2 " +
                           "ORDER BY u.nombre, u.apellido";
             PreparedStatement stmt = conn.prepareStatement(query);
             ResultSet rs = stmt.executeQuery();
@@ -175,7 +175,8 @@ public class CrearMatriculaController {
         try (Connection conn = DatabaseConnection.getConnection()) {
             String query = "SELECT c.id_curso, c.nombre_curso, c.cant_usuarios " +
                           "FROM CURSO c " +
-                          "WHERE c.id_curso NOT IN (SELECT a.id_curso FROM ASISTENCIA a WHERE a.id_usuario = ?) " +
+                          "INNER JOIN ASISTENCIA a ON c.id_curso = a.id_curso " +
+                          "WHERE a.id_usuario = ? AND a.matriculado = 0 " +
                           "ORDER BY c.nombre_curso";
             PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setInt(1, usuarioSeleccionado.getId());
@@ -196,7 +197,7 @@ public class CrearMatriculaController {
             comboCurso.setValue(null);
             
             if (cursosDisponibles.isEmpty()) {
-                mostrarInfo("Este usuario ya esta matriculado en todos los cursos disponibles.");
+                mostrarInfo("Este usuario no tiene cursos pendientes de matricular.");
             }
             
         } catch (SQLException e) {
@@ -248,7 +249,7 @@ public class CrearMatriculaController {
         try (Connection conn = DatabaseConnection.getConnection()) {
             conn.setAutoCommit(false);
             
-            String checkQuery = "SELECT COUNT(*) FROM ASISTENCIA WHERE id_usuario = ? AND id_curso = ?";
+            String checkQuery = "SELECT COUNT(*) FROM ASISTENCIA WHERE id_usuario = ? AND id_curso = ? AND matriculado = 1";
             PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
             checkStmt.setInt(1, usuario.getId());
             checkStmt.setInt(2, curso.getId());
@@ -264,37 +265,42 @@ public class CrearMatriculaController {
             checkRs.close();
             checkStmt.close();
             
-            String countQuery = "SELECT COUNT(*) FROM ASISTENCIA WHERE id_usuario = ?";
-            PreparedStatement countStmt = conn.prepareStatement(countQuery);
-            countStmt.setInt(1, usuario.getId());
-            ResultSet countRs = countStmt.executeQuery();
+            String existeQuery = "SELECT id_asistencia FROM ASISTENCIA WHERE id_usuario = ? AND id_curso = ? AND matriculado = 0";
+            PreparedStatement existeStmt = conn.prepareStatement(existeQuery);
+            existeStmt.setInt(1, usuario.getId());
+            existeStmt.setInt(2, curso.getId());
+            ResultSet existeRs = existeStmt.executeQuery();
             
-            if (countRs.next() && countRs.getInt(1) >= 2) {
-                mostrarError("Este usuario ya esta matriculado en 2 cursos (maximo permitido)");
-                countRs.close();
-                countStmt.close();
-                conn.rollback();
-                return;
+            if (existeRs.next()) {
+                String updateQuery = "UPDATE ASISTENCIA SET nFaltas = ?, nota = ?, matriculado = 1 WHERE id_usuario = ? AND id_curso = ?";
+                PreparedStatement updateStmt = conn.prepareStatement(updateQuery);
+                updateStmt.setInt(1, faltas);
+                updateStmt.setDouble(2, nota);
+                updateStmt.setInt(3, usuario.getId());
+                updateStmt.setInt(4, curso.getId());
+                updateStmt.executeUpdate();
+                updateStmt.close();
+            } else {
+                String insertQuery = "INSERT INTO ASISTENCIA (id_usuario, id_curso, apellidos, nFaltas, nota, fecha_registro, matriculado) " +
+                                    "VALUES (?, ?, ?, ?, ?, CURDATE(), 1)";
+                PreparedStatement insertStmt = conn.prepareStatement(insertQuery);
+                insertStmt.setInt(1, usuario.getId());
+                insertStmt.setInt(2, curso.getId());
+                insertStmt.setString(3, usuario.getApellidos());
+                insertStmt.setInt(4, faltas);
+                insertStmt.setDouble(5, nota);
+                insertStmt.executeUpdate();
+                insertStmt.close();
+                
+                String updateCursoQuery = "UPDATE CURSO SET cant_usuarios = cant_usuarios + 1 WHERE id_curso = ?";
+                PreparedStatement updateCursoStmt = conn.prepareStatement(updateCursoQuery);
+                updateCursoStmt.setInt(1, curso.getId());
+                updateCursoStmt.executeUpdate();
+                updateCursoStmt.close();
             }
-            countRs.close();
-            countStmt.close();
             
-            String insertQuery = "INSERT INTO ASISTENCIA (id_usuario, id_curso, apellidos, nFaltas, nota, fecha_registro) " +
-                                "VALUES (?, ?, ?, ?, ?, CURDATE())";
-            PreparedStatement insertStmt = conn.prepareStatement(insertQuery);
-            insertStmt.setInt(1, usuario.getId());
-            insertStmt.setInt(2, curso.getId());
-            insertStmt.setString(3, usuario.getApellidos());
-            insertStmt.setInt(4, faltas);
-            insertStmt.setDouble(5, nota);
-            insertStmt.executeUpdate();
-            insertStmt.close();
-            
-            String updateQuery = "UPDATE CURSO SET cant_usuarios = cant_usuarios + 1 WHERE id_curso = ?";
-            PreparedStatement updateStmt = conn.prepareStatement(updateQuery);
-            updateStmt.setInt(1, curso.getId());
-            updateStmt.executeUpdate();
-            updateStmt.close();
+            existeRs.close();
+            existeStmt.close();
             
             conn.commit();
             

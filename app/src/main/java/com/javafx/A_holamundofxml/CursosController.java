@@ -245,7 +245,6 @@ public class CursosController {
     private void configurarPermisosPorRol() {
         boolean esProfesor = Configuracion.esProfesor();
         
-        // Panel Cursos - solo profesores pueden crear y borrar
         if (btnCrearCurso != null) {
             btnCrearCurso.setVisible(esProfesor);
             btnCrearCurso.setManaged(esProfesor);
@@ -255,8 +254,6 @@ public class CursosController {
             btnExpulsar.setManaged(esProfesor);
         }
         
-        // Panel Usuarios - visible para todos pero con distintos permisos
-        // Alumnos ven compañeros de curso, profesores ven todos
         if (btnCrearUsuario != null) {
             btnCrearUsuario.setVisible(esProfesor);
             btnCrearUsuario.setManaged(esProfesor);
@@ -270,7 +267,6 @@ public class CursosController {
             btnVerPerfil1.setManaged(esProfesor);
         }
         
-        // Panel Matriculacion - profesores pueden todo, alumnos solo ver
         if (btnCrearMatricula != null) {
             btnCrearMatricula.setVisible(esProfesor);
             btnCrearMatricula.setManaged(esProfesor);
@@ -284,7 +280,6 @@ public class CursosController {
             btnInsertar.setManaged(esProfesor);
         }
         
-        // Informes - solo profesores
         if (btnInformes != null) {
             btnInformes.setVisible(esProfesor);
             btnInformes.setManaged(esProfesor);
@@ -507,7 +502,7 @@ public class CursosController {
             int idCurso = asistencia.getIdCurso();
             int idUsuario = asistencia.getIdUsuario();
             
-            String query = "DELETE FROM ASISTENCIA WHERE id_usuario = ? AND id_curso = ?";
+            String query = "UPDATE ASISTENCIA SET matriculado = 0, nFaltas = 0, nota = 0.0 WHERE id_usuario = ? AND id_curso = ?";
             PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setInt(1, idUsuario);
             stmt.setInt(2, idCurso);
@@ -515,15 +510,6 @@ public class CursosController {
             stmt.close();
             
             if (filas > 0) {
-                String updateCurso = "UPDATE CURSO SET cant_usuarios = " +
-                                    "(SELECT COUNT(DISTINCT id_usuario) FROM ASISTENCIA WHERE id_curso = ?) " +
-                                    "WHERE id_curso = ?";
-                PreparedStatement updateStmt = conn.prepareStatement(updateCurso);
-                updateStmt.setInt(1, idCurso);
-                updateStmt.setInt(2, idCurso);
-                updateStmt.executeUpdate();
-                updateStmt.close();
-                
                 cargarAsistencias();
                 cargarCursos();
                 mostrarAlerta("Exito", "Matriculacion eliminada correctamente");
@@ -743,11 +729,9 @@ public class CursosController {
             PreparedStatement stmt;
             
             if (Configuracion.esProfesor()) {
-                // Profesores ven todos los usuarios
                 query = "SELECT id_usuario, nombre, apellido, email, tipo_usuario, edad FROM USUARIO";
                 stmt = conn.prepareStatement(query);
             } else {
-                // Alumnos ven usuarios que estan en los mismos cursos que ellos
                 query = "SELECT DISTINCT u.id_usuario, u.nombre, u.apellido, u.email, u.tipo_usuario, u.edad " +
                        "FROM USUARIO u " +
                        "INNER JOIN ASISTENCIA a ON u.id_usuario = a.id_usuario " +
@@ -790,15 +774,15 @@ public class CursosController {
                 query = "SELECT u.id_usuario, u.nombre, u.apellido, a.nFaltas, a.nota, a.id_curso, c.nombre_curso " +
                         "FROM ASISTENCIA a " +
                         "JOIN USUARIO u ON a.id_usuario = u.id_usuario " +
-                        "JOIN CURSO c ON a.id_curso = c.id_curso";
+                        "JOIN CURSO c ON a.id_curso = c.id_curso " +
+                        "WHERE a.matriculado = 1";
                 stmt = conn.prepareStatement(query);
             } else {
-                // Alumnos solo ven sus propias matriculaciones
                 query = "SELECT u.id_usuario, u.nombre, u.apellido, a.nFaltas, a.nota, a.id_curso, c.nombre_curso " +
                         "FROM ASISTENCIA a " +
                         "JOIN USUARIO u ON a.id_usuario = u.id_usuario " +
                         "JOIN CURSO c ON a.id_curso = c.id_curso " +
-                        "WHERE a.id_usuario = ?";
+                        "WHERE a.id_usuario = ? AND a.matriculado = 1";
                 stmt = conn.prepareStatement(query);
                 stmt.setInt(1, Configuracion.getIdUsuarioActual());
             }

@@ -99,7 +99,7 @@ public class CursoDetalleController {
         cargarUsuariosCurso();
         cargarAlumnosDisponibles();
         configurarColumnas();
-
+        
         boolean esProfesor = Configuracion.esProfesor();
         if (btnEliminarUsuarioCurso != null) {
             btnEliminarUsuarioCurso.setVisible(esProfesor);
@@ -247,7 +247,7 @@ public class CursoDetalleController {
     @FXML
     void handleVolverCursos(ActionEvent event) {
         Stage stage = (Stage) btnVolverCursos.getScene().getWindow();
-
+        
         FadeTransition fadeOut = new FadeTransition(Duration.millis(200), btnVolverCursos.getScene().getRoot());
         fadeOut.setFromValue(1.0);
         fadeOut.setToValue(0.0);
@@ -334,8 +334,8 @@ public class CursoDetalleController {
         try (Connection conn = DatabaseConnection.getConnection()) {
             conn.setAutoCommit(false);
 
-            String insertQuery = "INSERT INTO ASISTENCIA (id_usuario, id_curso, apellidos, nFaltas, nota, fecha_registro) " +
-                                "SELECT ?, ?, u.apellido, 0, 0.0, CURDATE() FROM USUARIO u WHERE u.id_usuario = ?";
+            String insertQuery = "INSERT INTO ASISTENCIA (id_usuario, id_curso, apellidos, nFaltas, nota, fecha_registro, matriculado) " +
+                                "SELECT ?, ?, u.apellido, 0, 0.0, CURDATE(), 0 FROM USUARIO u WHERE u.id_usuario = ?";
             PreparedStatement insertStmt = conn.prepareStatement(insertQuery);
             insertStmt.setInt(1, alumnoSeleccionado.getId());
             insertStmt.setInt(2, idCurso);
@@ -387,7 +387,7 @@ public class CursoDetalleController {
             e.printStackTrace();
             mostrarError("Error al añadir usuario al curso: " + e.getMessage());
         }
-
+        
         if (tablaUsuarios != null) {
             FadeTransition fade = new FadeTransition(Duration.millis(300), tablaUsuarios);
             fade.setFromValue(0.5);
