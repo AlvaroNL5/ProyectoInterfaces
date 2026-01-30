@@ -43,7 +43,6 @@ public class CrearUsuarioController {
         comboRol.setItems(roles);
         comboRol.setValue("alumno");
         
-        // Animacion de entrada
         FadeTransition fadeIn = new FadeTransition(Duration.millis(300), txtNombre.getParent());
         fadeIn.setFromValue(0.0);
         fadeIn.setToValue(1.0);
@@ -62,11 +61,9 @@ public class CrearUsuarioController {
     @FXML
     void handleCancelar(ActionEvent event) {
         if (esVentanaModal) {
-            // Si es ventana modal (abierta desde Cursos), simplemente cerrar
             Stage stage = (Stage) txtNombre.getScene().getWindow();
             stage.close();
         } else {
-            // Si viene del Login, volver al Login
             volverAlLogin();
         }
     }
@@ -80,7 +77,6 @@ public class CrearUsuarioController {
             Scene scene = new Scene(root);
             Main.aplicarTema(scene);
             
-            // Animacion de transicion
             FadeTransition fadeOut = new FadeTransition(Duration.millis(200), txtNombre.getScene().getRoot());
             fadeOut.setFromValue(1.0);
             fadeOut.setToValue(0.0);
@@ -217,14 +213,12 @@ public class CrearUsuarioController {
             mostrarExito("Usuario creado correctamente");
             
             if (esVentanaModal) {
-                // Si es ventana modal, actualizar la lista y cerrar
                 if (cursosController != null) {
                     cursosController.cargarUsuarios();
                 }
                 Stage stage = (Stage) txtNombre.getScene().getWindow();
                 stage.close();
             } else {
-                // Si viene del Login, volver al Login
                 volverAlLogin();
             }
             

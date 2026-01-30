@@ -99,8 +99,7 @@ public class CursoDetalleController {
         cargarUsuariosCurso();
         cargarAlumnosDisponibles();
         configurarColumnas();
-        
-        // Configurar permisos segun rol
+
         boolean esProfesor = Configuracion.esProfesor();
         if (btnEliminarUsuarioCurso != null) {
             btnEliminarUsuarioCurso.setVisible(esProfesor);
@@ -248,8 +247,7 @@ public class CursoDetalleController {
     @FXML
     void handleVolverCursos(ActionEvent event) {
         Stage stage = (Stage) btnVolverCursos.getScene().getWindow();
-        
-        // Animacion de cierre
+
         FadeTransition fadeOut = new FadeTransition(Duration.millis(200), btnVolverCursos.getScene().getRoot());
         fadeOut.setFromValue(1.0);
         fadeOut.setToValue(0.0);
@@ -389,8 +387,7 @@ public class CursoDetalleController {
             e.printStackTrace();
             mostrarError("Error al añadir usuario al curso: " + e.getMessage());
         }
-        
-        // Animacion de actualizacion
+
         if (tablaUsuarios != null) {
             FadeTransition fade = new FadeTransition(Duration.millis(300), tablaUsuarios);
             fade.setFromValue(0.5);

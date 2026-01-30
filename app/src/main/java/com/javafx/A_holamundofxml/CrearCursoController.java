@@ -74,7 +74,6 @@ public class CrearCursoController {
         
         cargarAlumnosDisponibles();
         
-        // Animacion de entrada
         FadeTransition fadeIn = new FadeTransition(Duration.millis(300), txtNombreCurso.getParent());
         fadeIn.setFromValue(0.0);
         fadeIn.setToValue(1.0);
@@ -99,7 +98,6 @@ public class CrearCursoController {
                 alumnosSeleccionados.add(seleccionado);
                 idsAlumnosSeleccionados.add(seleccionado.getId());
                 
-                // Animacion al añadir
                 FadeTransition fade = new FadeTransition(Duration.millis(200), listaAlumnosSeleccionados);
                 fade.setFromValue(0.7);
                 fade.setToValue(1.0);

@@ -55,7 +55,7 @@ public class CrearMatriculaController {
         
         @Override
         public String toString() {
-            return nombre + " " + apellidos + " (" + email + ") - Cursos: " + cursosAsignados + "/2";
+            return nombre + " " + apellidos + " (" + email + ") - " + cursosAsignados + "/2 cursos";
         }
     }
     
@@ -82,7 +82,6 @@ public class CrearMatriculaController {
     
     @FXML
     public void initialize() {
-        // Configurar spinners
         SpinnerValueFactory<Integer> faltasFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 100, 0);
         spinnerFaltas.setValueFactory(faltasFactory);
         
@@ -93,12 +92,10 @@ public class CrearMatriculaController {
         comboCurso.setItems(cursosDisponibles);
         
         cargarUsuariosDisponibles();
-        cargarCursosDisponibles();
+        cargarTodosLosCursos();
         
-        // Listener para actualizar cursos disponibles cuando se selecciona un usuario
         comboUsuario.setOnAction(event -> actualizarCursosParaUsuario());
         
-        // Animacion de entrada
         FadeTransition fadeIn = new FadeTransition(Duration.millis(300), comboUsuario.getParent());
         fadeIn.setFromValue(0.0);
         fadeIn.setToValue(1.0);
@@ -120,7 +117,6 @@ public class CrearMatriculaController {
                           "COUNT(a.id_curso) as cursos_actuales " +
                           "FROM USUARIO u " +
                           "LEFT JOIN ASISTENCIA a ON u.id_usuario = a.id_usuario " +
-                          "WHERE u.tipo_usuario IN ('alumno', 'profesor') " +
                           "GROUP BY u.id_usuario, u.nombre, u.apellido, u.email " +
                           "HAVING cursos_actuales < 2 " +
                           "ORDER BY u.nombre, u.apellido";
@@ -146,7 +142,7 @@ public class CrearMatriculaController {
         }
     }
     
-    private void cargarCursosDisponibles() {
+    private void cargarTodosLosCursos() {
         try (Connection conn = DatabaseConnection.getConnection()) {
             String query = "SELECT id_curso, nombre_curso, cant_usuarios FROM CURSO ORDER BY nombre_curso";
             PreparedStatement stmt = conn.prepareStatement(query);
@@ -172,12 +168,11 @@ public class CrearMatriculaController {
     private void actualizarCursosParaUsuario() {
         UsuarioItem usuarioSeleccionado = comboUsuario.getValue();
         if (usuarioSeleccionado == null) {
-            cargarCursosDisponibles();
+            cargarTodosLosCursos();
             return;
         }
         
         try (Connection conn = DatabaseConnection.getConnection()) {
-            // Cargar cursos en los que el usuario NO esta matriculado
             String query = "SELECT c.id_curso, c.nombre_curso, c.cant_usuarios " +
                           "FROM CURSO c " +
                           "WHERE c.id_curso NOT IN (SELECT a.id_curso FROM ASISTENCIA a WHERE a.id_usuario = ?) " +
@@ -199,6 +194,10 @@ public class CrearMatriculaController {
             stmt.close();
             
             comboCurso.setValue(null);
+            
+            if (cursosDisponibles.isEmpty()) {
+                mostrarInfo("Este usuario ya esta matriculado en todos los cursos disponibles.");
+            }
             
         } catch (SQLException e) {
             e.printStackTrace();
@@ -249,7 +248,6 @@ public class CrearMatriculaController {
         try (Connection conn = DatabaseConnection.getConnection()) {
             conn.setAutoCommit(false);
             
-            // Verificar que el usuario no este ya en este curso
             String checkQuery = "SELECT COUNT(*) FROM ASISTENCIA WHERE id_usuario = ? AND id_curso = ?";
             PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
             checkStmt.setInt(1, usuario.getId());
@@ -260,12 +258,12 @@ public class CrearMatriculaController {
                 mostrarError("Este usuario ya esta matriculado en este curso");
                 checkRs.close();
                 checkStmt.close();
+                conn.rollback();
                 return;
             }
             checkRs.close();
             checkStmt.close();
             
-            // Verificar que el usuario no tenga ya 2 cursos
             String countQuery = "SELECT COUNT(*) FROM ASISTENCIA WHERE id_usuario = ?";
             PreparedStatement countStmt = conn.prepareStatement(countQuery);
             countStmt.setInt(1, usuario.getId());
@@ -275,37 +273,23 @@ public class CrearMatriculaController {
                 mostrarError("Este usuario ya esta matriculado en 2 cursos (maximo permitido)");
                 countRs.close();
                 countStmt.close();
+                conn.rollback();
                 return;
             }
             countRs.close();
             countStmt.close();
             
-            // Obtener apellidos del usuario
-            String apellidosQuery = "SELECT apellido FROM USUARIO WHERE id_usuario = ?";
-            PreparedStatement apellidosStmt = conn.prepareStatement(apellidosQuery);
-            apellidosStmt.setInt(1, usuario.getId());
-            ResultSet apellidosRs = apellidosStmt.executeQuery();
-            
-            String apellidos = "";
-            if (apellidosRs.next()) {
-                apellidos = apellidosRs.getString("apellido");
-            }
-            apellidosRs.close();
-            apellidosStmt.close();
-            
-            // Insertar matricula
             String insertQuery = "INSERT INTO ASISTENCIA (id_usuario, id_curso, apellidos, nFaltas, nota, fecha_registro) " +
                                 "VALUES (?, ?, ?, ?, ?, CURDATE())";
             PreparedStatement insertStmt = conn.prepareStatement(insertQuery);
             insertStmt.setInt(1, usuario.getId());
             insertStmt.setInt(2, curso.getId());
-            insertStmt.setString(3, apellidos);
+            insertStmt.setString(3, usuario.getApellidos());
             insertStmt.setInt(4, faltas);
             insertStmt.setDouble(5, nota);
             insertStmt.executeUpdate();
             insertStmt.close();
             
-            // Actualizar contador del curso
             String updateQuery = "UPDATE CURSO SET cant_usuarios = cant_usuarios + 1 WHERE id_curso = ?";
             PreparedStatement updateStmt = conn.prepareStatement(updateQuery);
             updateStmt.setInt(1, curso.getId());
@@ -319,7 +303,7 @@ public class CrearMatriculaController {
                 cursosController.cargarCursos();
             }
             
-            mostrarExito("Matriculacion creada correctamente");
+            mostrarExito("Usuario matriculado correctamente en el curso '" + curso.getNombre() + "'");
             
             Stage stage = (Stage) comboUsuario.getScene().getWindow();
             stage.close();
@@ -342,6 +326,15 @@ public class CrearMatriculaController {
     private void mostrarExito(String mensaje) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Exito");
+        alert.setHeaderText(null);
+        alert.setContentText(mensaje);
+        agregarIconoAlerta(alert);
+        alert.showAndWait();
+    }
+    
+    private void mostrarInfo(String mensaje) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Informacion");
         alert.setHeaderText(null);
         alert.setContentText(mensaje);
         agregarIconoAlerta(alert);

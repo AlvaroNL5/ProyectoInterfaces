@@ -26,17 +26,6 @@
             
             <HBox HBox.hgrow="ALWAYS" />
             
-            <Label fx:id="lblFecha" text="Prof. Admin">
-                <font>
-                    <Font name="System" size="12.0" />
-                </font>
-                <HBox.margin>
-                    <Insets right="5.0" />
-                </HBox.margin>
-            </Label>
-            
-            <Separator orientation="VERTICAL" />
-            
             <VBox alignment="CENTER_RIGHT">
                 <Label fx:id="lblNombreUsuario" />
                 <Label fx:id="lblTipoUsuario" />
@@ -44,7 +33,7 @@
             
             <Button fx:id="btnCerrarSesion" mnemonicParsing="true" text="_Cerrar Sesion">
                 <HBox.margin>
-                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                    <Insets bottom="5.0" left="10.0" right="5.0" top="5.0" />
                 </HBox.margin>
                 <tooltip>
                     <Tooltip text="Cerrar sesion y volver al login" />

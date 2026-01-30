@@ -35,7 +35,6 @@ public class PerfilDetalleController {
         ObservableList<String> tipos = FXCollections.observableArrayList("profesor", "alumno");
         comboTipo.setItems(tipos);
         
-        // Animacion de entrada
         FadeTransition fadeIn = new FadeTransition(Duration.millis(300), txtNombre.getParent());
         fadeIn.setFromValue(0.0);
         fadeIn.setToValue(1.0);
@@ -58,7 +57,6 @@ public class PerfilDetalleController {
             txtEdad.setText("0");
         }
         
-        // Configurar permisos segun rol
         boolean esProfesor = Configuracion.esProfesor();
         txtNombre.setEditable(esProfesor);
         txtApellidos.setEditable(esProfesor);
@@ -71,7 +69,6 @@ public class PerfilDetalleController {
     void handleCerrar(ActionEvent event) {
         Stage stage = (Stage) txtNombre.getScene().getWindow();
         
-        // Animacion de cierre
         FadeTransition fadeOut = new FadeTransition(Duration.millis(200), txtNombre.getScene().getRoot());
         fadeOut.setFromValue(1.0);
         fadeOut.setToValue(0.0);

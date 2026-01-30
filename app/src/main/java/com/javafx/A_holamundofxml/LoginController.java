@@ -39,7 +39,6 @@ public class LoginController {
         btnLogin.setOnAction(event -> handleLogin());
         btnRegistro.setOnAction(event -> handleRegistro());
         
-        // Animacion de entrada
         FadeTransition fadeIn = new FadeTransition(Duration.millis(500), txtEmail.getParent());
         fadeIn.setFromValue(0.0);
         fadeIn.setToValue(1.0);
@@ -78,7 +77,6 @@ public class LoginController {
                 String nombre = rs.getString("nombre");
                 String tipo = rs.getString("tipo_usuario");
                 
-                // Guardar datos en Configuracion
                 Configuracion.setIdUsuarioActual(idUsuario);
                 Configuracion.setNombreUsuarioActual(nombre);
                 Configuracion.setTipoUsuarioActual(tipo);
@@ -108,7 +106,6 @@ public class LoginController {
             Scene scene = new Scene(root);
             Main.aplicarTema(scene);
             
-            // Animacion de transicion
             FadeTransition fadeOut = new FadeTransition(Duration.millis(200), btnRegistro.getScene().getRoot());
             fadeOut.setFromValue(1.0);
             fadeOut.setToValue(0.0);

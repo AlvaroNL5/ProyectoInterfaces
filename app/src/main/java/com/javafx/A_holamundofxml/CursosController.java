@@ -1,9 +1,7 @@
 package com.javafx.A_holamundofxml;
 
 import javafx.animation.FadeTransition;
-import javafx.animation.ParallelTransition;
 import javafx.animation.ScaleTransition;
-import javafx.animation.SequentialTransition;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -19,7 +17,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
@@ -66,7 +63,6 @@ public class CursosController {
     @FXML private TableColumn<Curso, Integer> colIdCurso;
     @FXML private HBox hboxAcciones;
     @FXML private HBox hboxAcciones1;
-    @FXML private Label lblFecha;
     @FXML private Label lblNombreUsuario;
     @FXML private Label lblTipoUsuario;
     @FXML private TableView<Curso> tablaCursos;
@@ -161,14 +157,11 @@ public class CursosController {
 
     @FXML
     public void initialize() {
-        // Configurar datos del usuario desde Configuracion
         lblNombreUsuario.setText("Usuario: " + Configuracion.getNombreUsuarioActual());
         lblTipoUsuario.setText("Tipo: " + Configuracion.getTipoUsuarioActual());
         
-        // Configurar permisos segun el rol
         configurarPermisosPorRol();
         
-        // Configurar navegacion del menu
         btnCursos.setOnAction(event -> {
             if (!vboxCursos.isVisible()) {
                 animarCambioVista(vboxUsuarios.isVisible() ? vboxUsuarios : vboxAsistencias, vboxCursos);
@@ -211,7 +204,6 @@ public class CursosController {
             lanzarCrearUsuario();
         });
         
-        // Configurar botones de matriculacion
         if (btnCrearMatricula != null) {
             btnCrearMatricula.setOnAction(event -> {
                 animarBoton(btnCrearMatricula);
@@ -225,7 +217,6 @@ public class CursosController {
             });
         }
         
-        // Configurar boton de informes
         if (btnInformes != null) {
             btnInformes.setOnAction(event -> {
                 animarBoton(btnInformes);
@@ -238,7 +229,6 @@ public class CursosController {
         cargarAsistencias();
         configurarColumnas();
         
-        // Listeners para busqueda en tiempo real
         txtBuscar.textProperty().addListener((observable, oldValue, newValue) -> {
             filtrarCursos(newValue.toLowerCase());
         });
@@ -255,7 +245,7 @@ public class CursosController {
     private void configurarPermisosPorRol() {
         boolean esProfesor = Configuracion.esProfesor();
         
-        // Botones de cursos
+        // Panel Cursos - solo profesores pueden crear y borrar
         if (btnCrearCurso != null) {
             btnCrearCurso.setVisible(esProfesor);
             btnCrearCurso.setManaged(esProfesor);
@@ -265,7 +255,8 @@ public class CursosController {
             btnExpulsar.setManaged(esProfesor);
         }
         
-        // Botones de usuarios
+        // Panel Usuarios - visible para todos pero con distintos permisos
+        // Alumnos ven compañeros de curso, profesores ven todos
         if (btnCrearUsuario != null) {
             btnCrearUsuario.setVisible(esProfesor);
             btnCrearUsuario.setManaged(esProfesor);
@@ -279,7 +270,7 @@ public class CursosController {
             btnVerPerfil1.setManaged(esProfesor);
         }
         
-        // Botones de matriculacion
+        // Panel Matriculacion - profesores pueden todo, alumnos solo ver
         if (btnCrearMatricula != null) {
             btnCrearMatricula.setVisible(esProfesor);
             btnCrearMatricula.setManaged(esProfesor);
@@ -293,7 +284,7 @@ public class CursosController {
             btnInsertar.setManaged(esProfesor);
         }
         
-        // Boton de informes
+        // Informes - solo profesores
         if (btnInformes != null) {
             btnInformes.setVisible(esProfesor);
             btnInformes.setManaged(esProfesor);
@@ -361,10 +352,8 @@ public class CursosController {
             fadeOut.setToValue(0.0);
             fadeOut.setOnFinished(e -> {
                 vistaAnterior.setVisible(false);
-                
                 vistaNueva.setVisible(true);
                 vistaNueva.setOpacity(0.0);
-                
                 FadeTransition fadeIn = new FadeTransition(Duration.millis(200), vistaNueva);
                 fadeIn.setFromValue(0.0);
                 fadeIn.setToValue(1.0);
@@ -374,7 +363,6 @@ public class CursosController {
         } else {
             vistaNueva.setVisible(true);
             vistaNueva.setOpacity(0.0);
-            
             FadeTransition fadeIn = new FadeTransition(Duration.millis(200), vistaNueva);
             fadeIn.setFromValue(0.0);
             fadeIn.setToValue(1.0);
@@ -511,7 +499,39 @@ public class CursosController {
             return;
         }
         
-        borrarAsistencia(asistenciaSeleccionada);
+        eliminarMatricula(asistenciaSeleccionada);
+    }
+    
+    private void eliminarMatricula(Asistencia asistencia) {
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            int idCurso = asistencia.getIdCurso();
+            int idUsuario = asistencia.getIdUsuario();
+            
+            String query = "DELETE FROM ASISTENCIA WHERE id_usuario = ? AND id_curso = ?";
+            PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setInt(1, idUsuario);
+            stmt.setInt(2, idCurso);
+            int filas = stmt.executeUpdate();
+            stmt.close();
+            
+            if (filas > 0) {
+                String updateCurso = "UPDATE CURSO SET cant_usuarios = " +
+                                    "(SELECT COUNT(DISTINCT id_usuario) FROM ASISTENCIA WHERE id_curso = ?) " +
+                                    "WHERE id_curso = ?";
+                PreparedStatement updateStmt = conn.prepareStatement(updateCurso);
+                updateStmt.setInt(1, idCurso);
+                updateStmt.setInt(2, idCurso);
+                updateStmt.executeUpdate();
+                updateStmt.close();
+                
+                cargarAsistencias();
+                cargarCursos();
+                mostrarAlerta("Exito", "Matriculacion eliminada correctamente");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            mostrarAlerta("Error", "No se pudo eliminar la matriculacion: " + e.getMessage());
+        }
     }
     
     public void lanzarInformes() {
@@ -552,7 +572,7 @@ public class CursosController {
         Asistencia asistenciaSeleccionada = tablaUsuarios11.getSelectionModel().getSelectedItem();
         
         if (asistenciaSeleccionada == null) {
-            mostrarAlerta("Error", "Debe seleccionar un alumno de la tabla para actualizar");
+            mostrarAlerta("Error", "Debe seleccionar una matriculacion de la tabla para actualizar");
             return;
         }
         
@@ -679,8 +699,21 @@ public class CursosController {
 
     public void cargarCursos() {
         try (Connection conn = DatabaseConnection.getConnection()) {
-            String query = "SELECT id_curso, nombre_curso, descripcion, cant_usuarios FROM CURSO";
-            PreparedStatement stmt = conn.prepareStatement(query);
+            String query;
+            PreparedStatement stmt;
+            
+            if (Configuracion.esProfesor()) {
+                query = "SELECT id_curso, nombre_curso, descripcion, cant_usuarios FROM CURSO";
+                stmt = conn.prepareStatement(query);
+            } else {
+                query = "SELECT c.id_curso, c.nombre_curso, c.descripcion, c.cant_usuarios " +
+                       "FROM CURSO c " +
+                       "INNER JOIN ASISTENCIA a ON c.id_curso = a.id_curso " +
+                       "WHERE a.id_usuario = ?";
+                stmt = conn.prepareStatement(query);
+                stmt.setInt(1, Configuracion.getIdUsuarioActual());
+            }
+            
             ResultSet rs = stmt.executeQuery();
 
             todosLosCursos.clear();
@@ -706,8 +739,23 @@ public class CursosController {
 
     public void cargarUsuarios() {
         try (Connection conn = DatabaseConnection.getConnection()) {
-            String query = "SELECT id_usuario, nombre, apellido, email, tipo_usuario, edad FROM USUARIO";
-            PreparedStatement stmt = conn.prepareStatement(query);
+            String query;
+            PreparedStatement stmt;
+            
+            if (Configuracion.esProfesor()) {
+                // Profesores ven todos los usuarios
+                query = "SELECT id_usuario, nombre, apellido, email, tipo_usuario, edad FROM USUARIO";
+                stmt = conn.prepareStatement(query);
+            } else {
+                // Alumnos ven usuarios que estan en los mismos cursos que ellos
+                query = "SELECT DISTINCT u.id_usuario, u.nombre, u.apellido, u.email, u.tipo_usuario, u.edad " +
+                       "FROM USUARIO u " +
+                       "INNER JOIN ASISTENCIA a ON u.id_usuario = a.id_usuario " +
+                       "WHERE a.id_curso IN (SELECT id_curso FROM ASISTENCIA WHERE id_usuario = ?)";
+                stmt = conn.prepareStatement(query);
+                stmt.setInt(1, Configuracion.getIdUsuarioActual());
+            }
+            
             ResultSet rs = stmt.executeQuery();
 
             todosLosUsuarios.clear();
@@ -735,11 +783,26 @@ public class CursosController {
 
     public void cargarAsistencias() {
         try (Connection conn = DatabaseConnection.getConnection()) {
-            String query = "SELECT u.id_usuario, u.nombre, u.apellido, a.nFaltas, a.nota, a.id_curso, c.nombre_curso " +
+            String query;
+            PreparedStatement stmt;
+            
+            if (Configuracion.esProfesor()) {
+                query = "SELECT u.id_usuario, u.nombre, u.apellido, a.nFaltas, a.nota, a.id_curso, c.nombre_curso " +
                         "FROM ASISTENCIA a " +
                         "JOIN USUARIO u ON a.id_usuario = u.id_usuario " +
                         "JOIN CURSO c ON a.id_curso = c.id_curso";
-            PreparedStatement stmt = conn.prepareStatement(query);
+                stmt = conn.prepareStatement(query);
+            } else {
+                // Alumnos solo ven sus propias matriculaciones
+                query = "SELECT u.id_usuario, u.nombre, u.apellido, a.nFaltas, a.nota, a.id_curso, c.nombre_curso " +
+                        "FROM ASISTENCIA a " +
+                        "JOIN USUARIO u ON a.id_usuario = u.id_usuario " +
+                        "JOIN CURSO c ON a.id_curso = c.id_curso " +
+                        "WHERE a.id_usuario = ?";
+                stmt = conn.prepareStatement(query);
+                stmt.setInt(1, Configuracion.getIdUsuarioActual());
+            }
+            
             ResultSet rs = stmt.executeQuery();
 
             todasLasAsistencias.clear();
@@ -762,7 +825,7 @@ public class CursosController {
 
         } catch (SQLException e) {
             e.printStackTrace();
-            mostrarAlerta("Error", "No se pudieron cargar las asistencias: " + e.getMessage());
+            mostrarAlerta("Error", "No se pudieron cargar las matriculaciones: " + e.getMessage());
         }
     }
 
@@ -868,37 +931,6 @@ public class CursosController {
         }
     }
 
-    private void borrarAsistencia(Asistencia asistencia) {
-        try (Connection conn = DatabaseConnection.getConnection()) {
-            int idCurso = asistencia.getIdCurso();
-            
-            String query = "DELETE FROM ASISTENCIA WHERE id_usuario = ? AND id_curso = ?";
-            PreparedStatement stmt = conn.prepareStatement(query);
-            stmt.setInt(1, asistencia.getIdUsuario());
-            stmt.setInt(2, idCurso);
-            int filas = stmt.executeUpdate();
-            stmt.close();
-            
-            if (filas > 0) {
-                String updateCurso = "UPDATE CURSO SET cant_usuarios = " +
-                                    "(SELECT COUNT(DISTINCT id_usuario) FROM ASISTENCIA WHERE id_curso = ?) " +
-                                    "WHERE id_curso = ?";
-                PreparedStatement updateStmt = conn.prepareStatement(updateCurso);
-                updateStmt.setInt(1, idCurso);
-                updateStmt.setInt(2, idCurso);
-                updateStmt.executeUpdate();
-                updateStmt.close();
-                
-                cargarAsistencias();
-                cargarCursos();
-                mostrarAlerta("Exito", "Matriculacion eliminada correctamente");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            mostrarAlerta("Error", "No se pudo eliminar la matriculacion: " + e.getMessage());
-        }
-    }
-
     private void borrarUsuario(Usuario usuario) {
         try (Connection conn = DatabaseConnection.getConnection()) {
             conn.setAutoCommit(false);
@@ -907,6 +939,13 @@ public class CursosController {
             PreparedStatement selectStmt = conn.prepareStatement(selectCursos);
             selectStmt.setInt(1, usuario.getIdUsuario());
             ResultSet rs = selectStmt.executeQuery();
+            
+            java.util.List<Integer> cursosAfectados = new java.util.ArrayList<>();
+            while (rs.next()) {
+                cursosAfectados.add(rs.getInt("id_curso"));
+            }
+            rs.close();
+            selectStmt.close();
             
             String deleteAsistencias = "DELETE FROM ASISTENCIA WHERE id_usuario = ?";
             PreparedStatement stmt1 = conn.prepareStatement(deleteAsistencias);
@@ -921,8 +960,7 @@ public class CursosController {
             stmt.close();
             
             if (filas > 0) {
-                while (rs.next()) {
-                    int idCurso = rs.getInt("id_curso");
+                for (int idCurso : cursosAfectados) {
                     String updateCurso = "UPDATE CURSO SET cant_usuarios = " +
                                         "(SELECT COUNT(DISTINCT id_usuario) FROM ASISTENCIA WHERE id_curso = ?) " +
                                         "WHERE id_curso = ?";
@@ -939,9 +977,6 @@ public class CursosController {
                 cargarCursos(); 
                 mostrarAlerta("Exito", "Usuario eliminado correctamente");
             }
-            
-            rs.close();
-            selectStmt.close();
         } catch (SQLException e) {
             e.printStackTrace();
             mostrarAlerta("Error", "No se pudo eliminar al usuario: " + e.getMessage());

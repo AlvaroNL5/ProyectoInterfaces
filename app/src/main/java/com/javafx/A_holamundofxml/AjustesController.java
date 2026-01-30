@@ -41,14 +41,12 @@ public class AjustesController {
         cargarDatosUsuario();
         actualizarTextoBotonTema();
         
-        // Tooltips
         btnTema.setTooltip(new Tooltip("Cambiar entre tema claro y oscuro"));
         txtNuevaPassword.setTooltip(new Tooltip("Introduce una nueva contraseña"));
         txtConfirmarPassword.setTooltip(new Tooltip("Confirma la nueva contraseña"));
         txtEdad.setTooltip(new Tooltip("Tu edad (0-150)"));
         txtEmail.setTooltip(new Tooltip("Tu correo electronico"));
         
-        // Animacion de entrada
         FadeTransition fadeIn = new FadeTransition(Duration.millis(300), lblNombre.getParent().getParent());
         fadeIn.setFromValue(0.0);
         fadeIn.setToValue(1.0);
@@ -86,7 +84,6 @@ public class AjustesController {
     
     @FXML
     public void handleTema(ActionEvent event) {
-        // Animacion profesional: escala + fade
         ScaleTransition scale = new ScaleTransition(Duration.millis(150), btnTema);
         scale.setFromX(1.0);
         scale.setFromY(1.0);
@@ -127,7 +124,6 @@ public class AjustesController {
         if (cambiosRealizados) {
             mostrarExito("Datos personales guardados correctamente.");
         }
-        // Si no hay cambios, no se muestra ninguna alerta
     }
     
     private boolean aplicarCambiosDatos() {
@@ -142,14 +138,13 @@ public class AjustesController {
         String confirmarPassword = txtConfirmarPassword.getText();
         String nuevaEdadStr = txtEdad.getText();
         String nuevoEmail = txtEmail.getText();
-        
-        // Verificar si hay cambios reales
+
         boolean hayNuevaPassword = !nuevaPassword.isEmpty();
         boolean hayNuevoEmail = !nuevoEmail.equals(lblEmail.getText());
         boolean hayNuevaEdad = !nuevaEdadStr.equals(lblEdad.getText());
         
         if (!hayNuevaPassword && !hayNuevoEmail && !hayNuevaEdad) {
-            return false; // No hay cambios que guardar
+            return false; 
         }
         
         if (hayNuevaPassword) {
@@ -246,7 +241,6 @@ public class AjustesController {
             Scene scene = new Scene(root);
             Main.aplicarTema(scene);
             
-            // Animacion de transicion
             FadeTransition fadeOut = new FadeTransition(Duration.millis(200), btnTema.getScene().getRoot());
             fadeOut.setFromValue(1.0);
             fadeOut.setToValue(0.0);
