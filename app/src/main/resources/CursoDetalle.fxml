@@ -16,7 +16,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="700.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.javafx.A_holamundofxml.CursoDetalleController">
+<BorderPane prefHeight="700.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.javafx.A_holamundofxml.CursoDetalleController">
     <top>
         <HBox alignment="CENTER_LEFT">
             <Label text="MUUDLE">
@@ -87,13 +87,13 @@
                     </TableView>
                 </VBox>
             </Tab>
-            <Tab text="Informacion">
+            <Tab text="Información">
                 <VBox spacing="20.0">
                     <padding>
                         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                     </padding>
                     
-                    <Label text="Informacion del Curso">
+                    <Label text="Información del Curso">
                         <font>
                             <Font name="System Bold" size="24.0" />
                         </font>
@@ -113,7 +113,7 @@
                     </VBox>
                     
                     <VBox spacing="10.0">
-                        <Label text="Descripcion:">
+                        <Label text="Descripción:">
                             <font>
                                 <Font name="System Bold" size="12.0" />
                             </font>
@@ -135,7 +135,7 @@
                     </VBox>
                     
                     <VBox spacing="10.0">
-                        <Label text="Numero de Alumnos:">
+                        <Label text="Número de Alumnos:">
                             <font>
                                 <Font name="System Bold" size="12.0" />
                             </font>

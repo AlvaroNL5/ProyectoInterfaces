@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="CENTER" prefHeight="350.0" prefWidth="300.0" spacing="10.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.javafx.A_holamundofxml.LoginController">
+<VBox alignment="CENTER" prefHeight="350.0" prefWidth="300.0" spacing="10.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.javafx.A_holamundofxml.LoginController">
     <Label text="MUUDLE">
         <font>
             <Font name="Arial Bold" size="36.0" />
@@ -54,7 +54,7 @@
         </PasswordField>
     </VBox>
     
-    <Button fx:id="btnLogin" mnemonicParsing="true" text="_Iniciar sesion" textAlignment="CENTER">
+    <Button fx:id="btnLogin" mnemonicParsing="true" text="_Iniciar sesión" textAlignment="CENTER">
         <opaqueInsets>
             <Insets />
         </opaqueInsets>
