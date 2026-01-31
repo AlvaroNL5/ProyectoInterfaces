@@ -16,7 +16,7 @@
         FROM ASISTENCIA a
         INNER JOIN USUARIO u ON a.id_usuario = u.id_usuario
         INNER JOIN CURSO c ON a.id_curso = c.id_curso
-        WHERE a.nota >= $P{NOTA_MINIMA}
+        WHERE a.matriculado = 1 AND a.nota >= $P{NOTA_MINIMA}
         ORDER BY a.nota DESC, u.apellido, u.nombre]]></query>
 	<field name="id_usuario" class="java.lang.Integer"/>
 	<field name="nombre" class="java.lang.String"/>

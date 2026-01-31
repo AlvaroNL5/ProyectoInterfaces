@@ -16,7 +16,7 @@
         FROM ASISTENCIA a
         INNER JOIN USUARIO u ON a.id_usuario = u.id_usuario
         INNER JOIN CURSO c ON a.id_curso = c.id_curso
-        WHERE ($P{ID_CURSO} IS NULL OR c.id_curso = $P{ID_CURSO})
+        WHERE a.matriculado = 1 AND ($P{ID_CURSO} IS NULL OR c.id_curso = $P{ID_CURSO})
         ORDER BY c.nombre_curso, u.apellido, u.nombre]]></query>
 	<field name="id_usuario" class="java.lang.Integer"/>
 	<field name="nombre_usuario" class="java.lang.String"/>
