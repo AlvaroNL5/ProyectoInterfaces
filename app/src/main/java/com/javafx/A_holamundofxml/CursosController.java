@@ -253,10 +253,6 @@ public class CursosController {
             btnExpulsar1.setVisible(esProfesor);
             btnExpulsar1.setManaged(esProfesor);
         }
-        if (btnVerPerfil1 != null) {
-            btnVerPerfil1.setVisible(esProfesor);
-            btnVerPerfil1.setManaged(esProfesor);
-        }
         
         if (btnCrearMatricula != null) {
             btnCrearMatricula.setVisible(esProfesor);

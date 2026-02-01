@@ -102,7 +102,7 @@
     <Separator />
     
     <HBox alignment="CENTER_RIGHT" spacing="10.0">
-        <Button mnemonicParsing="true" onAction="#handleGuardarCambios" text="_Guardar">
+        <Button fx:id="btnGuardar" mnemonicParsing="true" onAction="#handleGuardarCambios" text="_Guardar">
             <tooltip>
                 <Tooltip text="Guardar los cambios" />
             </tooltip>
