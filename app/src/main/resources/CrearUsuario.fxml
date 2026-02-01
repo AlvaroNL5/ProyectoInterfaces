@@ -56,7 +56,7 @@
         </Label>
         <TextField fx:id="txtEmail" prefWidth="400.0" promptText="Email del usuario">
             <tooltip>
-                <Tooltip text="Introduce el email (sera el usuario para login)" />
+                <Tooltip text="Introduce el email (será el usuario para login)" />
             </tooltip>
         </TextField>
     </VBox>
@@ -67,9 +67,9 @@
                 <Font name="System Bold" size="12.0" />
             </font>
         </Label>
-        <PasswordField fx:id="txtPassword" prefWidth="400.0" promptText="Contraseña (minimo 4 caracteres)">
+        <PasswordField fx:id="txtPassword" prefWidth="400.0" promptText="Contraseña (mínimo 4 caracteres)">
             <tooltip>
-                <Tooltip text="Introduce la contraseña (minimo 4 caracteres)" />
+                <Tooltip text="Introduce la contraseña (mínimo 4 caracteres)" />
             </tooltip>
         </PasswordField>
     </VBox>

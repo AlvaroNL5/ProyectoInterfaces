@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefHeight="450.0" prefWidth="500.0" spacing="15.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.javafx.A_holamundofxml.CrearMatriculaController">
+<VBox prefHeight="450.0" prefWidth="500.0" spacing="15.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.javafx.A_holamundofxml.CrearMatriculaController">
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
@@ -21,14 +21,14 @@
         </font>
     </Label>
     
-    <Label style="-fx-text-fill: gray;" text="Asigna un usuario a un curso. Esto crea una matriculación con notas y faltas." wrapText="true">
+    <Label text="Asigna un usuario a un curso. Esto crea una matriculación con notas y faltas." wrapText="true" style="-fx-text-fill: gray;">
         <font>
             <Font size="11.0" />
         </font>
     </Label>
     
     <VBox spacing="5.0">
-        <Label text="Seleccionar Usuario (max 2 cursos por usuario):">
+        <Label text="Seleccionar Usuario (máx 2 cursos por usuario):">
             <font>
                 <Font name="System Bold" size="12.0" />
             </font>
@@ -48,7 +48,7 @@
         </Label>
         <ComboBox fx:id="comboCurso" prefWidth="450.0" promptText="Selecciona un curso">
             <tooltip>
-                <Tooltip text="Solo se muestran cursos en los que el usuario NO esta matriculado" />
+                <Tooltip text="Solo se muestran cursos en los que el usuario NO está matriculado" />
             </tooltip>
         </ComboBox>
     </VBox>
@@ -61,7 +61,7 @@
         </Label>
         <Spinner fx:id="spinnerFaltas" prefWidth="450.0">
             <tooltip>
-                <Tooltip text="Numero de faltas inicial (por defecto 0)" />
+                <Tooltip text="Número de faltas inicial (por defecto 0)" />
             </tooltip>
         </Spinner>
     </VBox>

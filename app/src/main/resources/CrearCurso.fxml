@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefHeight="600.0" prefWidth="850.0" spacing="20.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.javafx.A_holamundofxml.CrearCursoController">
+<VBox prefHeight="600.0" prefWidth="850.0" spacing="20.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.javafx.A_holamundofxml.CrearCursoController">
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
@@ -41,7 +41,7 @@
                 <Font name="System Bold" size="12.0" />
             </font>
         </Label>
-        <TextArea fx:id="txtDescripcion" prefHeight="100.0" prefWidth="760.0" promptText="Descripcion del curso..." wrapText="true">
+        <TextArea fx:id="txtDescripcion" prefHeight="100.0" prefWidth="760.0" promptText="Descripción del curso..." wrapText="true">
             <tooltip>
                 <Tooltip text="Describe brevemente el curso" />
             </tooltip>
@@ -81,7 +81,7 @@
                 </Button>
                 <Button mnemonicParsing="true" onAction="#handleQuitarAlumno" text="_Quitar">
                     <tooltip>
-                        <Tooltip text="Quitar alumno de la seleccion" />
+                        <Tooltip text="Quitar alumno de la selección" />
                     </tooltip>
                 </Button>
             </VBox>
@@ -90,7 +90,7 @@
                 <Label text="Alumnos Seleccionados:" />
                 <ListView fx:id="listaAlumnosSeleccionados" prefHeight="200.0">
                     <tooltip>
-                        <Tooltip text="Alumnos que se añadiran al curso" />
+                        <Tooltip text="Alumnos que se añadirán al curso" />
                     </tooltip>
                 </ListView>
             </VBox>

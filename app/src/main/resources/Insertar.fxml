@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="CENTER" prefHeight="320.0" prefWidth="400.0" spacing="15.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.javafx.A_holamundofxml.InsertarController">
+<VBox alignment="CENTER" prefHeight="320.0" prefWidth="400.0" spacing="15.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.javafx.A_holamundofxml.InsertarController">
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
@@ -44,7 +44,7 @@
             <Label mnemonicParsing="true" text="_Faltas:" />
             <TextField fx:id="txtFaltas" promptText="0">
                 <tooltip>
-                    <Tooltip text="Numero de faltas (entero positivo)" />
+                    <Tooltip text="Número de faltas (entero positivo)" />
                 </tooltip>
             </TextField>
         </VBox>
@@ -70,7 +70,7 @@
         </Button>
         <Button fx:id="btnActualizar" mnemonicParsing="true" onAction="#handleActualizar" text="_Actualizar">
             <tooltip>
-                <Tooltip text="Actualizar la informacion de la matriculacion" />
+                <Tooltip text="Actualizar la información de la matriculación" />
             </tooltip>
         </Button>
     </HBox>

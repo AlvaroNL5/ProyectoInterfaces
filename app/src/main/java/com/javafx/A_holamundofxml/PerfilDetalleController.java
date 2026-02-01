@@ -85,6 +85,8 @@ public class PerfilDetalleController {
         
         if (actualizarUsuario()) {
             mostrarExito("Cambios guardados correctamente");
+            Stage stage = (Stage) txtNombre.getScene().getWindow();
+            stage.close();
         }
     }
     

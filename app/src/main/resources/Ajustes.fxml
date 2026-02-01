@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefHeight="750.0" prefWidth="900.0" spacing="20.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.javafx.A_holamundofxml.AjustesController">
+<VBox prefHeight="750.0" prefWidth="900.0" spacing="20.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.javafx.A_holamundofxml.AjustesController">
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
@@ -31,7 +31,7 @@
             </font>
         </Label>
         
-        <Label style="-fx-text-fill: #666; -fx-font-size: 11px;" text="Nota: Los cambios de tema se aplican automaticamente" />
+        <Label style="-fx-text-fill: #666; -fx-font-size: 11px;" text="Nota: Los cambios de tema se aplican automáticamente" />
         
         <Button fx:id="btnTema" mnemonicParsing="true" onAction="#handleTema" prefWidth="250.0" text="_Cambiar a Modo Oscuro">
             <tooltip>
@@ -77,7 +77,7 @@
         
         <HBox spacing="20.0">
             <VBox spacing="5.0">
-                <Label mnemonicParsing="true" text="_Nombre:" />
+                <Label mnemonicParsing="true" text="_Nombre:" labelFor="$txtNombre" />
                 <TextField fx:id="txtNombre" prefWidth="250.0" promptText="Tu nombre">
                     <tooltip>
                         <Tooltip text="Tu nombre" />
@@ -86,7 +86,7 @@
             </VBox>
             
             <VBox spacing="5.0">
-                <Label mnemonicParsing="true" text="A_pellidos:" />
+                <Label mnemonicParsing="true" text="A_pellidos:" labelFor="$txtApellidos" />
                 <TextField fx:id="txtApellidos" prefWidth="250.0" promptText="Tus apellidos">
                     <tooltip>
                         <Tooltip text="Tus apellidos" />
@@ -97,16 +97,16 @@
         
         <HBox spacing="20.0">
             <VBox spacing="5.0">
-                <Label mnemonicParsing="true" text="_Email:" />
+                <Label mnemonicParsing="true" text="_Email:" labelFor="$txtEmail" />
                 <TextField fx:id="txtEmail" prefWidth="250.0" promptText="tu@email.com">
                     <tooltip>
-                        <Tooltip text="Tu correo electronico" />
+                        <Tooltip text="Tu correo electrónico" />
                     </tooltip>
                 </TextField>
             </VBox>
             
             <VBox spacing="5.0">
-                <Label mnemonicParsing="true" text="E_dad:" />
+                <Label mnemonicParsing="true" text="E_dad:" labelFor="$txtEdad" />
                 <TextField fx:id="txtEdad" prefWidth="250.0" promptText="Tu edad">
                     <tooltip>
                         <Tooltip text="Tu edad (0-150)" />
@@ -125,19 +125,19 @@
         
         <HBox spacing="20.0">
             <VBox spacing="5.0">
-                <Label mnemonicParsing="true" text="Nueva _Contraseña:" />
+                <Label mnemonicParsing="true" text="Nueva _Contraseña:" labelFor="$txtNuevaPassword" />
                 <PasswordField fx:id="txtNuevaPassword" prefWidth="250.0" promptText="Deja en blanco para no cambiar">
                     <tooltip>
-                        <Tooltip text="Introduce una nueva contrasena" />
+                        <Tooltip text="Introduce una nueva contraseña" />
                     </tooltip>
                 </PasswordField>
             </VBox>
             
             <VBox spacing="5.0">
-                <Label mnemonicParsing="true" text="Con_firmar Contraseña:" />
+                <Label mnemonicParsing="true" text="Con_firmar Contraseña:" labelFor="$txtConfirmarPassword" />
                 <PasswordField fx:id="txtConfirmarPassword" prefWidth="250.0" promptText="Confirmar nueva contraseña">
                     <tooltip>
-                        <Tooltip text="Confirma la nueva contrasena" />
+                        <Tooltip text="Confirma la nueva contraseña" />
                     </tooltip>
                 </PasswordField>
             </VBox>

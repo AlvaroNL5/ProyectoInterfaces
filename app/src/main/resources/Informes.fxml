@@ -38,6 +38,19 @@
         </ComboBox>
     </VBox>
     
+    <VBox fx:id="vboxParametroCurso" spacing="10.0" visible="false" managed="false">
+        <Label fx:id="lblParametroCurso" mnemonicParsing="true" text="Filtrar por _Curso:">
+            <font>
+                <Font name="System Bold" size="12.0" />
+            </font>
+        </Label>
+        <ComboBox fx:id="comboCurso" prefWidth="400.0">
+            <tooltip>
+                <Tooltip text="Seleccione un curso o 'Todos los cursos' para ver todos" />
+            </tooltip>
+        </ComboBox>
+    </VBox>
+    
     <VBox fx:id="vboxParametro" spacing="10.0" visible="false" managed="false">
         <Label fx:id="lblParametro" mnemonicParsing="true" text="_Parámetro:">
             <font>

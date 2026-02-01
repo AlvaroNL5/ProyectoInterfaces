@@ -31,6 +31,8 @@ public class CursoDetalleController {
     @FXML private TextField txtInfoNombre;
     @FXML private Button btnEliminarUsuarioCurso;
     @FXML private ComboBox<AlumnoItem> comboAlumnosDisponibles;
+    @FXML private Button btnAnadirUsuario;
+    @FXML private Button btnGuardarCambios;
 
     private int idCurso;
     private ObservableList<UsuarioCurso> usuariosCurso = FXCollections.observableArrayList();
@@ -101,6 +103,7 @@ public class CursoDetalleController {
         configurarColumnas();
         
         boolean esProfesor = Configuracion.esProfesor();
+        
         if (btnEliminarUsuarioCurso != null) {
             btnEliminarUsuarioCurso.setVisible(esProfesor);
             btnEliminarUsuarioCurso.setManaged(esProfesor);
@@ -108,6 +111,14 @@ public class CursoDetalleController {
         if (comboAlumnosDisponibles != null) {
             comboAlumnosDisponibles.setVisible(esProfesor);
             comboAlumnosDisponibles.setManaged(esProfesor);
+        }
+        if (btnAnadirUsuario != null) {
+            btnAnadirUsuario.setVisible(esProfesor);
+            btnAnadirUsuario.setManaged(esProfesor);
+        }
+        if (btnGuardarCambios != null) {
+            btnGuardarCambios.setVisible(esProfesor);
+            btnGuardarCambios.setManaged(esProfesor);
         }
         if (txtInfoNombre != null) {
             txtInfoNombre.setEditable(esProfesor);
@@ -228,31 +239,31 @@ public class CursoDetalleController {
 
     private void configurarColumnas() {
         if (colUsuarioNombre != null) {
-            colUsuarioNombre.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getNombre()));
+            colUsuarioNombre.setCellValueFactory(cellData -> 
+                new javafx.beans.property.SimpleStringProperty(cellData.getValue().getNombre()));
         }
         if (colUsuarioApellidos != null) {
-            colUsuarioApellidos.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getApellidos()));
+            colUsuarioApellidos.setCellValueFactory(cellData -> 
+                new javafx.beans.property.SimpleStringProperty(cellData.getValue().getApellidos()));
         }
         if (colUsuarioEmail != null) {
-            colUsuarioEmail.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getEmail()));
+            colUsuarioEmail.setCellValueFactory(cellData -> 
+                new javafx.beans.property.SimpleStringProperty(cellData.getValue().getEmail()));
         }
         if (colUsuarioTipo != null) {
-            colUsuarioTipo.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getTipo()));
+            colUsuarioTipo.setCellValueFactory(cellData -> 
+                new javafx.beans.property.SimpleStringProperty(cellData.getValue().getTipo()));
         }
         if (colUsuarioEdad != null) {
-            colUsuarioEdad.setCellValueFactory(cellData -> new javafx.beans.property.SimpleIntegerProperty(cellData.getValue().getEdad()).asObject());
+            colUsuarioEdad.setCellValueFactory(cellData -> 
+                new javafx.beans.property.SimpleObjectProperty<>(cellData.getValue().getEdad()));
         }
     }
 
     @FXML
     void handleVolverCursos(ActionEvent event) {
         Stage stage = (Stage) btnVolverCursos.getScene().getWindow();
-        
-        FadeTransition fadeOut = new FadeTransition(Duration.millis(200), btnVolverCursos.getScene().getRoot());
-        fadeOut.setFromValue(1.0);
-        fadeOut.setToValue(0.0);
-        fadeOut.setOnFinished(e -> stage.close());
-        fadeOut.play();
+        stage.close();
     }
 
     @FXML
@@ -266,7 +277,7 @@ public class CursoDetalleController {
         
         UsuarioCurso usuarioSeleccionado = tablaUsuarios.getSelectionModel().getSelectedItem();
         if (usuarioSeleccionado == null) {
-            mostrarError("Selecciona un usuario para eliminar del curso");
+            mostrarError("Selecciona un usuario de la tabla para eliminar");
             return;
         }
 
@@ -279,7 +290,7 @@ public class CursoDetalleController {
             deleteStmt.setInt(2, idCurso);
             deleteStmt.executeUpdate();
 
-            String updateQuery = "UPDATE CURSO SET cant_usuarios = cant_usuarios - 1 WHERE id_curso = ?";
+            String updateQuery = "UPDATE CURSO SET cant_usuarios = cant_usuarios - 1 WHERE id_curso = ? AND cant_usuarios > 0";
             PreparedStatement updateStmt = conn.prepareStatement(updateQuery);
             updateStmt.setInt(1, idCurso);
             updateStmt.executeUpdate();
@@ -290,7 +301,7 @@ public class CursoDetalleController {
             tablaUsuarios.refresh();
 
             if (lblInfoAlumnos != null) {
-                int nuevosUsuarios = Integer.parseInt(lblInfoAlumnos.getText()) - 1;
+                int nuevosUsuarios = Math.max(0, Integer.parseInt(lblInfoAlumnos.getText()) - 1);
                 lblInfoAlumnos.setText(String.valueOf(nuevosUsuarios));
             }
 

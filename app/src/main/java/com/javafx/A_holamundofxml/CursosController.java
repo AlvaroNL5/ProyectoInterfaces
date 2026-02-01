@@ -77,7 +77,6 @@ public class CursosController {
     @FXML private TableColumn<Curso, String> colNombreCurso;
     @FXML private TableColumn<Curso, String> colDescripcion;
     @FXML private TableColumn<Curso, Integer> colCantUsuarios;
-    @FXML private Button btnCrearUsuario;
 
     private ObservableList<Curso> todosLosCursos = FXCollections.observableArrayList();
     private ObservableList<Usuario> todosLosUsuarios = FXCollections.observableArrayList();
@@ -199,10 +198,6 @@ public class CursosController {
             animarBoton(btnInsertar);
             lanzarInsertar();
         });
-        btnCrearUsuario.setOnAction(event -> {
-            animarBoton(btnCrearUsuario);
-            lanzarCrearUsuario();
-        });
         
         if (btnCrearMatricula != null) {
             btnCrearMatricula.setOnAction(event -> {
@@ -254,10 +249,6 @@ public class CursosController {
             btnExpulsar.setManaged(esProfesor);
         }
         
-        if (btnCrearUsuario != null) {
-            btnCrearUsuario.setVisible(esProfesor);
-            btnCrearUsuario.setManaged(esProfesor);
-        }
         if (btnExpulsar1 != null) {
             btnExpulsar1.setVisible(esProfesor);
             btnExpulsar1.setManaged(esProfesor);
@@ -408,37 +399,6 @@ public class CursosController {
             CrearCursoController controller = loader.getController();
             controller.setCursosController(this);
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void lanzarCrearUsuario() {
-        if (!Configuracion.esProfesor()) {
-            mostrarAlerta("Error", "No tienes permisos para crear usuarios");
-            return;
-        }
-        
-        try {
-            Stage modal = new Stage();
-            modal.setTitle("Crear Usuario");
-            modal.initModality(Modality.APPLICATION_MODAL);
-            modal.initOwner(btnCrearUsuario.getScene().getWindow());
-            
-            Image icon = new Image(getClass().getResourceAsStream("/muudle.png"));
-            modal.getIcons().add(icon);
-
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/CrearUsuario.fxml"));
-            Parent root = loader.load();
-            Scene scene = new Scene(root);
-            Main.aplicarTema(scene);
-            modal.setScene(scene);
-
-            CrearUsuarioController controller = loader.getController();
-            controller.setCursosController(this);
-
-            modal.showAndWait();
-            cargarUsuarios();
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -1,6 +1,7 @@
 package com.javafx.A_holamundofxml;
 
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -24,13 +25,15 @@ import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
-import net.sf.jasperreports.engine.export.HtmlExporter;
 import net.sf.jasperreports.export.SimpleExporterInput;
 import net.sf.jasperreports.export.SimpleHtmlExporterOutput;
 
 import java.io.File;
 import java.io.InputStream;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,15 +46,36 @@ public class InformesController {
     @FXML private WebView webViewInforme;
     @FXML private VBox vboxVisor;
     @FXML private VBox vboxParametro;
+    @FXML private VBox vboxParametroCurso;
+    @FXML private ComboBox<CursoItem> comboCurso;
+    @FXML private Label lblParametroCurso;
 
     private static final String CARPETA_INFORMES = "INFORMES";
+    
+    public static class CursoItem {
+        private final int id;
+        private final String nombre;
+        
+        public CursoItem(int id, String nombre) {
+            this.id = id;
+            this.nombre = nombre;
+        }
+        
+        public int getId() { return id; }
+        public String getNombre() { return nombre; }
+        
+        @Override
+        public String toString() {
+            return nombre;
+        }
+    }
 
     @FXML
     public void initialize() {
         comboTipoInforme.setItems(FXCollections.observableArrayList(
-            "Informe de Cursos (Simple con Gráfica)",
+            "Informe de Cursos (Simple con Grafica)",
             "Informe de Matriculaciones (SQL Compuesta)",
-            "Informe Condicional por Nota Mínima"
+            "Informe Condicional por Nota Minima"
         ));
         
         comboTipoInforme.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
@@ -72,25 +96,55 @@ public class InformesController {
         }
     }
     
+    private void cargarCursos() {
+        ObservableList<CursoItem> cursos = FXCollections.observableArrayList();
+        cursos.add(new CursoItem(-1, "Todos los cursos"));
+        
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            String query = "SELECT id_curso, nombre_curso FROM CURSO ORDER BY nombre_curso";
+            PreparedStatement stmt = conn.prepareStatement(query);
+            ResultSet rs = stmt.executeQuery();
+            
+            while (rs.next()) {
+                int id = rs.getInt("id_curso");
+                String nombre = rs.getString("nombre_curso");
+                cursos.add(new CursoItem(id, nombre));
+            }
+            
+            rs.close();
+            stmt.close();
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        comboCurso.setItems(cursos);
+        comboCurso.getSelectionModel().selectFirst();
+    }
+    
     private void actualizarParametros(String tipoInforme) {
         if (tipoInforme == null) return;
         
         switch (tipoInforme) {
-            case "Informe de Cursos (Simple con Gráfica)":
+            case "Informe de Cursos (Simple con Grafica)":
                 vboxParametro.setVisible(false);
                 vboxParametro.setManaged(false);
+                vboxParametroCurso.setVisible(false);
+                vboxParametroCurso.setManaged(false);
                 break;
             case "Informe de Matriculaciones (SQL Compuesta)":
-                vboxParametro.setVisible(true);
-                vboxParametro.setManaged(true);
-                lblParametro.setText("ID Curso (vacío = todos):");
-                txtParametro.setPromptText("Ej: 1");
-                txtParametro.clear();
+                vboxParametro.setVisible(false);
+                vboxParametro.setManaged(false);
+                vboxParametroCurso.setVisible(true);
+                vboxParametroCurso.setManaged(true);
+                cargarCursos();
                 break;
-            case "Informe Condicional por Nota Mínima":
+            case "Informe Condicional por Nota Minima":
+                vboxParametroCurso.setVisible(false);
+                vboxParametroCurso.setManaged(false);
                 vboxParametro.setVisible(true);
                 vboxParametro.setManaged(true);
-                lblParametro.setText("Nota mínima:");
+                lblParametro.setText("Nota minima:");
                 txtParametro.setPromptText("Ej: 5.0");
                 txtParametro.clear();
                 break;
@@ -108,13 +162,13 @@ public class InformesController {
         
         try {
             switch (tipoInforme) {
-                case "Informe de Cursos (Simple con Gráfica)":
+                case "Informe de Cursos (Simple con Grafica)":
                     generarInformeCursos();
                     break;
                 case "Informe de Matriculaciones (SQL Compuesta)":
                     generarInformeMatriculas();
                     break;
-                case "Informe Condicional por Nota Mínima":
+                case "Informe Condicional por Nota Minima":
                     generarInformeCondicional();
                     break;
             }
@@ -134,7 +188,7 @@ public class InformesController {
         try (Connection conn = DatabaseConnection.getConnection()) {
             InputStream inputStream = getClass().getResourceAsStream("/informes/InformeCursos.jrxml");
             if (inputStream == null) {
-                throw new Exception("No se encontró el archivo InformeCursos.jrxml");
+                throw new Exception("No se encontro el archivo InformeCursos.jrxml");
             }
             
             JasperReport report = JasperCompileManager.compileReport(inputStream);
@@ -152,20 +206,15 @@ public class InformesController {
         try (Connection conn = DatabaseConnection.getConnection()) {
             InputStream inputStream = getClass().getResourceAsStream("/informes/InformeMatriculas.jrxml");
             if (inputStream == null) {
-                throw new Exception("No se encontró el archivo InformeMatriculas.jrxml");
+                throw new Exception("No se encontro el archivo InformeMatriculas.jrxml");
             }
             
             JasperReport report = JasperCompileManager.compileReport(inputStream);
             Map<String, Object> parametros = new HashMap<>();
             
-            String paramTexto = txtParametro.getText().trim();
-            if (!paramTexto.isEmpty()) {
-                try {
-                    parametros.put("ID_CURSO", Integer.parseInt(paramTexto));
-                } catch (NumberFormatException e) {
-                    mostrarError("El ID del curso debe ser un número entero");
-                    return;
-                }
+            CursoItem cursoSeleccionado = comboCurso.getValue();
+            if (cursoSeleccionado != null && cursoSeleccionado.getId() != -1) {
+                parametros.put("ID_CURSO", cursoSeleccionado.getId());
             } else {
                 parametros.put("ID_CURSO", null);
             }
@@ -182,7 +231,7 @@ public class InformesController {
     private void generarInformeCondicional() throws Exception {
         String paramTexto = txtParametro.getText().trim();
         if (paramTexto.isEmpty()) {
-            mostrarError("Debe introducir una nota mínima");
+            mostrarError("Debe introducir una nota minima");
             return;
         }
         
@@ -190,14 +239,14 @@ public class InformesController {
         try {
             notaMinima = Double.parseDouble(paramTexto.replace(",", "."));
         } catch (NumberFormatException e) {
-            mostrarError("La nota mínima debe ser un número válido (ej: 5.0)");
+            mostrarError("La nota minima debe ser un numero valido (ej: 5.0)");
             return;
         }
         
         try (Connection conn = DatabaseConnection.getConnection()) {
             InputStream inputStream = getClass().getResourceAsStream("/informes/InformeCondicional.jrxml");
             if (inputStream == null) {
-                throw new Exception("No se encontró el archivo InformeCondicional.jrxml");
+                throw new Exception("No se encontro el archivo InformeCondicional.jrxml");
             }
             
             JasperReport report = JasperCompileManager.compileReport(inputStream);
@@ -216,7 +265,7 @@ public class InformesController {
     private void guardarInformeEnArchivos(JasperPrint print, String nombreBase) throws Exception {
         JasperExportManager.exportReportToPdfFile(print, nombreBase + ".pdf");
         
-        HtmlExporter htmlExporter = new HtmlExporter();
+        net.sf.jasperreports.engine.export.HtmlExporter htmlExporter = new net.sf.jasperreports.engine.export.HtmlExporter();
         htmlExporter.setExporterInput(new SimpleExporterInput(print));
         htmlExporter.setExporterOutput(new SimpleHtmlExporterOutput(nombreBase + ".html"));
         htmlExporter.exportReport();
