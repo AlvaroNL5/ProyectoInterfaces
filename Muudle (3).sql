@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost
--- Tiempo de generación: 21-01-2026 a las 17:37:55
+-- Tiempo de generación: 02-02-2026 a las 12:26:13
 -- Versión del servidor: 5.7.35-0ubuntu0.18.04.2
 -- Versión de PHP: 8.0.10
 
@@ -34,24 +34,25 @@ CREATE TABLE `ASISTENCIA` (
   `apellidos` varchar(100) NOT NULL,
   `nota` decimal(4,2) DEFAULT NULL,
   `nFaltas` int(11) DEFAULT '0',
-  `fecha_registro` date NOT NULL
+  `fecha_registro` date NOT NULL,
+  `matriculado` tinyint(1) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Volcado de datos para la tabla `ASISTENCIA`
 --
 
-INSERT INTO `ASISTENCIA` (`id_asistencia`, `id_usuario`, `id_curso`, `apellidos`, `nota`, `nFaltas`, `fecha_registro`) VALUES
-(1, 4, 1, 'wda', '0.00', 0, '2025-12-16'),
-(2, 5, 1, 'EDADA', '0.00', 0, '2025-12-16'),
-(3, 6, 2, 'adwadwa', '0.00', 0, '2025-12-16'),
-(4, 7, 2, 'ddaw', '0.00', 0, '2025-12-16'),
-(5, 8, 3, 'ALGAR MORALES', '0.00', 0, '2026-01-19'),
-(6, 9, 3, 'ALGAR MORALES', '0.00', 0, '2026-01-19'),
-(7, 8, 4, 'ALGAR MORALES', '0.00', 0, '2026-01-20'),
-(8, 12, 4, 'ALGO ALGO', '0.00', 0, '2026-01-20'),
-(9, 15, 4, 'DDD', '0.00', 0, '2026-01-20'),
-(10, 15, 3, 'DDD', '5.00', 10, '2026-01-20');
+INSERT INTO `ASISTENCIA` (`id_asistencia`, `id_usuario`, `id_curso`, `apellidos`, `nota`, `nFaltas`, `fecha_registro`, `matriculado`) VALUES
+(31, 8, 8, 'ALGAR MORALES', '0.00', 0, '2026-01-31', 0),
+(34, 8, 9, 'ALGAR MORALES', '2.00', 5, '2026-01-31', 1),
+(35, 9, 9, 'ALGAR MORALES', '0.00', 0, '2026-01-31', 0),
+(37, 15, 9, 'DDD', '6.50', 7, '2026-01-31', 1),
+(38, 9, 8, 'ALGAR MORALES', '0.00', 0, '2026-01-31', 0),
+(39, 17, 10, 'Algar Morales', '0.00', 0, '2026-02-01', 0),
+(41, 6, 10, 'adwadwa', '0.00', 0, '2026-02-01', 0),
+(42, 15, 10, 'DDD', '0.00', 0, '2026-02-01', 0),
+(44, 12, 11, 'ALGO ALGO', '0.00', 0, '2026-02-01', 0),
+(49, 17, 8, 'Algar Morales', '9.00', 6, '2026-02-01', 1);
 
 -- --------------------------------------------------------
 
@@ -73,10 +74,10 @@ CREATE TABLE `CURSO` (
 --
 
 INSERT INTO `CURSO` (`id_curso`, `nombre_curso`, `descripcion`, `img_portada`, `cant_usuarios`, `id_usuario`) VALUES
-(1, 'DAM', 'dammmm', NULL, 2, NULL),
-(2, 'DAM 2', 'DAD', NULL, 2, NULL),
-(3, 'ddddddddd', 'aa', NULL, 3, NULL),
-(4, 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', NULL, 3, NULL);
+(8, 'Alvaro Curso', 'Curso de Alvaro', NULL, 3, NULL),
+(9, 'awdawdwad', 'wdawdwawddwwd', NULL, 3, NULL),
+(10, 'wadadwa', 'wdadwawadwadawdwda', NULL, 3, NULL),
+(11, 'PPPPPPPPPPPPPPPPPPPPPAAAAAAAAAA', 'ddddddddddddddddddddddd', NULL, 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -100,18 +101,14 @@ CREATE TABLE `USUARIO` (
 
 INSERT INTO `USUARIO` (`id_usuario`, `nombre`, `apellido`, `email`, `contraseña`, `tipo_usuario`, `edad`) VALUES
 (4, 'wdad', 'wda', 'awda@gmail.com', 'admin', 'alumno', 21),
-(5, 'pEPE', 'EDADA', 'CORREO@gmail.com', 'password123', 'alumno', 21),
 (6, 'wdadwa', 'adwadwa', 'aw@gmail.com', 'password123', 'alumno', 12),
-(7, 'dawdaw', 'ddaw', 'ada@gmail.com', 'password123', 'alumno', 43),
 (8, 'ALVARO', 'ALGAR MORALES', 'alvaro@mail.com', '12345', 'alumno', 19),
 (9, 'MARIA', 'ALGAR MORALES', 'alvaro@gmail.com', '12345', 'alumno', 19),
-(10, 'dwa', 'daw', 'adw@gmail.com', '1111', 'alumno', 22),
-(11, 'Administrador', 'Sistema', 'admin@muudle.com', 'admin123', 'profesor', 30),
-(12, 'ALGO', 'ALGO ALGO', 'algo@gmail.com', '1111', 'alumno', 21),
-(13, 'PEPONCIO', 'PPP PPP', 'pp@gmail.com', '4444', 'alumno', 21),
-(14, 'AAA', 'AAA', 'AAA@gmail.com', '2222', 'alumno', 21),
+(12, 'ALGO', 'ALGO ALGO', 'algo2@gmail.com', '1111', 'alumno', 21),
 (15, 'AAD', 'DDD', 'AAAA@GMAIL.COM', '1111', 'alumno', 21),
-(16, 'PPPP', 'PPP', 'PPP@gmail.com', '3333', 'profesor', 21);
+(17, 'AlvaroAlvaro', 'Algar Morales', 'alvaroalvaro@gmail.com', 'aaaaa', 'alumno', 20),
+(18, 'ProfesorProfesor', 'Profesor Profesor', 'profesorprofesor@gmail.com', 'sssss', 'profesor', 23),
+(20, 'aaaaaaaaaaa', 'aaaaaaaaaaaa', 'aaaaa@gmail.com', 'wwww', 'alumno', 54);
 
 --
 -- Índices para tablas volcadas
@@ -147,19 +144,19 @@ ALTER TABLE `USUARIO`
 -- AUTO_INCREMENT de la tabla `ASISTENCIA`
 --
 ALTER TABLE `ASISTENCIA`
-  MODIFY `id_asistencia` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id_asistencia` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
 
 --
 -- AUTO_INCREMENT de la tabla `CURSO`
 --
 ALTER TABLE `CURSO`
-  MODIFY `id_curso` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id_curso` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT de la tabla `USUARIO`
 --
 ALTER TABLE `USUARIO`
-  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- Restricciones para tablas volcadas
