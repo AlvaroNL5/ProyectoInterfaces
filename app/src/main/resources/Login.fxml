@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane prefHeight="460.0" prefWidth="380.0"
+           xmlns="http://javafx.com/javafx/21"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.javafx.A_holamundofxml.LoginController">
+
+    <VBox alignment="CENTER" spacing="14.0" maxWidth="320" styleClass="settings-card">
+        <padding>
+            <Insets bottom="28.0" left="28.0" right="28.0" top="28.0"/>
+        </padding>
+
+        <Label text="MUUDLE" styleClass="header-logo"
+               style="-fx-text-fill: #1e3a8a; -fx-font-size: 36px; -fx-font-weight: bold;"/>
+
+        <Label text="Plataforma Educativa" styleClass="text-secondary"
+               style="-fx-font-size: 13px;">
+            <VBox.margin><Insets bottom="10.0"/></VBox.margin>
+        </Label>
+
+        <VBox spacing="6.0">
+            <Label text="Correo electrónico"/>
+            <TextField fx:id="txtEmail" promptText="ejemplo@correo.com">
+                <tooltip><Tooltip text="Introduce tu email de usuario"/></tooltip>
+            </TextField>
+        </VBox>
+
+        <VBox spacing="6.0">
+            <Label text="Contraseña"/>
+            <PasswordField fx:id="txtPassword" promptText="Tu contraseña">
+                <tooltip><Tooltip text="Introduce tu contraseña"/></tooltip>
+            </PasswordField>
+        </VBox>
+
+        <Button fx:id="btnLogin" mnemonicParsing="true" text="_Iniciar sesión"
+                maxWidth="Infinity">
+            <VBox.margin><Insets top="10.0"/></VBox.margin>
+            <tooltip><Tooltip text="Iniciar sesión con tus credenciales"/></tooltip>
+        </Button>
+
+        <Button fx:id="btnRegistro" mnemonicParsing="true" onAction="#handleRegistro"
+                text="_Registrarse" styleClass="btn-secondary" maxWidth="Infinity">
+            <tooltip><Tooltip text="Crear una nueva cuenta"/></tooltip>
+        </Button>
+    </VBox>
+</StackPane>

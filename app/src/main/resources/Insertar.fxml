@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox alignment="CENTER" prefHeight="320.0" prefWidth="400.0" spacing="15.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.javafx.A_holamundofxml.InsertarController">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+    
+    <Label text="Editar Matriculación" styleClass="page-title"
+           style="-fx-font-size: 20px;" />
+
+    
+    <VBox spacing="5.0">
+        <Label text="Alumno:" />
+        <Label fx:id="lblNombreAlumno" style="-fx-font-weight: bold;" text="-">
+            <tooltip>
+                <Tooltip text="Nombre del alumno seleccionado" />
+            </tooltip>
+        </Label>
+    </VBox>
+    
+    <VBox spacing="5.0">
+        <Label mnemonicParsing="true" text="_Curso:" />
+        <ComboBox fx:id="comboCurso" prefWidth="350.0" promptText="Seleccione un curso">
+            <tooltip>
+                <Tooltip text="Seleccione el curso para el alumno" />
+            </tooltip>
+        </ComboBox>
+    </VBox>
+    
+    <HBox spacing="20.0">
+        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+            <Label mnemonicParsing="true" text="_Faltas:" />
+            <TextField fx:id="txtFaltas" promptText="0">
+                <tooltip>
+                    <Tooltip text="Número de faltas (entero positivo)" />
+                </tooltip>
+            </TextField>
+        </VBox>
+        
+        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+            <Label mnemonicParsing="true" text="_Nota:" />
+            <TextField fx:id="txtNota" promptText="0.0">
+                <tooltip>
+                    <Tooltip text="Nota del alumno (0-10)" />
+                </tooltip>
+            </TextField>
+        </VBox>
+    </HBox>
+    
+    <HBox alignment="CENTER_RIGHT" spacing="10.0">
+        <VBox.margin>
+            <Insets top="15.0" />
+        </VBox.margin>
+        <Button mnemonicParsing="true" onAction="#handleCancelar" text="C_ancelar"
+                styleClass="btn-secondary">
+            <tooltip>
+                <Tooltip text="Cancelar y cerrar" />
+            </tooltip>
+        </Button>
+        <Button fx:id="btnActualizar" mnemonicParsing="true" onAction="#handleActualizar" text="_Actualizar">
+            <tooltip>
+                <Tooltip text="Actualizar la información de la matriculación" />
+            </tooltip>
+        </Button>
+    </HBox>
+</VBox>

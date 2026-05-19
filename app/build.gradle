@@ -1,0 +1,73 @@
+plugins {
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
+}
+
+repositories {
+    mavenCentral()
+    maven { url 'https://jaspersoft.jfrog.io/jaspersoft/third-party-ce-artifacts/' }
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(24)
+    }
+}
+
+javafx {
+    version = '24'
+    modules = ['javafx.controls', 'javafx.fxml', 'javafx.web']
+}
+
+dependencies {
+    implementation 'mysql:mysql-connector-java:8.0.33'
+    
+    // JasperReports 7.0.0 y sus módulos
+    implementation 'net.sf.jasperreports:jasperreports:7.0.0'
+    implementation 'net.sf.jasperreports:jasperreports-charts:7.0.0'
+    implementation 'net.sf.jasperreports:jasperreports-pdf:7.0.0'
+    implementation 'net.sf.jasperreports:jasperreports-jdt:7.0.0'
+}
+
+application {
+    mainClass = 'com.javafx.A_holamundofxml.Main'
+}
+
+sourceSets {
+    main {
+        resources {
+            srcDirs = ["src/main/resources"]
+            includes = ["**/*.fxml", "**/*.png", "**/*.properties", "**/*.css", "**/*.jasper", "**/*.jrxml"]
+        }
+    }
+}
+
+run {
+    jvmArgs = [
+        '--module-path', classpath.asPath,
+        '--add-modules', 'javafx.controls,javafx.fxml,javafx.web'
+    ]
+}
+
+tasks.withType(JavaCompile) { //Fuerza a transformar todo a UTF-8
+    options.encoding = "UTF-8"
+}
+
+// Tarea para copiar todas las dependencias a la carpeta build/libs/lib
+tasks.register('copyDependencies', Copy) {
+    from configurations.runtimeClasspath
+    into "$buildDir/libs/lib"
+}
+
+// Configuración del JAR normal
+tasks.jar {
+    dependsOn copyDependencies // Hace que siempre se copien las librerías al hacer el jar
+    
+    manifest {
+        attributes(
+            'Main-Class': application.mainClass.get(),
+            //Esto crea el "Class-Path" dentro del manifiesto del JAR
+            'Class-Path': configurations.runtimeClasspath.files.collect { "lib/" + it.name }.join(' ')
+        )
+    }
+}
